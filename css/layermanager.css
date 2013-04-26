@@ -1,0 +1,24 @@
+.gbi_widgets_LayerManager {
+    position: absolute;
+    top: 8px;
+    right: 0px;
+    color: white;
+    background-color: darkblue;
+    padding-left: 15px;
+    padding-right: 5px;
+    z-index: 1005;
+}
+
+.gbi_widgets_LayerManager ul {
+    padding: 0px;
+    list-style-type: none;
+}
+
+.gbi_widgets_LayerManager li {
+    list-style-type: none;
+}
+
+.gbi_widgets_LayerManager div {
+    min-width: 80px;
+    display: inline-block;
+}

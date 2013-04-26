@@ -1,0 +1,53 @@
+#map {
+    height: 400px;
+    width: 100%;
+    border: 1px solid lightgray;
+}
+
+#measure_toolbar {
+    width: 110px;
+    float: none;
+}
+
+#externalToolbar {
+    float: none;
+    padding-bottom: 5px;
+    left: none;
+    overflow: auto;
+}
+
+#styleeditor-form {
+    max-height: 600px;
+    overflow: auto;
+    padding-left: 10px;
+}
+.layermanager-element {
+    max-height: 280px;
+    overflow: auto;
+    margin-bottom: 10px;
+}
+.attributeeditor-element {
+    max-height: 280px;
+    overflow: auto;
+    margin-top: 10px;
+}
+
+.measurement-element {
+    height: 60px;
+}
+
+.ref-back {
+    padding-left: 20px;
+    padding-top: 10px;
+    font-size: 1.5em;
+}
+
+.noUiSlider.horizontal {
+    width: 100px;
+}
+
+/* Bootstrap overrides for normal OpenLayers look */
+img.olTileImage,
+.olPopup img {
+    max-width: none;
+}

@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Editor example</title>
+        <link rel="StyleSheet" type="text/css" href="../css/bootstrap.min.css">
+        <link rel='StyleSheet' type='text/css' href='../css/theme/default/style.css'>
+        <link rel='StyleSheet' type='text/css' href='../css/toolbar.css'>
+        <link rel='StyleSheet' type='text/css' href='../css/jquery.minicolors.css'>
+        <link rel='StyleSheet' type='text/css' href='../css/nouislider.fox.css'>
+        <link rel="StyleSheet" type="text/css" href="../css/examples.css">
+        <script type="text/javascript" src="../lib/OpenLayers-2.12.js"></script>
+        <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="../lib/micro.templating.js"></script>
+        <script type="text/javascript" src="../lib/jquery.minicolors.js"></script>
+        <script type="text/javascript" src="../lib/jquery.nouislider.js"></script>
+        <script type="text/javascript" src="../lib/jsts-0.13.2/javascript.util.js"></script>
+        <script type="text/javascript" src="../lib/jsts-0.13.2/jsts.js"></script>
+        <script type="text/javascript" src="../src/gbi.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/styleeditor.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/layermanager.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/attributeeditor.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/measure.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var osmLayer = new gbi.Layers.OSM({
+                    name: 'OSM',
+                    background: true
+                });
+                var wmsLayer = new gbi.Layers.WMS({
+                    name: 'Omniscale',
+                    url: 'http://osm.omniscale.net/proxy/service?',
+                    params: {
+                        format: 'image/png',
+                        layers: ['osm_roads'],
+                        transparent: true
+                    }
+                });
+                var yellowLayer = new gbi.Layers.GeoJSON({
+                    name: 'Yellow',
+                    url: './data3.json',
+                    attributePopup: true,
+                    symbolizers: {
+                        'Point': {
+                            fillColor: '#ff0',
+                            strokeColor: '#ff0'
+                        },
+                        'Line': {
+                            strokeColor: '#ff0'
+                        },
+                        'Polygon': {
+                            fillColor: '#ff0',
+                            strokeColor: '#ff0'
+                        }
+                    }
+                });
+                var greenLayer = new gbi.Layers.GeoJSON({
+                    name: 'Green',
+                    url: './data2.json',
+                    attributePopup: true,
+                    symbolizers: {
+                        'Point': {
+                            fillColor: '#0f0',
+                            strokeColor: '#0f0'
+                        },
+                        'Line': {
+                            strokeColor: '#0f0'
+                        },
+                        'Polygon': {
+                            fillColor: '#0f0',
+                            strokeColor: '#0f0'
+                        }
+                    }
+                });
+                var redLayer = new gbi.Layers.GeoJSON({
+                    name: 'Red',
+                    url: './data.json',
+                    attributePopup: true,
+                    symbolizers: {
+                        'Point': {
+                            fillColor: '#f00',
+                            strokeColor: '#f00'
+                        },
+                        'Line': {
+                            strokeColor: '#f00'
+                        },
+                        'Polygon': {
+                            fillColor: '#f00',
+                            strokeColor: '#f00'
+                        }
+                    }
+                });
+
+                var editor = new gbi.Editor({
+                    language: 'de',
+                    map: {
+                        element: 'map',
+                        center: {
+                            lon: 8.2,
+                            lat: 53.15,
+                            srs: 'EPSG:4326',
+                            zoom: 11
+                        }
+                    },
+                    layers: [
+                        osmLayer,
+                        wmsLayer,
+                        yellowLayer,
+                        greenLayer,
+                        redLayer
+                    ]
+                });
+
+                var toolbar = new gbi.Toolbar(editor, {
+                    element: 'externalToolbar',
+                    tools: {
+                        'select': true,
+                        'drawPolygon': true,
+                        'drawRect': true,
+                        'drawLine': true,
+                        'drawPoint': true,
+                        'edit': true,
+                        'delete': true,
+                        'merge': true,
+                        'split': true,
+                        'copy': true
+                    }
+                });
+
+                var styleeditor = new gbi.widgets.StyleEditor(editor);
+                var layermanager = new gbi.widgets.LayerManager(editor, {attributePopup: true});
+                var attributeeditor = new gbi.widgets.AttributeEditor(editor);
+                var mesure = new gbi.widgets.Measure(editor, {useToolbar: toolbar});
+
+            });
+        </script>
+    </head>
+    <body>
+        <div class="page-header">
+            <a href="/examples" class="pull-left ref-back">Back to example overview</a>
+            <h2 class="text-center">Editor example</h2>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <div id="styleeditor"></div>
+            </div>
+            <div class="span6">
+                <div id="externalToolbar"></div>
+                <div id="map"></div>
+                <div id="measurement" class="measurement-element"></div>
+                <hr>
+
+                <p>This is a full featured editor example</p>
+                <i>Note:</i>
+                <p>To select multiple geometries choose the select tool, hold the shift-key and select geometries as normal.</p>
+                <p>The delete tool is available if one or more geometries are selected.</p>
+                <p>The split tool is available if one geometry is selected.</p>
+                <p>The merge tool is available if two or more geometries are selected</p>
+
+            </div>
+            <div class="span3">
+                <div id="layermanager" class="layermanager-element"></div>
+                <hr>
+                <div id="attributeeditor" class="attributeeditor-element"></div>
+            </div>
+        </div>
+    </body>
+</html>

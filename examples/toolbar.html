@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+    <head>
+        <title>External toolbar example</title>
+        <link rel="StyleSheet" type="text/css" href="../css/bootstrap.min.css">
+        <link rel='StyleSheet' type='text/css' href='../css/theme/default/style.css'>
+        <link rel='StyleSheet' type='text/css' href='../css/toolbar.css'>
+        <link rel="StyleSheet" type="text/css" href="../css/examples.css">
+        <script type="text/javascript" src="../lib/OpenLayers-2.12.js"></script>
+        <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="../lib/micro.templating.js"></script>
+        <script type="text/javascript" src="../src/gbi.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/layermanager.js"></script>
+        <script type="text/javascript">
+
+            $(document).ready(function() {
+                var osmLayer = new gbi.Layers.OSM({
+                    name: 'OSM',
+                    background: true
+                });
+                editor = new gbi.Editor({
+                    map: {
+                        element: 'map',
+                        center: {
+                            lon: 8.2,
+                            lat: 53.15,
+                            srs: 'EPSG:4326',
+                            zoom: 12
+                        }
+                    },
+                    layers: [osmLayer]
+                });
+
+                var toolbar = new gbi.Toolbar(editor);
+
+                var layermanager = new gbi.widgets.LayerManager(editor, {
+                    element: 'layermanager'
+                });
+
+            });
+        </script>
+    </head>
+    <body>
+        <div class="page-header">
+            <a href="/examples" class="pull-left ref-back">Back to example overview</a>
+            <h2 class="text-center">Toolbar example</h2>
+        </div>
+        <div class="row-fluid">
+            <div class="span6 offset2">
+                <div id="map"></div>
+                <br>
+                <p>Show a map with toolbar and LayerManager widget</p>
+                <p><i>Note:</i></p>
+                <p>All tools for interacting with features are disabled until a vector layer is added.</p>
+                <p>The delete tool is available if one or more geometries are selected</p>
+            </div>
+            <div class="span2">
+                <div id="layermanager"></div>
+            </div>
+        </div>
+    </body>
+</html>
