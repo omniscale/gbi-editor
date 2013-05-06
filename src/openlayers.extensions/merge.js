@@ -67,6 +67,9 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
             while(this.layer.selectedFeatures[0]) {
                 this._deleteFeature(this.layer.selectedFeatures[0]);
             }
+        } else if(this.layer.selectedFeatures.length == 1 && this.layer.selectedFeatures[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.MultiPolygon') {
+            this.layer.addFeatures(this._unmerge(this.layer.selectedFeatures[0]));
+            this._deleteFeature(this.layer.selectedFeatures[0]);
         }
         if (this.selectControl) {
             this.selectControl.activate();
@@ -97,6 +100,7 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
             if (!featureType) {
                 this.activatable = false;
                 if(this.panel_div) {
+                    OpenLayers.Element.removeClass(this.panel_div, 'unmergeActive');
                     OpenLayers.Element.addClass(this.panel_div, 'itemDisabled');
                 }
                 return false;
@@ -104,11 +108,19 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
 
             this.activatable = true;
             if(this.panel_div) {
+                OpenLayers.Element.removeClass(this.panel_div, 'unmergeActive');
                 OpenLayers.Element.removeClass(this.panel_div, 'itemDisabled');
+            }
+        } else if (this.layer.selectedFeatures.length == 1 && this.layer.selectedFeatures[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.MultiPolygon') {
+            this.activatable = true;
+            if(this.panel_div) {
+                OpenLayers.Element.removeClass(this.panel_div, 'itemDisabled');
+                OpenLayers.Element.addClass(this.panel_div, 'unmergeActive');
             }
         } else {
             this.activatable = false;
             if(this.panel_div) {
+                OpenLayers.Element.removeClass(this.panel_div, 'unmergeActive');
                 OpenLayers.Element.addClass(this.panel_div, 'itemDisabled');
             }
         }
@@ -145,6 +157,24 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
         feature.state = OpenLayers.State.INSERT;
         feature.attributes = attributes;
         return feature;
+    },
+    /**
+     * Unmerge operation for multipolygons
+     *
+     * @memberof OpenLayers.Control.MergeFeatures
+     * @instance
+     * @private
+     * @param {OpenLayers.Feature.Vector} multiPolygonFeature
+     */
+    _unmerge: function(multiPolygonFeature) {
+        var features = [];
+        for(var i = 0; i < multiPolygonFeature.geometry.components.length; i++) {
+            var feature = new OpenLayers.Feature.Vector(multiPolygonFeature.geometry.components[i].clone());
+            feature.state = OpenLayers.State.INSERT;
+            feature.attributes = multiPolygonFeature.attributes;
+            features.push(feature);
+        }
+        return features;
     },
     /**
      * Delete operation
