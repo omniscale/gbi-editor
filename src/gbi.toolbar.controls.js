@@ -235,13 +235,13 @@ $.extend(gbi.Controls.Draw.prototype, {
  */
 gbi.Controls.Edit = function(layer, options) {
     var defaults = {
-        mode: OpenLayers.Control.ModifyFeature.RESHAPE,
         standalone: false,
         displayClass: "olControlModifyFeature",
         title: OpenLayers.i18n("Edit feature")
     };
     gbi.Controls.ToolbarItem.call(this, $.extend({}, defaults, options));
     this.layer = layer;
+    this._draggable = 0;
     this.createControl();
 };
 gbi.Controls.Edit.prototype = new gbi.Controls.ToolbarItem();
@@ -269,6 +269,16 @@ $.extend(gbi.Controls.Edit.prototype, {
         }
     },
     /**
+     * Allow features to be draggable
+     *
+     * @memberof gbi.Controls.Edit
+     * @instance
+     * @param {Boolean} allow
+     */
+    draggable: function(allow) {
+        this._draggable = allow ? OpenLayers.Control.ModifyFeature.DRAG : 0;
+    },
+    /**
      * Creates the OpenLayers.Control.ModifyFeature control
      *
      * @memberof gbi.Controls.Edit
@@ -292,9 +302,10 @@ $.extend(gbi.Controls.Edit.prototype, {
      */
     _beforeModified: function(f) {
         if(f.feature._drawType == gbi.Controls.Draw.TYPE_RECT) {
-            this.olControl.mode = OpenLayers.Control.ModifyFeature.RESHAPE | OpenLayers.Control.ModifyFeature.RESIZE;
+            this.olControl.mode = this._draggable | OpenLayers.Control.ModifyFeature.RESIZE | OpenLayers.Control.ModifyFeature.RESHAPE;
+            this.olControl.preserveAspectRatio = true;
         } else {
-            this.olControl.mode = OpenLayers.Control.ModifyFeature.RESHAPE;
+            this.olControl.mode = this._draggable | OpenLayers.Control.ModifyFeature.RESHAPE;
         }
     },
     /**
