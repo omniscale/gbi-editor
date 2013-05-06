@@ -104,6 +104,21 @@ gbi.widgets.LayerManager.prototype = {
                 self.render();
             }
         });
+
+        if(this.options.little) {
+            this.element.find('.gbi_widgets_LayerManager_Minimize').click(function(event) {
+                event.stopPropagation();
+                self.element.find('.gbi_widgets_LayerManager_LayerSwitcher').hide();
+                self.element.find('.gbi_widgets_LayerManager_Minimize').hide();
+                self.element.find('.gbi_widgets_LayerManager_Maximize').show();
+            }).show();
+            this.element.find('.gbi_widgets_LayerManager_Maximize').click(function(event) {
+                event.stopPropagation();
+                self.element.find('.gbi_widgets_LayerManager_LayerSwitcher').show();
+                self.element.find('.gbi_widgets_LayerManager_Minimize').show();
+                self.element.find('.gbi_widgets_LayerManager_Maximize').hide();
+            }).hide();
+        }
     }
 };
 gbi.widgets.LayerManager.templates = {
@@ -147,38 +162,42 @@ gbi.widgets.LayerManager.templates = {
         <button class="btn btn-small" id="add_layer">'+layerManagerLabel.addVectorLayer+'</button>\
     ',
     little: '\
-        <b>'+layerManagerLabel.vectorLayers+'</b>\
-        <ul>\
-            <% for(var i=0; i<vectorLayers.length; i++) { %>\
-                <li class="gbi_layer">\
-                    <input type="checkbox" id="visible_<%=vectorLayers[i].id%>" />\
-                    <div><%=vectorLayers[i].olLayer.name%></div>\
-                    <button class="btn btn-mini" id="up_<%=vectorLayers[i].id%>">&uarr;</button>\
-                    <button class="btn btn-mini" id="down_<%=vectorLayers[i].id%>">&darr;</button>\
-                </li>\
-            <% } %>\
-        </ul>\
-        <b>'+layerManagerLabel.rasterLayers+'</b>\
-        <ul>\
-            <% for(var i=0; i<rasterLayers.length; i++) { %>\
-                <li class="gbi_layer">\
-                    <input type="checkbox" id="visible_<%=rasterLayers[i].id%>" />\
-                    <div><%=rasterLayers[i].olLayer.name%></div>\
-                    <button class="btn btn-mini" id="up_<%=rasterLayers[i].id%>">&uarr;</button>\
-                    <button class="btn btn-mini" id="down_<%=rasterLayers[i].id%>">&darr;</button>\
-                </li>\
-            <% } %>\
-        </ul>\
-        <b>'+layerManagerLabel.backgroundLayers+'</b>\
-        <ul>\
-            <% for(var i=0; i<backgroundLayers.length; i++) { %>\
-                <li class="gbi_layer">\
-                    <input type="checkbox" id="visible_<%=backgroundLayers[i].id%>" />\
-                    <div><%=backgroundLayers[i].olLayer.name%></div>\
-                    <button class="btn btn-mini" id="up_<%=backgroundLayers[i].id%>">&uarr;</button>\
-                    <button class="btn btn-mini" id="down_<%=backgroundLayers[i].id%>">&darr;</button>\
-                </li>\
-            <% } %>\
-        </ul>\
+        <div class="gbi_widgets_LayerManager_Maximize"></div>\
+        <div class="gbi_widgets_LayerManager_Minimize"></div>\
+        <div class="gbi_widgets_LayerManager_LayerSwitcher">\
+            <b>'+layerManagerLabel.vectorLayers+'</b>\
+            <ul>\
+                <% for(var i=0; i<vectorLayers.length; i++) { %>\
+                    <li class="gbi_layer">\
+                        <input type="checkbox" id="visible_<%=vectorLayers[i].id%>" />\
+                        <div><%=vectorLayers[i].olLayer.name%></div>\
+                        <button class="btn btn-mini" id="up_<%=vectorLayers[i].id%>">&uarr;</button>\
+                        <button class="btn btn-mini" id="down_<%=vectorLayers[i].id%>">&darr;</button>\
+                    </li>\
+                <% } %>\
+            </ul>\
+            <b>'+layerManagerLabel.rasterLayers+'</b>\
+            <ul>\
+                <% for(var i=0; i<rasterLayers.length; i++) { %>\
+                    <li class="gbi_layer">\
+                        <input type="checkbox" id="visible_<%=rasterLayers[i].id%>" />\
+                        <div><%=rasterLayers[i].olLayer.name%></div>\
+                        <button class="btn btn-mini" id="up_<%=rasterLayers[i].id%>">&uarr;</button>\
+                        <button class="btn btn-mini" id="down_<%=rasterLayers[i].id%>">&darr;</button>\
+                    </li>\
+                <% } %>\
+            </ul>\
+            <b>'+layerManagerLabel.backgroundLayers+'</b>\
+            <ul>\
+                <% for(var i=0; i<backgroundLayers.length; i++) { %>\
+                    <li class="gbi_layer">\
+                        <input type="checkbox" id="visible_<%=backgroundLayers[i].id%>" />\
+                        <div><%=backgroundLayers[i].olLayer.name%></div>\
+                        <button class="btn btn-mini" id="up_<%=backgroundLayers[i].id%>">&uarr;</button>\
+                        <button class="btn btn-mini" id="down_<%=backgroundLayers[i].id%>">&darr;</button>\
+                    </li>\
+                <% } %>\
+            </ul>\
+        </div>\
     '
 };
