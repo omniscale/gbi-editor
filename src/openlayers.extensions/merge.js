@@ -93,7 +93,17 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
             }
             for(var i = 0; i < this.layer.selectedFeatures.length; i++) {
                 var feature = this.layer.selectedFeatures[i];
-                if (featureType != feature.geometry.CLASS_NAME) {
+                if (
+                    featureType == feature.geometry.CLASS_NAME || (
+                        featureType == OpenLayers.Geometry.Polygon.prototype.CLASS_NAME &&
+                        feature.geometry.CLASS_NAME == OpenLayers.Geometry.MultiPolygon.prototype.CLASS_NAME
+                    ) || (
+                        featureType == OpenLayers.Geometry.MultiPolygon.prototype.CLASS_NAME &&
+                        feature.geometry.CLASS_NAME == OpenLayers.Geometry.Polygon.prototype.CLASS_NAME
+                    )
+                ) {
+                    continue;
+                } else {
                     featureType = false;
                 }
             }
