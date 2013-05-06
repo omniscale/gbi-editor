@@ -39,7 +39,7 @@ OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
                 if (splitLine.geometry.intersects(self.layer.selectedFeatures[0].geometry)) {
                     if(self.layer.selectedFeatures[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.Polygon') {
                         self.layer.addFeatures(self._splitPolygon(splitLine, self.layer.selectedFeatures[0]));
-                    } else {
+                    } else if(self.layer.selectedFeatures[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.LineString'){
                         self.layer.addFeatures(self._splitLine(splitLine, self.layer.selectedFeatures[0]));
                     }
                 }
@@ -95,7 +95,8 @@ OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
     _toggleControlState: function() {
         var selectedFeature = this.layer.selectedFeatures;
         if(selectedFeature.length == 1 && (
-            selectedFeature[0].geometry.CLASS_NAME != 'OpenLayers.Geometry.Point'
+            selectedFeature[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.LineString' ||
+            selectedFeature[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.Polygon'
           )) {
             this.activatable = true;
             if(this.panel_div) {
