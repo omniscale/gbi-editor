@@ -99,11 +99,13 @@ OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
             selectedFeature[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.Polygon'
           )) {
             this.activatable = true;
+            this.type = OpenLayers.Control.TYPE_TOOL;
             if(this.panel_div) {
                 OpenLayers.Element.removeClass(this.panel_div, 'itemDisabled');
             }
         } else {
             this.activatable = false;
+            this.type = OpenLayers.Control.TYPE_TOGGLE;
             if(this.panel_div) {
                 OpenLayers.Element.addClass(this.panel_div, 'itemDisabled');
             }
