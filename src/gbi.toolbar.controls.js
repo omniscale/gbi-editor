@@ -331,6 +331,7 @@ $.extend(gbi.Controls.Edit.prototype, {
         selectControl.destroy();
 
         if(selectedFeature) {
+            this._beforeModified({feature: selectedFeature});
             this.olControl.selectFeature(selectedFeature);
         }
     },
