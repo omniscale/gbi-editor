@@ -455,10 +455,11 @@ $.extend(gbi.Controls.Split.prototype, {
 gbi.Controls.Merge = function(layer, options) {
     var defaults = {
         displayClass: "olControlMergeFeature",
-        title: OpenLayers.i18n("Merge features")
+        titleMerge: OpenLayers.i18n("Merge features"),
+        titleUnmerge: OpenLayers.i18n("Unmerge features")
     };
     gbi.Controls.ToolbarItem.call(this, $.extend({}, defaults, options));
-
+    this.options.title = this.options.titleMerge;
     this.disableable = true;
     this.layer = layer;
 

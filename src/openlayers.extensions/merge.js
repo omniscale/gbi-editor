@@ -120,18 +120,21 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
             if(this.panel_div) {
                 OpenLayers.Element.removeClass(this.panel_div, 'unmergeActive');
                 OpenLayers.Element.removeClass(this.panel_div, 'itemDisabled');
+                this.panel_div.title = this.titleMerge;
             }
         } else if (this.layer.selectedFeatures.length == 1 && this.layer.selectedFeatures[0].geometry.CLASS_NAME == 'OpenLayers.Geometry.MultiPolygon') {
             this.activatable = true;
             if(this.panel_div) {
                 OpenLayers.Element.removeClass(this.panel_div, 'itemDisabled');
                 OpenLayers.Element.addClass(this.panel_div, 'unmergeActive');
+                this.panel_div.title = this.titleUnmerge;
             }
         } else {
             this.activatable = false;
             if(this.panel_div) {
                 OpenLayers.Element.removeClass(this.panel_div, 'unmergeActive');
                 OpenLayers.Element.addClass(this.panel_div, 'itemDisabled');
+                this.panel_div.title = this.titleMerge;
             }
         }
     },
