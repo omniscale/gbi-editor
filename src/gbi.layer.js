@@ -404,6 +404,50 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.redraw();
     },
     /**
+     * Get all filtered features sorted by matching filter
+     *
+     * @memberof gbi.Layer.Vector
+     * @instance
+     * @returns {Object}
+     */
+    filteredFeatures: function() {
+        var self = this;
+        var result = {};
+        var property = false;
+        var type = false;
+        var propertyValues = [];
+        if(this.featureStylingRule != undefined && this.featureStylingRule.property != undefined) {
+
+            $.each(this.featureStylingRule.filters, function(idx, filter) {
+                result[idx] = {
+                    'color': filter.symbolizer.fillColor,
+                    'value': filter.value,
+                    'min': filter.min,
+                    'max': filter.max,
+                    'features': []
+                };
+                propertyValues.push(filter.value);
+            });
+
+            $.each(this.olLayer.features, function(id, feature) {
+                $.each(self.featureStylingRule.filters, function(idx, filter) {
+                    if(filter.olFilter.evaluate(feature)) {
+                        result[idx].features.push(feature);
+                        return false;
+                    }
+                });
+            });
+
+            return {
+                property: this.featureStylingRule.property,
+                type: this.featureStylingRule.type,
+                result: result
+            };
+        }
+
+
+    },
+    /**
      * Adds features to this layer
      *
      * @memberof gbi.Layers.Vector
