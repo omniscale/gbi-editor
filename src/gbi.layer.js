@@ -318,68 +318,73 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      * @param {OpenLayers.Rule} rule
      */
-    addStylingRule: function(type, filterOptions, symbolizer) {
-        var filter = false;
+    addStylingRule: function(type, property, filterOptions) {
+        var self = this;
+        var rules = []
         switch(type) {
             case 'exact':
                 var filters = [];
-                $.each(filterOptions.values, function(idx, value) {
-                    filters.push(new OpenLayers.Filter.Comparison({
-                        type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                        property: filterOptions.property,
-                        value: value
-                    }));
+                $.each(filterOptions, function(idx, value) {
+                    rules.push(new OpenLayers.Rule({
+                        filter: new OpenLayers.Filter.Comparison({
+                            type: OpenLayers.Filter.Comparison.EQUAL_TO,
+                            property: property,
+                            value: value.value
+                        }),
+                        symbolizer: value.symbolizer
+                    }))
                 });
-                if(filters.length == 1) {
-                    filter = filters[0];
-                } else {
-                    filter = new OpenLayers.Filter.Logical({
-                        type: OpenLayers.Filter.Logical.OR,
-                        filters: filters
-                    });
-                }
                 break;
             case 'range':
-                if(filterOptions.min != undefined && filterOptions.max != undefined) {
+                var filter = false;
+                if(filterOptions[0].min != undefined && filterOptions[0].max != undefined) {
                     filter = new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.BETWEEN,
-                        property: filterOptions.property,
-                        lowerBoundary: filterOptions.min,
-                        upperBoundary: filterOptions.max
+                        property: property,
+                        lowerBoundary: filterOptions[0].min,
+                        upperBoundary: filterOptions[0].max
                     });
-                } else if(filterOptions.min != undefined) {
+                } else if(filterOptions[0].min != undefined) {
                     filter = new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
-                        property: filterOptions.property,
-                        value: filterOptions.min
+                        property: property,
+                        value: filterOptions[0].min
                     });
-                } else if(filterOptions.max != undefined) {
+                } else if(filterOptions[0].max != undefined) {
                     filter = new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
-                        property: filterOptions.property,
-                        value: filterOptions.max
+                        property: property,
+                        value: filterOptions[0].max
                     });
                 }
+                if(!filter) {
+                    return;
+                }
+                rules.push(new OpenLayers.Rule({
+                    filter: filter,
+                    symbolizer: filterOptions[0].symbolizer
+                }))
                 break;
         };
-        if(!filter) {
+        if(rules.length == 0) {
             return;
         }
         this.featureStylingRule = {
             type: type,
-            filterOptions: filterOptions,
-            symbolizer: symbolizer
+            property: property,
+            filterOptions: filterOptions
         }
-        if(this.featureStylingRuleIndex != -1) {
-            this.olLayer.styleMap.styles.default.rules.splice(this.featureStylingRuleIndex, 1);
-            this.featureStylingRuleIndex = -1;
-        }
-        var rule = new OpenLayers.Rule({
-            filter: filter,
-            symbolizer: symbolizer
+        $.each(this.featureStylingRuleIndex, function(idx, ruleIdx) {
+            self.olLayer.styleMap.styles.default.rules.splice(ruleIdx, 1);
         });
-        this.olLayer.styleMap.styles.default.rules.push(rule);
-        this.featureStylingRuleIndex = this.olLayer.styleMap.styles.default.rules.indexOf(rule);
+
+        this.olLayer.styleMap.styles.default.rules = this.olLayer.styleMap.styles.default.rules.concat(rules);
+
+        this.featureStylingRuleIndex = [];
+        $.each(rules, function(idx, rule) {
+            self.featureStylingRuleIndex.push(self.olLayer.styleMap.styles.default.rules.indexOf(rule));
+        });
+
         this.olLayer.redraw();
     },
     /**
@@ -845,7 +850,7 @@ $.extend(gbi.Layers.Couch.prototype, {
 
                 self.setStyle(responseObject);
                 if(rule) {
-                    self.addStylingRule(rule.type, rule.filterOptions, rule.symbolizer);
+                    self.addStylingRule(rule.type, rule.property, rule.filterOptions);
                 }
             }
         });
