@@ -321,14 +321,28 @@ $.extend(gbi.Layers.Vector.prototype, {
         var rule = false;
         switch(type) {
             case 'exact':
-                rule = new OpenLayers.Rule({
-                    filter: new OpenLayers.Filter.Comparison({
+                var filters = [];
+                $.each(filterOptions.values, function(idx, value) {
+                    filters.push(new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.EQUAL_TO,
                         property: filterOptions.property,
-                        value: filterOptions.value
-                    }),
-                    symbolizer: symbolizer
+                        value: value
+                    }));
                 });
+                if(filters.length == 1) {
+                    rule = new OpenLayers.Rule({
+                        filter: filters[0],
+                        symbolizer: symbolizer
+                    });
+                } else {
+                    rule = new OpenLayers.Rule({
+                        filter: new OpenLayers.Filter.Logical({
+                            type: OpenLayers.Filter.Logical.OR,
+                            filters: filters
+                        }),
+                        symbolizer: symbolizer
+                    });
+                }
                 break;
         };
         this.featureStylingRule = {
