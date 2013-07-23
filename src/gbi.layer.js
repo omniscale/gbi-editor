@@ -345,7 +345,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                         type: OpenLayers.Filter.Comparison.BETWEEN,
                         property: filterOptions.property,
                         lowerBoundary: filterOptions.min,
-                        upperBoundaty: filterOptions.max
+                        upperBoundary: filterOptions.max
                     });
                 } else if(filterOptions.min != undefined) {
                     filter = new OpenLayers.Filter.Comparison({
