@@ -318,7 +318,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {OpenLayers.Rule} rule
      */
     addStylingRule: function(type, filterOptions, symbolizer) {
-        var rule = false;
+        var filter = false;
         switch(type) {
             case 'exact':
                 var filters = [];
@@ -330,26 +330,49 @@ $.extend(gbi.Layers.Vector.prototype, {
                     }));
                 });
                 if(filters.length == 1) {
-                    rule = new OpenLayers.Rule({
-                        filter: filters[0],
-                        symbolizer: symbolizer
-                    });
+                    filter = filters[0];
                 } else {
-                    rule = new OpenLayers.Rule({
-                        filter: new OpenLayers.Filter.Logical({
-                            type: OpenLayers.Filter.Logical.OR,
-                            filters: filters
-                        }),
-                        symbolizer: symbolizer
+                    filter = new OpenLayers.Filter.Logical({
+                        type: OpenLayers.Filter.Logical.OR,
+                        filters: filters
+                    });
+                }
+                break;
+            case 'range':
+                if(filterOptions.min != undefined && filterOptions.max != undefined) {
+                    filter = new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.BETWEEN,
+                        property: filterOptions.property,
+                        lowerBoundary: filterOptions.min,
+                        upperBoundaty: filterOptions.max
+                    });
+                } else if(filterOptions.min != undefined) {
+                    filter = new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
+                        property: filterOptions.property,
+                        value: filterOptions.min
+                    });
+                } else if(filterOptions.max != undefined) {
+                    filter = new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
+                        property: filterOptions.property,
+                        value: filterOptions.max
                     });
                 }
                 break;
         };
+        if(!filter) {
+            return;
+        }
         this.featureStylingRule = {
             type: type,
             filterOptions: filterOptions,
             symbolizer: symbolizer
         }
+        var rule = new OpenLayers.Rule({
+            filter: filter,
+            symbolizer: symbolizer
+        });
         this.olLayer.styleMap.styles.default.rules.push(rule);
         this.olLayer.redraw();
     },
