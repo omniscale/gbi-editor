@@ -783,7 +783,16 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'contentType': 'application/json'
             },
             success: function(response) {
-                self.setStyle(self.format.read(response.responseText));
+                var responseObject = self.format.read(response.responseText);
+                var rule = false;
+                if(responseObject.rule != undefined) {
+                    var rule = responseObject.rule;
+                    delete responseObject.rule;
+                }
+                self.setStyle(responseObject);
+                if(rule) {
+                    self.addStylingRule(rule.type, rule.filterOptions, rule.symbolizer);
+                }
             }
         });
     },
@@ -796,13 +805,17 @@ $.extend(gbi.Layers.Couch.prototype, {
      */
     _saveStyle: function() {
         var self = this;
+        var stylingData = $.extend({}, this.symbolizers);
+        if(this.featureStylingRule) {
+            stylingData['rule'] = this.featureStylingRule;
+        }
         var request = OpenLayers.Request.PUT({
             url: this.options.url + 'style',
             async: false,
             headers: {
                 'Content-Type': 'application/json'
             },
-            data: this.format.write(this.symbolizers),
+            data: this.format.write(stylingData),
             success: function(response) {
                 if(response.responseText) {
                     jsonResponse = self.format.read(response.responseText);
