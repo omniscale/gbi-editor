@@ -275,6 +275,8 @@ gbi.Layers.Vector = function(options) {
         this.symbolizers = this.options.styleMap.styles['default'].rules[0].symbolizer;
     }
 
+    this.featureStylingRule = undefined;
+
     if(this.options.attributePopup) {
         this.registerEvent('featureselected', this, this._showPopup);
         this.registerEvent('featureunselected', this, this._removePopup);
@@ -306,6 +308,35 @@ $.extend(gbi.Layers.Vector.prototype, {
                 "select": this.selectStyle
             });
         }
+        this.olLayer.redraw();
+    },
+    /**
+     * Adds custom styling rule
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Rule} rule
+     */
+    addStylingRule: function(type, filterOptions, symbolizer) {
+        var rule = false;
+        switch(type) {
+            case 'exact':
+                rule = new OpenLayers.Rule({
+                    filter: new OpenLayers.Filter.Comparison({
+                        type: OpenLayers.Filter.Comparison.EQUAL_TO,
+                        property: filterOptions.property,
+                        value: filterOptions.value
+                    }),
+                    symbolizer: symbolizer
+                });
+                break;
+        };
+        this.featureStylingRule = {
+            type: type,
+            filterOptions: filterOptions,
+            symbolizer: symbolizer
+        }
+        this.olLayer.styleMap.styles.default.rules.push(rule);
         this.olLayer.redraw();
     },
     /**
