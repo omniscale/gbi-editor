@@ -312,7 +312,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.redraw();
     },
     /**
-     * Adds custom styling rule
+     * Adds property filters
      *
      * @memberof gbi.Layers.Vector
      * @instance
