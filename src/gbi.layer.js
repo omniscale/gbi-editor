@@ -772,6 +772,9 @@ gbi.Layers.Couch = function(options) {
     };
     options = $.extend({}, defaults, options);
 
+    this.haveCustomStyle = false;
+    this.styleRev = false;
+
     this.format = new OpenLayers.Format.JSON();
 
     var nameLowerCase = options.name.toLowerCase();
@@ -832,6 +835,14 @@ $.extend(gbi.Layers.Couch.prototype, {
                     var rule = responseObject.rule;
                     delete responseObject.rule;
                 }
+                if(responseObject._rev != undefined) {
+                    self.styleRev = responseObject._rev;
+                    delete responseObject._rev;
+                }
+                delete responseObject._id;
+
+                self.haveCustomStyle = Object.keys(responseObject).length > 0;
+
                 self.setStyle(responseObject);
                 if(rule) {
                     self.addStylingRule(rule.type, rule.filterOptions, rule.symbolizer);
@@ -847,11 +858,30 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @private
      */
     _saveStyle: function() {
-        var self = this;
         var stylingData = $.extend({}, this.symbolizers);
+        if(this.styleRev) {
+            stylingData['_rev'] = this.styleRev;
+        }
         if(this.featureStylingRule) {
             stylingData['rule'] = this.featureStylingRule;
         }
+        this._saveStylingDate(stylingData);
+    },
+    _saveRule: function() {
+        if(this.haveCustomStyle) {
+            this._saveStyle();
+        } else {
+            var stylingData = {
+                'rule': this.featureStylingRule
+            }
+            if(this.styleRev) {
+                stylingData['_rev'] = this.styleRev;
+            }
+            this._saveStylingDate(stylingData);
+        }
+    },
+    _saveStylingDate: function(stylingData) {
+        var self = this;
         var request = OpenLayers.Request.PUT({
             url: this.options.url + 'style',
             async: false,
@@ -863,7 +893,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                 if(response.responseText) {
                     jsonResponse = self.format.read(response.responseText);
                     if(jsonResponse.rev) {
-                        self.symbolizers._rev = jsonResponse.rev;
+                        self.styleRev = jsonResponse.rev;
                     }
                 }
             }
