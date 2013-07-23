@@ -349,6 +349,8 @@ $.extend(gbi.Layers.Vector.prototype, {
                 $.each(filters, function(idx, filter) {
                     var olFilter = false;
                     if(filter.min != undefined && filter.max != undefined) {
+                        filter.min = OpenLayers.String.numericIf(filter.min);
+                        filter.max = OpenLayers.String.numericIf(filter.max);
                         olFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.BETWEEN,
                             property: property,
@@ -356,12 +358,14 @@ $.extend(gbi.Layers.Vector.prototype, {
                             upperBoundary: filter.max
                         });
                     } else if(filter.min != undefined) {
+                        filter.min = OpenLayers.String.numericIf(filter.min);
                         olFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
                             property: property,
                             value: filter.min
                         });
                     } else if(filter.max != undefined) {
+                        filter.max = OpenLayers.String.numericIf(filter.max);
                         olFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
                             property: property,
