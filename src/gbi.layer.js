@@ -276,6 +276,7 @@ gbi.Layers.Vector = function(options) {
     }
 
     this.featureStylingRule = undefined;
+    this.featureStylingRuleIndex = -1;
 
     if(this.options.attributePopup) {
         this.registerEvent('featureselected', this, this._showPopup);
@@ -369,11 +370,16 @@ $.extend(gbi.Layers.Vector.prototype, {
             filterOptions: filterOptions,
             symbolizer: symbolizer
         }
+        if(this.featureStylingRuleIndex != -1) {
+            this.olLayer.styleMap.styles.default.rules.splice(this.featureStylingRuleIndex, 1);
+            this.featureStylingRuleIndex = -1;
+        }
         var rule = new OpenLayers.Rule({
             filter: filter,
             symbolizer: symbolizer
         });
         this.olLayer.styleMap.styles.default.rules.push(rule);
+        this.featureStylingRuleIndex = this.olLayer.styleMap.styles.default.rules.indexOf(rule);
         this.olLayer.redraw();
     },
     /**
