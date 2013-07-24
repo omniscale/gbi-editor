@@ -277,7 +277,7 @@ gbi.Layers.Vector = function(options) {
     }
 
     this.featureStylingRule = undefined;
-    this.featureStylingRuleIndex = -1;
+    this.featureStylingRuleIndex = [];
 
     if(this.options.attributePopup) {
         this.registerEvent('featureselected', this, this._showPopup);
@@ -337,6 +337,11 @@ $.extend(gbi.Layers.Vector.prototype, {
             property: property,
             filterOptions: filterOptions
         };
+        $.each(Array.sort(this.featureStylingRuleIndex).reverse(), function(idx, ruleIdx) {
+            self.olLayer.styleMap.styles.default.rules.splice(ruleIdx, 1);
+        });
+
+        this.featureStylingRuleIndex = [];
         switch(type) {
             case 'exact':
                 $.each(filterOptions, function(idx, filter) {
@@ -394,12 +399,6 @@ $.extend(gbi.Layers.Vector.prototype, {
                 });
                 break;
         };
-
-        $.each(this.featureStylingRuleIndex, function(idx, ruleIdx) {
-            self.olLayer.styleMap.styles.default.rules.splice(ruleIdx, 1);
-        });
-
-        this.featureStylingRuleIndex = [];
 
         if(rules.length == 0) {
             return;
