@@ -314,23 +314,31 @@ $.extend(gbi.Layers.Vector.prototype, {
     /**
      * Adds property filters
      *
+     * At the moment, two types of filters are supported.
+     * 1. 'exact'
+     *    Filter value must match exactly.
+     * 2. 'range'
+     *    If min in filterOptions, all values >= min will be matched
+     *    If max in filterOptions, all values <= max will be matched
+     *    If min and max in filterOptions, all values between min and max will be matched
+     *
      * @memberof gbi.Layers.Vector
      * @instance
      * @param {String} type
      * @param {String} property
-     * @param {Object[]} filters
+     * @param {Object[]} filterOptions Contains the parameters for each filter
      */
-    addPropertyFilters: function(type, property, filters) {
+    addPropertyFilter: function(type, property, filterOptions) {
         var self = this;
         var rules = [];
         this.featureStylingRule = {
             type: type,
             property: property,
-            filters: filters
+            filterOptions: filterOptions
         };
         switch(type) {
             case 'exact':
-                $.each(filters, function(idx, filter) {
+                $.each(filterOptions, function(idx, filter) {
                     var olFilter = new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.EQUAL_TO,
                         property: property,
@@ -346,7 +354,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 });
                 break;
             case 'range':
-                $.each(filters, function(idx, filter) {
+                $.each(filterOptions, function(idx, filter) {
                     var olFilter = false;
                     if(filter.min != undefined && filter.max != undefined) {
                         filter.min = OpenLayers.String.numericIf(filter.min);
@@ -386,17 +394,18 @@ $.extend(gbi.Layers.Vector.prototype, {
                 break;
         };
 
-        if(rules.length == 0) {
-            return;
-        }
-
         $.each(this.featureStylingRuleIndex, function(idx, ruleIdx) {
             self.olLayer.styleMap.styles.default.rules.splice(ruleIdx, 1);
         });
 
+        this.featureStylingRuleIndex = [];
+
+        if(rules.length == 0) {
+            return;
+        }
+
         this.olLayer.styleMap.styles.default.rules = this.olLayer.styleMap.styles.default.rules.concat(rules);
 
-        this.featureStylingRuleIndex = [];
         $.each(rules, function(idx, rule) {
             self.featureStylingRuleIndex.push(self.olLayer.styleMap.styles.default.rules.indexOf(rule));
         });
@@ -406,9 +415,11 @@ $.extend(gbi.Layers.Vector.prototype, {
     /**
      * Get all filtered features sorted by matching filter
      *
-     * @memberof gbi.Layer.Vector
+     * @memberof gbi.Layers.Vector
      * @instance
-     * @returns {Object}
+     * @returns {Object} The returned Object has a property, type and result property.
+     *                   The result property is also an object containing color, min,
+     *                   max and value propties and a list of features
      */
     filteredFeatures: function() {
         var self = this;
@@ -910,7 +921,7 @@ $.extend(gbi.Layers.Couch.prototype, {
 
                 self.setStyle(responseObject);
                 if(rule) {
-                    self.addPropertyFilters(rule.type, rule.property, rule.filters);
+                    self.addPropertyFilter(rule.type, rule.property, rule.filterOptions);
                 }
             }
         });
@@ -945,7 +956,7 @@ $.extend(gbi.Layers.Couch.prototype, {
     },
     _addRule : function(stylingData) {
         stylingData['rule'] = $.extend({}, this.featureStylingRule);
-        $.each(stylingData.rule.filters, function(idx, filter) {
+        $.each(stylingData.rule.filterOptions, function(idx, filter) {
             delete filter['olFilter'];
         });
         return stylingData;
