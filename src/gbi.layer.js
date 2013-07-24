@@ -208,7 +208,8 @@ $.extend(gbi.Layers.WMTS.prototype, {
 gbi.Layers.Vector = function(options) {
     var defaults = {
         editable: true,
-        attributePopup: false
+        attributePopup: false,
+        maxAttributeValues: 100
     };
     var default_symbolizers = {
       "Point": {
@@ -428,6 +429,28 @@ $.extend(gbi.Layers.Vector.prototype, {
                     result.push(key);
                 }
             });
+        });
+        return result;
+    },
+    /**
+     * Get a list of values of specified attribute
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {String} attribute
+     * @returns {Mixed[]} List of values of given attribute
+     */
+    attributeValues: function(attribute) {
+        var self = this;
+        var result = [];
+        $.each(this.olLayer.features, function(idx, feature) {
+            console.log(feature.attributes[attribute])
+            if(feature.attributes[attribute] != undefined && $.inArray(feature.attributes[attribute], result) == -1) {
+                result.push(feature.attributes[attribute]);
+            }
+            if(result.length > self.options.maxAttributeValues) {
+                return false;
+            }
         });
         return result;
     },
