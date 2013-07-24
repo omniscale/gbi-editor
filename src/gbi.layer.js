@@ -892,6 +892,7 @@ gbi.Layers.Couch = function(options) {
 
     this.haveCustomStyle = false;
     this.styleRev = false;
+    this.loaded = false;
 
     this.format = new OpenLayers.Format.JSON();
 
@@ -920,6 +921,7 @@ gbi.Layers.Couch = function(options) {
     }
 
     this.registerEvent('featuresadded', this, function() {
+        self.loaded = true;
         $(gbi).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
