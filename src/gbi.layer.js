@@ -413,6 +413,25 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.redraw();
     },
     /**
+     * Get a list of attributes of all features of this layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @returns {String[]} List of attributes
+     */
+    featuresAttributes: function() {
+        var self = this;
+        var result = [];
+        $.each(this.olLayer.features, function(idx, feature) {
+            $.each(feature.attributes, function(key, value) {
+                if($.inArray(key, result) == -1) {
+                    result.push(key);
+                }
+            });
+        });
+        return result;
+    },
+    /**
      * Get all filtered features sorted by matching filter
      *
      * @memberof gbi.Layers.Vector
