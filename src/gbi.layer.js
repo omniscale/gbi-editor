@@ -977,7 +977,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @private
      */
     _saveStyle: function() {
-        var stylingData = $.extend({}, this.symbolizers);
+        var stylingData = $.extend(true, {}, this.symbolizers);
         if(this.styleRev) {
             stylingData['_rev'] = this.styleRev;
         }
@@ -998,7 +998,7 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
     },
     _addRule : function(stylingData) {
-        stylingData['rule'] = $.extend({}, this.featureStylingRule);
+        stylingData['rule'] = $.extend(true, {}, this.featureStylingRule);
         $.each(stylingData.rule.filterOptions, function(idx, filter) {
             delete filter['olFilter'];
         });
