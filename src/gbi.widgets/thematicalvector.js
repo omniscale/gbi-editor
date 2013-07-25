@@ -31,7 +31,7 @@ gbi.widgets.ThematicalVector = function(editor, options) {
 
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
-        if(!self.activeLayer.loaded) {
+        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
             $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
                 self.attributes = self.activeLayer.featuresAttributes();
                 self.render();
