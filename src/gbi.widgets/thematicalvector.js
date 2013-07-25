@@ -461,7 +461,7 @@ gbi.widgets.ThematicalVector.template = '\
     </div>\
     <i class="icon-plus-sign" id="addRangeInput"></i>\
 </div>\
-<button id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
+<button class="btn btn-small" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
 ';
 
 gbi.widgets.ThematicalVector.legendTemplate = '\
