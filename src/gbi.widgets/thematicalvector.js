@@ -140,6 +140,7 @@ gbi.widgets.ThematicalVector.prototype = {
         var self = this;
         var legend = this.activeLayer.filteredFeatures();
         var entries = []
+        this.legendElement.empty();
         if(legend) {
             $.each(legend.result, function(idx, r) {
                 var value = '';
@@ -161,7 +162,6 @@ gbi.widgets.ThematicalVector.prototype = {
                     area: area
                 });
             });
-            this.legendElement.empty();
             this.legendElement.append(tmpl(
                 gbi.widgets.ThematicalVector.legendTemplate, {
                     attribute: legend.attribute,
