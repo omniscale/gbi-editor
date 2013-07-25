@@ -338,7 +338,7 @@ $.extend(gbi.Layers.Vector.prototype, {
             filterOptions: filterOptions
         };
 
-        for(var i=this.olLayer.styleMap.styles.default.rules.length-1; i >= 0; i--) {
+        for(var i = this.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
             if(this.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
                 self.olLayer.styleMap.styles.default.rules.splice(i, 1);
             }
@@ -347,15 +347,15 @@ $.extend(gbi.Layers.Vector.prototype, {
         switch(type) {
             case 'exact':
                 $.each(filterOptions, function(idx, filter) {
-                    var olFilter = new OpenLayers.Filter.Comparison({
+                    filter.olFilter = new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.EQUAL_TO,
                         property: attribute,
                         value: filter.value
                     });
-                    filter.olFilter = olFilter;
+
                     if(filter.symbolizer) {
                         rules.push(new OpenLayers.Rule({
-                            filter: olFilter,
+                            filter: filter.olFilter,
                             symbolizer: filter.symbolizer,
                             propertyFilter: true
                         }));
@@ -367,20 +367,19 @@ $.extend(gbi.Layers.Vector.prototype, {
                     var minFilter = false;
                     var maxFilter = false;
                     var olFilter
-                    filter.min = OpenLayers.String.isNumeric(filter.min) ? OpenLayers.String.numericIf(filter.min) : false;
-                    filter.max = OpenLayers.String.isNumeric(filter.max) ? OpenLayers.String.numericIf(filter.max) : false;
-                    if(filter.min) {
+
+                    if(OpenLayers.String.isNumeric(filter.min)) {
                         minFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
                             property: attribute,
-                            value: filter.min
+                            value: OpenLayers.String.numericIf(filter.min)
                         });
                     }
-                    if(filter.max) {
+                    if(OpenLayers.String.isNumeric(filter.max)) {
                         maxFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.LESS_THAN,
                             property: attribute,
-                            value: filter.max
+                            value: OpenLayers.String.numericIf(filter.max)
                         });
                     }
 
@@ -393,14 +392,12 @@ $.extend(gbi.Layers.Vector.prototype, {
                             type: OpenLayers.Filter.Logical.AND,
                             filters: [minFilter, maxFilter]
                         });
-                    } else {
-                        olFilter = minFilter || maxFilter;
                     }
+                    filter.olFilter = olFilter || minFilter || maxFilter;
 
-                    filter.olFilter = olFilter;
                     if(filter.symbolizer) {
                         rules.push(new OpenLayers.Rule({
-                            filter: olFilter,
+                            filter: filter.olFilter,
                             symbolizer: filter.symbolizer,
                             propertyFilter: true
                         }));
@@ -448,7 +445,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         var self = this;
         var result = [];
         $.each(this.olLayer.features, function(idx, feature) {
-            if(feature.attributes[attribute]&& $.inArray(feature.attributes[attribute], result) == -1) {
+            if(feature.attributes[attribute] && $.inArray(feature.attributes[attribute], result) == -1) {
                 result.push(feature.attributes[attribute]);
             }
             if(result.length > self.options.maxAttributeValues) {
