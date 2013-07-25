@@ -975,7 +975,7 @@ $.extend(gbi.Layers.Couch.prototype, {
         });
     },
     /**
-     * Saves styling informations to couchDB
+     * Prepares styling informations for insert into couchDB
      *
      * @memberof gbi.Layers.Couch
      * @instance
@@ -991,6 +991,13 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
         this._saveStylingDate(stylingData);
     },
+    /**
+     * Saves thematical styling to couchDB
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
     _saveRule: function() {
         if(this.haveCustomStyle) {
             this._saveStyle();
@@ -1002,6 +1009,15 @@ $.extend(gbi.Layers.Couch.prototype, {
             this._saveStylingDate(stylingData);
         }
     },
+    /**
+     * Add thematical styling to stylingData
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @param {Object} stylingData without thematical data
+     * @returns {Object} stylingData with thematical data
+     */
     _addRule : function(stylingData) {
         stylingData['rule'] = $.extend(true, {}, this.featureStylingRule);
         $.each(stylingData.rule.filterOptions, function(idx, filter) {
@@ -1009,6 +1025,25 @@ $.extend(gbi.Layers.Couch.prototype, {
         });
         return stylingData;
     },
+    /**
+     * Remove thematical styling before save stylingData to CouchDB
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
+    _removeRule: function() {
+        delete this.featureStylingRule;
+        this._saveStyle()
+    },
+    /**
+     * Store style document in CouchDB
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @param {Object} stylingData
+     */
     _saveStylingDate: function(stylingData) {
         var self = this;
         var request = OpenLayers.Request.PUT({
