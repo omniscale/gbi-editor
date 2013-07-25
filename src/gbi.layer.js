@@ -365,7 +365,7 @@ $.extend(gbi.Layers.Vector.prototype, {
             case 'range':
                 $.each(filterOptions, function(idx, filter) {
                     var olFilter = false;
-                    if(filter.min != undefined && filter.max != undefined) {
+                    if(filter.min && filter.max) {
                         filter.min = OpenLayers.String.numericIf(filter.min);
                         filter.max = OpenLayers.String.numericIf(filter.max);
                         olFilter = new OpenLayers.Filter.Comparison({
@@ -374,14 +374,14 @@ $.extend(gbi.Layers.Vector.prototype, {
                             lowerBoundary: filter.min,
                             upperBoundary: filter.max
                         });
-                    } else if(filter.min != undefined) {
+                    } else if(filter.min) {
                         filter.min = OpenLayers.String.numericIf(filter.min);
                         olFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
                             property: property,
                             value: filter.min
                         });
-                    } else if(filter.max != undefined) {
+                    } else if(filter.max) {
                         filter.max = OpenLayers.String.numericIf(filter.max);
                         olFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
@@ -443,8 +443,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         var self = this;
         var result = [];
         $.each(this.olLayer.features, function(idx, feature) {
-            console.log(feature.attributes[attribute])
-            if(feature.attributes[attribute] != undefined && $.inArray(feature.attributes[attribute], result) == -1) {
+            if(feature.attributes[attribute]&& $.inArray(feature.attributes[attribute], result) == -1) {
                 result.push(feature.attributes[attribute]);
             }
             if(result.length > self.options.maxAttributeValues) {
@@ -467,18 +466,19 @@ $.extend(gbi.Layers.Vector.prototype, {
         var result = {};
         var property = false;
         var type = false;
-        var propertyValues = [];
-        if(this.featureStylingRule != undefined && this.featureStylingRule.property != undefined) {
 
-            $.each(this.featureStylingRule.filters, function(idx, filter) {
+        if(this.featureStylingRule && this.featureStylingRule.property && this.featureStylingRule.filterOptions) {
+            $.each(this.featureStylingRule.filterOptions, function(idx, filterOption) {
+                if(!(filterOption.value || filterOption.min || filterOption.max) || !filterOption.olFilter) {
+                    return true;
+                }
                 result[idx] = {
-                    'color': filter.symbolizer.fillColor,
-                    'value': filter.value,
-                    'min': filter.min,
-                    'max': filter.max,
+                    'color': filterOption.symbolizer.fillColor,
+                    'value': filterOption.value,
+                    'min': filterOption.min,
+                    'max': filterOption.max,
                     'features': []
                 };
-                propertyValues.push(filter.value);
             });
 
             $.each(this.olLayer.features, function(id, feature) {
