@@ -37,6 +37,7 @@ gbi.widgets.ThematicalVector = function(editor, options) {
                 self.render();
             });
         } else {
+            self.attributes = self.activeLayer.featuresAttributes();
             self.render();
         }
 
