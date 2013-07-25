@@ -320,21 +320,21 @@ $.extend(gbi.Layers.Vector.prototype, {
      *    Filter value must match exactly.
      * 2. 'range'
      *    If min in filterOptions, all values >= min will be matched
-     *    If max in filterOptions, all values <= max will be matched
-     *    If min and max in filterOptions, all values between min and max will be matched
+     *    If max in filterOptions, all values < max will be matched
+     *    If min and max in filterOptions, all min <= value < max will be matched
      *
      * @memberof gbi.Layers.Vector
      * @instance
      * @param {String} type
-     * @param {String} property
+     * @param {String} attribute
      * @param {Object[]} filterOptions Contains the parameters for each filter
      */
-    addPropertyFilter: function(type, property, filterOptions) {
+    addAttributeFilter: function(type, attribute, filterOptions) {
         var self = this;
         var rules = [];
         this.featureStylingRule = {
             type: type,
-            property: property,
+            attribute: attribute,
             filterOptions: filterOptions
         };
 
@@ -349,7 +349,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 $.each(filterOptions, function(idx, filter) {
                     var olFilter = new OpenLayers.Filter.Comparison({
                         type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                        property: property,
+                        property: attribute,
                         value: filter.value
                     });
                     filter.olFilter = olFilter;
@@ -372,14 +372,14 @@ $.extend(gbi.Layers.Vector.prototype, {
                     if(filter.min) {
                         minFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
-                            property: property,
+                            property: attribute,
                             value: filter.min
                         });
                     }
                     if(filter.max) {
                         maxFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.LESS_THAN,
-                            property: property,
+                            property: attribute,
                             value: filter.max
                         });
                     }
@@ -462,17 +462,17 @@ $.extend(gbi.Layers.Vector.prototype, {
      *
      * @memberof gbi.Layers.Vector
      * @instance
-     * @returns {Object} The returned Object has a property, type and result property.
-     *                   The result property is also an object containing color, min,
+     * @returns {Object} The returned Object has a attribute, type and result attribute.
+     *                   The result attribute is also an object containing color, min,
      *                   max and value propties and a list of features
      */
     filteredFeatures: function() {
         var self = this;
         var result = {};
-        var property = false;
+        var attribute = false;
         var type = false;
 
-        if(this.featureStylingRule && this.featureStylingRule.property && this.featureStylingRule.filterOptions) {
+        if(this.featureStylingRule && this.featureStylingRule.attribute && this.featureStylingRule.filterOptions) {
             $.each(this.featureStylingRule.filterOptions, function(idx, filterOption) {
                 if(!(filterOption.value || filterOption.min || filterOption.max) || !filterOption.olFilter) {
                     return true;
@@ -498,7 +498,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 }
             });
             return {
-                property: this.featureStylingRule.property,
+                attribute: this.featureStylingRule.attribute,
                 type: this.featureStylingRule.type,
                 result: result
             };
@@ -969,7 +969,7 @@ $.extend(gbi.Layers.Couch.prototype, {
 
                 self.setStyle(responseObject);
                 if(rule) {
-                    self.addPropertyFilter(rule.type, rule.property, rule.filterOptions);
+                    self.addAttributeFilter(rule.type, rule.attribute, rule.filterOptions);
                 }
             }
         });
