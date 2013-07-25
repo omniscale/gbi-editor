@@ -9,7 +9,8 @@ var thematicalVectorLabel = {
     'max': OpenLayers.i18n('Max'),
     'execute': OpenLayers.i18n('Execute'),
     'legendFor': OpenLayers.i18n('Legend for'),
-    'areaIn': OpenLayers.i18n('Area in km')
+    'areaIn': OpenLayers.i18n('Area in'),
+    'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -142,6 +143,7 @@ gbi.widgets.ThematicalVector.prototype = {
         var entries = []
         this.legendElement.empty();
         if(legend) {
+            var units = 'm';
             $.each(legend.result, function(idx, r) {
                 var value = '';
                 if(r.min && r.max) {
@@ -155,18 +157,26 @@ gbi.widgets.ThematicalVector.prototype = {
                 }
                 var area = 0;
                 $.each(r.features, function(idx, feature) { area += feature.geometry.getGeodesicArea(self.editor.map.olMap.getProjectionObject())});
-                area /= 1000000;
+                if(area > 100000) {
+                    area /= 1000000;
+                    area = Math.round(area * 10000) / 10000;
+                    units = 'km';
+                } else {
+                    area = Math.round(area * 100) / 100;
+                }
                 entries.push({
                     color: r.color,
                     value: value,
                     area: area
+
                 });
             });
             this.legendElement.append(tmpl(
                 gbi.widgets.ThematicalVector.legendTemplate, {
                     attribute: legend.attribute,
                     type: thematicalVectorLabel[legend.type],
-                    entries: entries
+                    entries: entries,
+                    units: units
                 }
             ));
         } else {
@@ -461,7 +471,7 @@ gbi.widgets.ThematicalVector.legendTemplate = '\
         <tr>\
             <th class="text-center">' + thematicalVectorLabel.color + '</th>\
             <th class="text-center">' + thematicalVectorLabel.value + '</th>\
-            <th class="text-center">' + thematicalVectorLabel.areaIn + '<sup>2</sup></th>\
+            <th class="text-center">' + thematicalVectorLabel.areaIn + ' <%=units%><sup>2</sup></th>\
         </tr>\
     </thead>\
     <tbody>\
