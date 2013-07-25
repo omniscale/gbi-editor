@@ -480,24 +480,24 @@ $.extend(gbi.Layers.Vector.prototype, {
                     'features': []
                 };
             });
-
             $.each(this.olLayer.features, function(id, feature) {
-                $.each(self.featureStylingRule.filters, function(idx, filter) {
-                    if(filter.olFilter.evaluate(feature)) {
-                        result[idx].features.push(feature);
-                        return false;
+                for(var i = self.featureStylingRule.filterOptions.length - 1; i >= 0; i--) {
+                    var filterOption = self.featureStylingRule.filterOptions[i];
+                    if(!filterOption.olFilter) {
+                        break;
                     }
-                });
+                    if(filterOption.olFilter.evaluate(feature)) {
+                        result[i].features.push(feature);
+                        break;
+                    }
+                }
             });
-
             return {
                 property: this.featureStylingRule.property,
                 type: this.featureStylingRule.type,
                 result: result
             };
         }
-
-
     },
     /**
      * Adds features to this layer
