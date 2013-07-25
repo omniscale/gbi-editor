@@ -364,34 +364,39 @@ $.extend(gbi.Layers.Vector.prototype, {
                 break;
             case 'range':
                 $.each(filterOptions, function(idx, filter) {
-                    var olFilter = false;
-                    if(filter.min && filter.max) {
-                        filter.min = OpenLayers.String.numericIf(filter.min);
-                        filter.max = OpenLayers.String.numericIf(filter.max);
-                        olFilter = new OpenLayers.Filter.Comparison({
-                            type: OpenLayers.Filter.Comparison.BETWEEN,
-                            property: property,
-                            lowerBoundary: filter.min,
-                            upperBoundary: filter.max
-                        });
-                    } else if(filter.min) {
-                        filter.min = OpenLayers.String.numericIf(filter.min);
-                        olFilter = new OpenLayers.Filter.Comparison({
+                    var minFilter = false;
+                    var maxFilter = false;
+                    var olFilter
+                    filter.min = OpenLayers.String.isNumeric(filter.min) ? OpenLayers.String.numericIf(filter.min) : false;
+                    filter.max = OpenLayers.String.isNumeric(filter.max) ? OpenLayers.String.numericIf(filter.max) : false;
+                    if(filter.min) {
+                        minFilter = new OpenLayers.Filter.Comparison({
                             type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
                             property: property,
                             value: filter.min
                         });
-                    } else if(filter.max) {
-                        filter.max = OpenLayers.String.numericIf(filter.max);
-                        olFilter = new OpenLayers.Filter.Comparison({
-                            type: OpenLayers.Filter.Comparison.LESS_THAN_OR_EQUAL_TO,
+                    }
+                    if(filter.max) {
+                        maxFilter = new OpenLayers.Filter.Comparison({
+                            type: OpenLayers.Filter.Comparison.LESS_THAN,
                             property: property,
                             value: filter.max
                         });
                     }
-                    if(!olFilter) {
+
+                    if(!minFilter && !maxFilter) {
                         return;
                     }
+
+                    if(minFilter && maxFilter) {
+                        olFilter = new OpenLayers.Filter.Logical({
+                            type: OpenLayers.Filter.Logical.AND,
+                            filters: [minFilter, maxFilter]
+                        });
+                    } else {
+                        olFilter = minFilter || maxFilter;
+                    }
+
                     filter.olFilter = olFilter;
                     if(filter.symbolizer) {
                         rules.push(new OpenLayers.Rule({
