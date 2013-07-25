@@ -23,7 +23,7 @@ gbi.widgets.ThematicalVector = function(editor, options) {
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
     this.legendElement = this.options.legendElement ? $('#' + this.options.legendElement) : false;
-    this.layerManager = editor.layerManager;
+    this.editor = editor;
     this.activeLayer = editor.layerManager.active();
     this.attributes = [];
     this.attributeValues = [];
@@ -153,7 +153,7 @@ gbi.widgets.ThematicalVector.prototype = {
                     value = r.value;
                 }
                 var area = 0;
-                $.each(r.features, function(idx, feature) { area += feature.geometry.getGeodesicArea()});
+                $.each(r.features, function(idx, feature) { area += feature.geometry.getGeodesicArea(self.editor.map.olMap.getProjectionObject())});
                 area /= 1000000;
                 entries.push({
                     color: r.color,
