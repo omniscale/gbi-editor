@@ -169,6 +169,8 @@ gbi.widgets.ThematicalVector.prototype = {
                     entries: entries
                 }
             ));
+        } else {
+            this.legendElement.append($('<div>' + thematicalVectorLabel.noThematicalMap + '</div>'));
         }
     },
     fillWithStylingRule: function(stylingRule) {
