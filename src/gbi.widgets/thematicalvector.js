@@ -10,7 +10,9 @@ var thematicalVectorLabel = {
     'execute': OpenLayers.i18n('Execute'),
     'legendFor': OpenLayers.i18n('Legend for'),
     'areaIn': OpenLayers.i18n('Area in'),
-    'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer')
+    'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer'),
+    'addInputField': OpenLayers.i18n('Add input'),
+    'removeInputField': OpenLayers.i18n('Remove input')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -419,7 +421,7 @@ gbi.widgets.ThematicalVector.template = '\
 <div id="exactInputDiv" class="form-horizontal">\
     <h3>' + thematicalVectorLabel.exact + '</h3>\
     <div class="exactInputControl">\
-        <i class="icon-remove hide inline-block pull-right"></i>\
+        <i class="icon-remove hide inline-block pull-right pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>\
         <div class="control-group">\
             <label class="control-label" for="exactInput_0">' + thematicalVectorLabel.value + ':</label>\
             <div class="controls">\
@@ -434,12 +436,12 @@ gbi.widgets.ThematicalVector.template = '\
             </div>\
         </div>\
     </div>\
-    <i class="icon-plus-sign" id="addExactInput"></i>\
+    <i class="icon-plus-sign pointer" id="addExactInput" title="' + thematicalVectorLabel.addInputField + '"></i>\
 </div>\
 <div id="rangeInputDiv" class="form-horizontal">\
     <h3>' + thematicalVectorLabel.range + '</h3>\
     <div class="rangeInputControl">\
-        <i class="icon-remove hide inline-block pull-right"></i>\
+        <i class="icon-remove hide inline-block pull-right pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>\
         <div class="control-group">\
             <label id="rangeInputMinLabel_0" class="control-label" for="rangeInputMin_0">' + thematicalVectorLabel.min + ':</label>\
             <div class="controls">\
@@ -459,7 +461,7 @@ gbi.widgets.ThematicalVector.template = '\
             </div>\
         </div>\
     </div>\
-    <i class="icon-plus-sign" id="addRangeInput"></i>\
+    <i class="icon-plus-sign pointer" id="addRangeInput" title="' + thematicalVectorLabel.addInputField + '"></i>\
 </div>\
 <button class="btn btn-small" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
 ';
@@ -477,7 +479,7 @@ gbi.widgets.ThematicalVector.legendTemplate = '\
     <tbody>\
         <% for(var key in entries) { %>\
             <tr>\
-                <td class="text-center"><div class="legend-color inline-block" style="background-color: <%=entries[key].color%>;">&nbsp;</div></td>\
+                <td class="text-center"><div class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;">&nbsp;</div></td>\
                 <td class="text-center"><%=entries[key].value%></td>\
                 <td class="text-center"><%=entries[key].area%></td>\
             </tr>\
