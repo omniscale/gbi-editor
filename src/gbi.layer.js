@@ -337,11 +337,13 @@ $.extend(gbi.Layers.Vector.prototype, {
             property: property,
             filterOptions: filterOptions
         };
-        $.each(Array.sort(this.featureStylingRuleIndex).reverse(), function(idx, ruleIdx) {
-            self.olLayer.styleMap.styles.default.rules.splice(ruleIdx, 1);
-        });
 
-        this.featureStylingRuleIndex = [];
+        for(var i=this.olLayer.styleMap.styles.default.rules.length-1; i >= 0; i--) {
+            if(this.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
+                self.olLayer.styleMap.styles.default.rules.splice(i, 1);
+            }
+        }
+
         switch(type) {
             case 'exact':
                 $.each(filterOptions, function(idx, filter) {
@@ -351,10 +353,11 @@ $.extend(gbi.Layers.Vector.prototype, {
                         value: filter.value
                     });
                     filter.olFilter = olFilter;
-                    if(filter.symbolizer != undefined) {
+                    if(filter.symbolizer) {
                         rules.push(new OpenLayers.Rule({
                             filter: olFilter,
-                            symbolizer: filter.symbolizer
+                            symbolizer: filter.symbolizer,
+                            propertyFilter: true
                         }));
                     }
                 });
@@ -390,10 +393,11 @@ $.extend(gbi.Layers.Vector.prototype, {
                         return;
                     }
                     filter.olFilter = olFilter;
-                    if(filter.symbolizer != undefined) {
+                    if(filter.symbolizer) {
                         rules.push(new OpenLayers.Rule({
                             filter: olFilter,
-                            symbolizer: filter.symbolizer
+                            symbolizer: filter.symbolizer,
+                            propertyFilter: true
                         }));
                     }
                 });
@@ -405,10 +409,6 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
 
         this.olLayer.styleMap.styles.default.rules = this.olLayer.styleMap.styles.default.rules.concat(rules);
-
-        $.each(rules, function(idx, rule) {
-            self.featureStylingRuleIndex.push(self.olLayer.styleMap.styles.default.rules.indexOf(rule));
-        });
 
         this.olLayer.redraw();
     },
