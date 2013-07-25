@@ -716,12 +716,16 @@ gbi.Layers.SaveableVector = function(options) {
         options.strategies.push(this.saveStrategy);
     }
 
+    this.loaded = false;
     this.unsavedChanges = false;
 
     gbi.Layers.Vector.call(this, options);
 
-    this.olLayer.events.register('loadend', '', function() {
+    this.olLayer.events.register('loadend', '', function(response) {
         self.unsavedChanges = false;
+        if(response && response.object && response.object.features.length == 0) {
+            self.loaded = true;
+        }
         self.olLayer.events.register('featureadded', self, self._trackStatus);
         self.olLayer.events.register('featureremoved', self, self._trackStatus);
         self.olLayer.events.register('afterfeaturemodified', self, self._trackStatus);
@@ -893,7 +897,6 @@ gbi.Layers.Couch = function(options) {
 
     this.haveCustomStyle = false;
     this.styleRev = false;
-    this.loaded = false;
 
     this.format = new OpenLayers.Format.JSON();
 
