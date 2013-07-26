@@ -13,7 +13,8 @@ var thematicalVectorLabel = {
     'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer'),
     'addInputField': OpenLayers.i18n('Add input'),
     'removeInputField': OpenLayers.i18n('Remove input'),
-    'active': OpenLayers.i18n('Active')
+    'active': OpenLayers.i18n('Active'),
+    'choose': OpenLayers.i18n('Choose value')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -30,7 +31,6 @@ gbi.widgets.ThematicalVector = function(editor, options) {
     this.editor = editor;
     this.activeLayer = editor.layerManager.active();
     this.attributes = [];
-    this.attributeValues = [];
     this.mode = this.options.mode;
 
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
@@ -56,12 +56,9 @@ gbi.widgets.ThematicalVector = function(editor, options) {
 };
 gbi.widgets.ThematicalVector.prototype = {
     CLASS_NAME: 'gbi.widgets.ThematicalVector',
-    render: function(reset) {
+    render: function() {
         var self = this;
-        var attribute = false;
-        if(reset) {
-            attribute = this.element.find('#attribute').val();
-        }
+
         this.element.empty();
         this.element.append(tmpl(
             gbi.widgets.ThematicalVector.template, {
@@ -70,7 +67,7 @@ gbi.widgets.ThematicalVector.prototype = {
             }
         ));
 
-        if(!reset && this.legendElement) {
+        if(this.legendElement) {
             this.renderLegend();
         }
 
@@ -85,59 +82,45 @@ gbi.widgets.ThematicalVector.prototype = {
         });
 
         $('#attribute').change(function() {
-            self.fillExactInputSelect(this)
+            $.each($('.exactInputControl select'), function(idx, element) {
+                element = $(element);
+                self.fillExactInputSelect(element, element.val());
+            });
         });
 
-        // $('.exactSelect').change(function() {
-        //     self.fillExactInputField(this)
-        // });
-
-        $('#addExactInput').click(function() {
-            self.addExactInput()
-        });
-
-        $('#addRangeInput').click(function() {
-            self.addRangeInput();
+        $('#addInput').click(function() {
+            self.addInput(self.mode);
         });
 
         $('#executeFilter').click(function() {
             self.execute();
         });
 
-        $('#exactInputDiv .icon-remove').click(function() {
-            self.removeInput();
-        });
-
-        $('#rangeInputDiv .icon-remove').click(function() {
-            self.removeInput();
-        });
-
-        this.fillExactInputSelect();
-
-        $('.color_picker').each(function() {
-            $(this).minicolors({
-                'value': $(this).val()
-            });
-        });
-
-        if(!reset) {
-            this.fillWithStylingRule($.extend(true, {}, this.activeLayer.featureStylingRule));
-        }
-
-        if(reset) {
+        if(this.activeLayer.featureStylingRule) {
+            this.element.find('#attribute').val(this.activeLayer.featureStylingRule.attribute);
+            this.element.find('#rule-active').attr('checked', this.activeLayer.featureStylingRule.active)
+            this.mode = this.activeLayer.featureStylingRule.type;
             switch(this.mode) {
                 case 'exact':
                     this.toggleExact();
+                    $.each(this.activeLayer.featureStylingRule.filterOptions, function(idx, filterOption) {
+                        self.addInput('exact', filterOption);
+                    });
+                    this.addInput('range');
                     break;
                 case 'range':
                     this.toggleRange()
+                    $.each(this.activeLayer.featureStylingRule.filterOptions, function(idx, filterOption) {
+                        self.addInput('range', filterOption);
+                    });
+                    this.addInput('exact');
                     break;
             }
-            if(attribute) {
-                this.element.find('#attribute').val(attribute)
-            }
-        }
 
+        } else {
+            this.addInput('exact');
+            this.addInput('range');
+        }
     },
     renderLegend: function() {
         var self = this;
@@ -185,41 +168,6 @@ gbi.widgets.ThematicalVector.prototype = {
             this.legendElement.append($('<div>' + thematicalVectorLabel.noThematicalMap + '</div>'));
         }
     },
-    fillWithStylingRule: function(stylingRule) {
-        var self = this;
-        if(!stylingRule) {
-            return;
-        }
-        $('#attribute').val(stylingRule.attribute);
-        this.fillExactInputSelect();
-        $('#rule-active').attr('checked', stylingRule.active)
-        switch(stylingRule.type) {
-            case 'exact':
-                this.toggleExact();
-                var element = $('.exactInputControl').first();
-                element.find('.exactSelect').first().val(stylingRule.filterOptions[0].value);
-                var colorElement = element.find('.exactColor').first().minicolors('value', stylingRule.filterOptions[0].symbolizer.fillColor);
-                stylingRule.filterOptions.splice(0, 1);
-                $.each(stylingRule.filterOptions, function(idx, filterOption) {
-                    self.addExactInput(filterOption);
-                });
-                break;
-            case 'range':
-                this.toggleRange();
-                var element = $('.rangeInputControl').first();
-                if(stylingRule.filterOptions[0].min) {
-                    element.find('.rangeInputMin').first().val(stylingRule.filterOptions[0].min)
-                }
-                if(stylingRule.filterOptions[0].max) {
-                    element.find('.rangeInputMax').first().val(stylingRule.filterOptions[0].max)
-                }
-                var colorElement = element.find('.rangeColor').first().minicolors('value', stylingRule.filterOptions[0].symbolizer.fillColor);
-                stylingRule.filterOptions.splice(0, 1);
-                $.each(stylingRule.filterOptions, function(idx, filterOption) {
-                    self.addRangeInput(filterOption);
-                });
-        }
-    },
     toggleExact: function() {
         var self = this;
         $('#toggleRange').removeClass('active');
@@ -236,117 +184,90 @@ gbi.widgets.ThematicalVector.prototype = {
         $('#exactInputDiv').hide();
         self.mode = "range";
     },
-    addExactInput: function(filterOption) {
+    fillExactInputSelect: function(element, value) {
         var self = this;
-        var element = $('.exactInputControl').last();
-        var newElement = element.clone()
-        var idx = parseInt(newElement.find('.exactSelect').first().attr('id').split('_')[1]);
-        var newIdx = idx + 1;
+        element.empty();
+        element.append($('<option disabled selected>' + thematicalVectorLabel.selectValue + '</option>'));
+        var optionValues = self.activeLayer.attributeValues($('#attribute').val())
+        $.each(optionValues, function(idx, value) {
+            element.append($('<option value="'+ value+'">'+value+'</option>'));
+        });
+        if(value && $.inArray(value, optionValues) != -1) {
+            element.val(value);
+        }
+    },
+    addInput: function(mode, filterOption) {
+        var idx, selectBaseId, colorBaseId, minBaseId, maxBaseId, colorClass;
+        var tds = [];
 
-        var label = newElement.find('label').first();
-        label.attr('for', 'exactInput_' + newIdx);
+        switch(mode) {
+            case 'exact':
+                idx = $('.exactInputControl tbody tr').length;
+                selectBaseId = 'exactInputSelect_';
+                colorBaseId = 'exactColor_';
+                colorClass = 'exactColor';
 
-        // var input = newElement.find('.exactInput').first();
-        // input.attr('id', 'exactInput_' + newIdx);
-        // if(filterOption) {
-        //     input.val(filterOption.value);
-        // } else {
-        //     input.val('');
-        // }
+                var select = $(gbi.widgets.ThematicalVector.selectTempalte);
+                select.attr('id', selectBaseId + idx);
+                this.fillExactInputSelect(select);
+                if(filterOption) {
+                    select.val(filterOption.value);
+                }
+                tds.push(select);
+                break;
+            case 'range':
+                idx = $('.rangeInputControl tbody tr').length;
+                minBaseId = 'rangeInputMin_';
+                maxBaseId = 'rangeInputMax_';
+                colorBaseId = 'rangeColor_';
 
-        newElement.find('.colorControl').empty();
+                var minInput = $(gbi.widgets.ThematicalVector.inputTemplate);
+                minInput.attr('id', minBaseId + idx);
+                minInput.addClass('rangeInputMin');
+                if(filterOption) {
+                    minInput.val(filterOption.min || '');
+                }
+                tds.push(minInput);
 
-        var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVector.defaultColors[newIdx];
-        var color = $('<input id="exactColor_'+newIdx+'" class="exactColor color_picker styleControl input-small" value="'+ colorValue +'" />');
-        newElement.find('.colorControl').append(color);
+                var maxInput = $(gbi.widgets.ThematicalVector.inputTemplate);
+                maxInput.attr('id', maxBaseId + idx);
+                maxInput.addClass('rangeInputMax');
+                if(filterOption) {
+                    maxInput.val(filterOption.max || '');
+                }
+                tds.push(maxInput)
+        }
+
+        var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVector.defaultColors[idx];
+        var color = $(gbi.widgets.ThematicalVector.colorTemplate);
+        color.attr('id', colorBaseId + idx);
+        color.addClass(colorClass);
+        color.val(colorValue);
+        tds.push(color)
+
+        var remove = $(gbi.widgets.ThematicalVector.removeTemplate);
+        remove.click(function() {
+            $(this).parent().parent().remove();
+        });
+        tds.push(remove)
+
+        var tr = $('<tr></tr>');
+        $.each(tds, function(idx, element) {
+            var td = $('<td></td>');
+            td.append(element);
+            tr.append(td);
+        });
+        $('.' + mode + 'InputControl tbody').append(tr);
         color.minicolors({
             'value': colorValue
         });
-
-        var select = newElement.find('select').first();
-        select.attr('id', 'exactInputSelect_' + newIdx);
-        if(filterOption) {
-            select.val(filterOption.value)
-        }
-
-        select.change(function() {
-            self.fillExactInputField(this)
-        });
-
-        var removeElement = newElement.find('.icon-remove').first();
-        removeElement.removeClass('hide');
-        removeElement.click(function() {
-            self.removeInput(this);
-        });
-
-        element.after(newElement);
-    },
-    removeInput: function(element) {
-        $(element).parent().remove();
-    },
-    fillExactInputSelect: function() {
-        var self = this;
-        var target = $('#exactInputDiv select').empty();
-        target.append($('<option disabled selected>' + thematicalVectorLabel.selectValue + '</option>'));
-        $.each(self.activeLayer.attributeValues($('#attribute').val()), function(idx, value) {
-            target.append($('<option value="'+ value+'">'+value+'</option>'));
-        });
-    },
-    // fillExactInputField: function(element) {
-    //     var idx = element.id.split('_')[1]
-    //     $('#exactInput_'+idx).val($('#exactInputSelect_'+idx).val())
-    // },
-    addRangeInput: function(filterOption) {
-        var self = this;
-        var element = $('.rangeInputControl').last();
-        var newElement = element.clone()
-        var idx = parseInt(newElement.find('.rangeInputMin').first().attr('id').split('_')[1]);
-        var newIdx = idx + 1;
-
-        var minLabel = newElement.find('#rangeInputMinLabel_' + idx).first();
-        minLabel.attr('for', 'rangeInputMinLabel_' + newIdx);
-
-        var minInput = newElement.find('#rangeInputMin_' + idx).first();
-        minInput.attr('id', 'rangeInputMin_' + newIdx)
-        if(filterOption && filterOption.min) {
-            minInput.val(filterOption.min);
-        } else {
-            minInput.val('')
-        }
-
-        var maxLabel = newElement.find('#rangeInputMaxLabel_' + idx).first();
-        maxLabel.attr('for', 'rangeInputMaxLabel_' + newIdx);
-
-        var maxInput = newElement.find('#rangeInputMax_' + idx).first();
-        maxInput.attr('id', 'rangeInputMax_' + newIdx)
-        if(filterOption && filterOption.max) {
-            maxInput.val(filterOption.max);
-        } else {
-            maxInput.val('')
-        }
-
-        newElement.find('.colorControl').empty();
-        var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVector.defaultColors[newIdx];
-        var color = $('<input id="rangeColor_'+newIdx+'" class="rangeColor color_picker styleControl input-small" value="'+ colorValue +'" />');
-        newElement.find('.colorControl').append(color);
-        color.minicolors({
-            'value': colorValue
-        });
-
-        var removeElement = newElement.find('.icon-remove').first();
-        removeElement.removeClass('hide');
-        removeElement.click(function() {
-            self.removeInput(this);
-        });
-
-        element.after(newElement)
     },
     execute: function() {
         var self = this;
         var filterOptions = [];
         switch(this.mode) {
             case 'exact':
-                $('.exactInputControl').each(function(idx, element) {
+                $('.exactInputControl tbody tr').each(function(idx, element) {
                     element = $(element);
                     var value = element.find('.exactSelect').first().val() || false;
                     var color = element.find('.exactColor').first().val() || false;
@@ -361,7 +282,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 });
                 break;
             case 'range':
-                $('.rangeInputControl').each(function(idx, element) {
+                $('.rangeInputControl tbody tr').each(function(idx, element) {
                     element = $(element);
                     var min = element.find('.rangeInputMin').first().val() || false;
                     var max = element.find('.rangeInputMax').first().val() || false;
@@ -377,7 +298,6 @@ gbi.widgets.ThematicalVector.prototype = {
                 });
                 break;
         }
-        console.log($('#rule-active').is(':checked'))
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), $('#rule-active').is(':checked'), filterOptions);
         if(this.legendElement) {
             this.renderLegend();
@@ -429,52 +349,43 @@ gbi.widgets.ThematicalVector.template = '\
         ' + thematicalVectorLabel.range + '\
     </button>\
 </div>\
-<div id="exactInputDiv" class="form-horizontal">\
+<div id="exactInputDiv">\
     <h3>' + thematicalVectorLabel.exact + '</h3>\
-    <div class="exactInputControl">\
-        <i class="icon-remove hide inline-block pull-right pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>\
-        <div class="control-group">\
-            <label class="control-label" for="exactInput_0">' + thematicalVectorLabel.value + ':</label>\
-            <div class="controls">\
-                <select id="exactInputSelect_0" class="exactSelect"></select>\
-            </div>\
-        </div>\
-        <div class="control-group">\
-            <label class="control-label" for="exactColor_0">' + thematicalVectorLabel.color + ':</label>\
-            <div class="controls colorControl">\
-                <input id="exactColor_0" class="exactColor color_picker styleControl input-small" value="<%=defaultColors[0]%>" />\
-            </div>\
-        </div>\
-    </div>\
-    <i class="icon-plus-sign pointer" id="addExactInput" title="' + thematicalVectorLabel.addInputField + '"></i>\
+    <table class="exactInputControl">\
+        <thead>\
+            <tr>\
+                <th>' + thematicalVectorLabel.choose + '</th>\
+                <th>' + thematicalVectorLabel.color + '</th>\
+                <th></th>\
+            </tr>\
+        </thead>\
+        <tbody>\
+        </tbody>\
+    </table>\
 </div>\
-<div id="rangeInputDiv" class="form-horizontal">\
+<div id="rangeInputDiv">\
     <h3>' + thematicalVectorLabel.range + '</h3>\
-    <div class="rangeInputControl">\
-        <i class="icon-remove hide inline-block pull-right pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>\
-        <div class="control-group">\
-            <label id="rangeInputMinLabel_0" class="control-label" for="rangeInputMin_0">' + thematicalVectorLabel.min + ':</label>\
-            <div class="controls">\
-                <input type="text" id="rangeInputMin_0" class="rangeInputMin">\
-            </div>\
-        </div>\
-        <div class="control-group">\
-            <label id="rangeInputMaxLabel_0" class="control-label" for="rangeInputMax_0">' + thematicalVectorLabel.min + ':</label>\
-            <div class="controls">\
-                <input type="text" id="rangeInputMax_0" class="rangeInputMax">\
-            </div>\
-        </div>\
-        <div class="control-group">\
-            <label class="control-label" for="rangeColor_0">' + thematicalVectorLabel.color + ':</label>\
-            <div class="controls colorControl">\
-                <input id="rangeColor_0" class="rangeColor color_picker styleControl input-small" value="<%=defaultColors[0]%>" />\
-            </div>\
-        </div>\
-    </div>\
-    <i class="icon-plus-sign pointer" id="addRangeInput" title="' + thematicalVectorLabel.addInputField + '"></i>\
+    <table class="rangeInputControl">\
+        <thead>\
+            <tr>\
+                <th>' + thematicalVectorLabel.min + '</th>\
+                <th>' + thematicalVectorLabel.max + '</th>\
+                <th>' + thematicalVectorLabel.color + '</th>\
+                <th></th>\
+            </tr>\
+        </thead>\
+        <tbody>\
+        </tbody>\
+    </table>\
 </div>\
-<button class="btn btn-small" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
+<button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
+<button class="btn btn-small pull-right" id="addInput">' + thematicalVectorLabel.addInputField + '</button>\
 ';
+
+gbi.widgets.ThematicalVector.inputTemplate = '<input type="text" id="" class="input-small">';
+gbi.widgets.ThematicalVector.selectTempalte = '<select id="" class="exactSelect input-medium"></select>';
+gbi.widgets.ThematicalVector.colorTemplate = '<input id="" class="color_picker styleControl input-small" value="" />';
+gbi.widgets.ThematicalVector.removeTemplate = '<i class="icon-remove pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>'
 
 gbi.widgets.ThematicalVector.legendTemplate = '\
 <h3>' + thematicalVectorLabel.legendFor + ' "<%=attribute%>" (<%=type%>)</h3>\
