@@ -12,7 +12,8 @@ var thematicalVectorLabel = {
     'areaIn': OpenLayers.i18n('Area in'),
     'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer'),
     'addInputField': OpenLayers.i18n('Add input'),
-    'removeInputField': OpenLayers.i18n('Remove input')
+    'removeInputField': OpenLayers.i18n('Remove input'),
+    'active': OpenLayers.i18n('Active')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -191,6 +192,7 @@ gbi.widgets.ThematicalVector.prototype = {
             return;
         }
         $('#attribute').val(stylingRule.attribute);
+        $('#rule-active').attr('checked', stylingRule.active)
         switch(stylingRule.type) {
             case 'exact':
                 this.toggleExact();
@@ -371,7 +373,8 @@ gbi.widgets.ThematicalVector.prototype = {
                 });
                 break;
         }
-        this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), filterOptions);
+        console.log($('#rule-active').is(':checked'))
+        this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), $('#rule-active').is(':checked'), filterOptions);
         if(this.legendElement) {
             this.renderLegend();
         }
@@ -405,6 +408,10 @@ gbi.widgets.ThematicalVector.template = '\
         </select>\
     </div>\
 </div>\
+<label for="active">\
+    <input type="checkbox" id="rule-active" />\
+    ' + thematicalVectorLabel.active + '\
+</label>\
 <div class="btn-group"\
      data-toggle="buttons-radio">\
     <button id="toggleExact"\

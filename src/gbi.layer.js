@@ -329,12 +329,13 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {String} attribute
      * @param {Object[]} filterOptions Contains the parameters for each filter
      */
-    addAttributeFilter: function(type, attribute, filterOptions) {
+    addAttributeFilter: function(type, attribute, active, filterOptions) {
         var self = this;
         var rules = [];
         this.featureStylingRule = {
             type: type,
             attribute: attribute,
+            active: active,
             filterOptions: filterOptions
         };
 
@@ -405,8 +406,8 @@ $.extend(gbi.Layers.Vector.prototype, {
                 });
                 break;
         };
-
-        if(rules.length == 0) {
+        if(rules.length == 0 || !active) {
+            this.olLayer.redraw();
             return;
         }
 
@@ -969,7 +970,7 @@ $.extend(gbi.Layers.Couch.prototype, {
 
                 self.setStyle(responseObject);
                 if(rule) {
-                    self.addAttributeFilter(rule.type, rule.attribute, rule.filterOptions);
+                    self.addAttributeFilter(rule.type, rule.attribute, rule.active, rule.filterOptions);
                 }
             }
         });
