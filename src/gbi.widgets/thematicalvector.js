@@ -85,7 +85,6 @@ gbi.widgets.ThematicalVector.prototype = {
         });
 
         $('#attribute').change(function() {
-            self.render(true);
             self.fillExactInputSelect(this)
         });
 
