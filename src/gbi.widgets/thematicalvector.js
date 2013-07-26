@@ -351,7 +351,7 @@ gbi.widgets.ThematicalVector.template = '\
 </div>\
 <div id="exactInputDiv">\
     <h3>' + thematicalVectorLabel.exact + '</h3>\
-    <table class="exactInputControl">\
+    <table class="exactInputControl table">\
         <thead>\
             <tr>\
                 <th>' + thematicalVectorLabel.choose + '</th>\
@@ -365,7 +365,7 @@ gbi.widgets.ThematicalVector.template = '\
 </div>\
 <div id="rangeInputDiv">\
     <h3>' + thematicalVectorLabel.range + '</h3>\
-    <table class="rangeInputControl">\
+    <table class="rangeInputControl table">\
         <thead>\
             <tr>\
                 <th>' + thematicalVectorLabel.min + '</th>\
@@ -388,8 +388,8 @@ gbi.widgets.ThematicalVector.colorTemplate = '<input id="" class="color_picker s
 gbi.widgets.ThematicalVector.removeTemplate = '<i class="icon-remove pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>'
 
 gbi.widgets.ThematicalVector.legendTemplate = '\
-<h3>' + thematicalVectorLabel.legendFor + ' "<%=attribute%>" (<%=type%>)</h3>\
-<table>\
+<h5>' + thematicalVectorLabel.legendFor + ' "<%=attribute%>" (<%=type%>)</h5>\
+<table class="table">\
     <thead>\
         <tr>\
             <th class="text-center">' + thematicalVectorLabel.color + '</th>\
