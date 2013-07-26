@@ -276,7 +276,7 @@ gbi.widgets.ThematicalVector.prototype = {
         var filterOptions = [];
         switch(this.mode) {
             case 'exact':
-                $('.exactInputControl tbody tr').each(function(idx, element) {
+                $('.exactInputControl tbody tr:visible').each(function(idx, element) {
                     element = $(element);
                     var value = element.find('.exactSelect').first().val() || false;
                     var color = element.find('.exactColor').first().val() || false;
@@ -291,7 +291,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 });
                 break;
             case 'range':
-                $('.rangeInputControl tbody tr').each(function(idx, element) {
+                $('.rangeInputControl tbody tr:visible').each(function(idx, element) {
                     element = $(element);
                     var min = element.find('.rangeInputMin').first().val() || false;
                     var max = element.find('.rangeInputMax').first().val() || false;
