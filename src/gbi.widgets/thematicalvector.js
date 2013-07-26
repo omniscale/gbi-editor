@@ -14,7 +14,8 @@ var thematicalVectorLabel = {
     'addInputField': OpenLayers.i18n('Add input'),
     'removeInputField': OpenLayers.i18n('Remove input'),
     'active': OpenLayers.i18n('Active'),
-    'choose': OpenLayers.i18n('Choose value')
+    'choose': OpenLayers.i18n('Choose value'),
+    'noInput': OpenLayers.i18n('No entries')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -197,12 +198,15 @@ gbi.widgets.ThematicalVector.prototype = {
         }
     },
     addInput: function(mode, filterOption) {
+        var self = this;
         var idx, selectBaseId, colorBaseId, minBaseId, maxBaseId, colorClass;
         var tds = [];
 
+        $('.exactInputControl tbody tr').first().addClass('hide');
+
         switch(mode) {
             case 'exact':
-                idx = $('.exactInputControl tbody tr').length;
+                idx = $('.exactInputControl tbody tr:visible').length;
                 selectBaseId = 'exactInputSelect_';
                 colorBaseId = 'exactColor_';
                 colorClass = 'exactColor';
@@ -216,7 +220,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 tds.push(select);
                 break;
             case 'range':
-                idx = $('.rangeInputControl tbody tr').length;
+                idx = $('.rangeInputControl tbody tr:visible').length;
                 minBaseId = 'rangeInputMin_';
                 maxBaseId = 'rangeInputMax_';
                 colorBaseId = 'rangeColor_';
@@ -248,6 +252,11 @@ gbi.widgets.ThematicalVector.prototype = {
         var remove = $(gbi.widgets.ThematicalVector.removeTemplate);
         remove.click(function() {
             $(this).parent().parent().remove();
+            var elements = $('.' + self.mode + 'InputControl tbody tr');
+            if(elements.length == 1) {
+                elements.first().removeClass('hide');
+            }
+
         });
         tds.push(remove)
 
@@ -360,6 +369,9 @@ gbi.widgets.ThematicalVector.template = '\
             </tr>\
         </thead>\
         <tbody>\
+            <tr class="hide no-inpput">\
+                <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
+            </tr>\
         </tbody>\
     </table>\
 </div>\
@@ -375,6 +387,9 @@ gbi.widgets.ThematicalVector.template = '\
             </tr>\
         </thead>\
         <tbody>\
+            <tr class="hide no-input">\
+                <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
+            </tr>\
         </tbody>\
     </table>\
 </div>\
