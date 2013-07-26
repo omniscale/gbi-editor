@@ -510,7 +510,7 @@ gbi.Controls.MultiLayerControl = function(layers, options) {
     if(layers) {
         if(!$.isArray(layers) && layers instanceof gbi.Layers.Layer) {
             //it's only one layer
-            this.layers[layers.id] = layer;
+            this.layers[layers.id] = layers;
         } else {
             $.each(layers, function(idx, layer) {
                 if(layer instanceof gbi.Layers.Layer) {
