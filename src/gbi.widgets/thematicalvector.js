@@ -306,7 +306,7 @@ gbi.widgets.ThematicalVector.prototype = {
     }
 };
 
-gbi.widgets.ThematicalVector.defaultColors = [
+gbi.widgets.ThematicalVector.defaultColors = gbi.widgets.ThematicalVector.defaultColors || [
     '#ff0000',
     '#00ff00',
     '#0000ff',
