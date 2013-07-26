@@ -88,9 +88,9 @@ gbi.widgets.ThematicalVector.prototype = {
             self.fillExactInputSelect(this)
         });
 
-        $('.exactSelect').change(function() {
-            self.fillExactInputField(this)
-        });
+        // $('.exactSelect').change(function() {
+        //     self.fillExactInputField(this)
+        // });
 
         $('#addExactInput').click(function() {
             self.addExactInput()
@@ -191,12 +191,13 @@ gbi.widgets.ThematicalVector.prototype = {
             return;
         }
         $('#attribute').val(stylingRule.attribute);
+        this.fillExactInputSelect();
         $('#rule-active').attr('checked', stylingRule.active)
         switch(stylingRule.type) {
             case 'exact':
                 this.toggleExact();
                 var element = $('.exactInputControl').first();
-                element.find('.exactInput').first().val(stylingRule.filterOptions[0].value);
+                element.find('.exactSelect').first().val(stylingRule.filterOptions[0].value);
                 var colorElement = element.find('.exactColor').first().minicolors('value', stylingRule.filterOptions[0].symbolizer.fillColor);
                 stylingRule.filterOptions.splice(0, 1);
                 $.each(stylingRule.filterOptions, function(idx, filterOption) {
@@ -239,19 +240,19 @@ gbi.widgets.ThematicalVector.prototype = {
         var self = this;
         var element = $('.exactInputControl').last();
         var newElement = element.clone()
-        var idx = parseInt(newElement.find('.exactInput').first().attr('id').split('_')[1]);
+        var idx = parseInt(newElement.find('.exactSelect').first().attr('id').split('_')[1]);
         var newIdx = idx + 1;
 
         var label = newElement.find('label').first();
         label.attr('for', 'exactInput_' + newIdx);
 
-        var input = newElement.find('.exactInput').first();
-        input.attr('id', 'exactInput_' + newIdx);
-        if(filterOption) {
-            input.val(filterOption.value);
-        } else {
-            input.val('');
-        }
+        // var input = newElement.find('.exactInput').first();
+        // input.attr('id', 'exactInput_' + newIdx);
+        // if(filterOption) {
+        //     input.val(filterOption.value);
+        // } else {
+        //     input.val('');
+        // }
 
         newElement.find('.colorControl').empty();
 
@@ -264,6 +265,10 @@ gbi.widgets.ThematicalVector.prototype = {
 
         var select = newElement.find('select').first();
         select.attr('id', 'exactInputSelect_' + newIdx);
+        if(filterOption) {
+            select.val(filterOption.value)
+        }
+
         select.change(function() {
             self.fillExactInputField(this)
         });
@@ -287,10 +292,10 @@ gbi.widgets.ThematicalVector.prototype = {
             target.append($('<option value="'+ value+'">'+value+'</option>'));
         });
     },
-    fillExactInputField: function(element) {
-        var idx = element.id.split('_')[1]
-        $('#exactInput_'+idx).val($('#exactInputSelect_'+idx).val())
-    },
+    // fillExactInputField: function(element) {
+    //     var idx = element.id.split('_')[1]
+    //     $('#exactInput_'+idx).val($('#exactInputSelect_'+idx).val())
+    // },
     addRangeInput: function(filterOption) {
         var self = this;
         var element = $('.rangeInputControl').last();
@@ -343,7 +348,7 @@ gbi.widgets.ThematicalVector.prototype = {
             case 'exact':
                 $('.exactInputControl').each(function(idx, element) {
                     element = $(element);
-                    var value = element.find('.exactInput').first().val() || false;
+                    var value = element.find('.exactSelect').first().val() || false;
                     var color = element.find('.exactColor').first().val() || false;
 
                     filterOptions.push({
@@ -431,7 +436,6 @@ gbi.widgets.ThematicalVector.template = '\
         <div class="control-group">\
             <label class="control-label" for="exactInput_0">' + thematicalVectorLabel.value + ':</label>\
             <div class="controls">\
-                <input type="text" id="exactInput_0" class="exactInput">\
                 <select id="exactInputSelect_0" class="exactSelect"></select>\
             </div>\
         </div>\
