@@ -10,14 +10,13 @@ var thematicalVectorLegendLabel = {
 
 gbi.widgets = gbi.widgets || {};
 
-gbi.widgets.ThematicalVectorLegend = function(editor, thematicalVector, options) {
+gbi.widgets.ThematicalVectorLegend = function(editor, options) {
     var self = this;
     var defaults = {
         element: 'thematicalvectorlegend'
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
-    this.thematicalVector = thematicalVector;
     this.editor = editor;
     this.activeLayer = editor.layerManager.active();
     this.selectControl = false;
@@ -90,7 +89,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                 }
             ));
 
-            if(this.thematicalVector.mode == 'exact') {
+            if(legend.type == 'exact') {
                 this.element.find('.gbi_widget_legend_color').click(function() {
                     var element = $(this);
                     element.addClass('highlight_legend_color');
