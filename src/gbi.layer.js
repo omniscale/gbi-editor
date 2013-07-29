@@ -1021,6 +1021,9 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @returns {Object} stylingData with thematical data
      */
     _addRule : function(stylingData) {
+        if(!this.featureStylingRule) {
+            return stylingData;
+        }
         stylingData['rule'] = $.extend(true, {}, this.featureStylingRule);
         $.each(stylingData.rule.filterOptions, function(idx, filter) {
             delete filter['olFilter'];
