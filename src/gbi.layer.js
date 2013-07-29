@@ -406,6 +406,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 });
                 break;
         };
+        $(gbi).trigger('gbi.layer.vector.ruleChanged', false);
         if(rules.length == 0 || !active) {
             this.olLayer.redraw();
             return;
