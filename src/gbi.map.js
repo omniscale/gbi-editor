@@ -113,6 +113,20 @@ gbi.Map.prototype = {
         this.olMap.addControl(control.olControl);
     },
     /**
+     * Removes control from map
+     *
+     * @param {Control} control Control to remove
+     */
+    removeControl: function(control) {
+        if(control instanceof gbi.Toolbar) {
+            var idx = $.inArray(control, this.toolbars);
+            if(idx != -1) {
+                this.toolbars.splice(idx, 1);
+            }
+        }
+        this.olMap.removeControl(control.olControl);
+    },
+    /**
      * Adds controls to the map
      *
      * @param {Control[]} controls Controls to add
@@ -122,5 +136,16 @@ gbi.Map.prototype = {
         $.each(controls, function(idx, control) {
             self.addControl(control);
         })
+    },
+    /**
+     * Removes controls from map
+     *
+     * @param {Control[]} controls Controls to remove
+     */
+    removeControls: function(controls) {
+        var self = this;
+        $.each(controls, function(idx, control) {
+            self.removeControl(control);
+        });
     }
 };
