@@ -168,6 +168,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 minBaseId = 'rangeInputMin_';
                 maxBaseId = 'rangeInputMax_';
                 colorBaseId = 'rangeColor_';
+                colorClass = 'rangeColor';
 
                 var minInput = $(gbi.widgets.ThematicalVector.inputTemplate);
                 minInput.attr('id', minBaseId + idx);
