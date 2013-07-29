@@ -13,7 +13,8 @@ gbi.widgets = gbi.widgets || {};
 gbi.widgets.ThematicalVectorLegend = function(editor, options) {
     var self = this;
     var defaults = {
-        element: 'thematicalvectorlegend'
+        element: 'thematicalvectorlegend',
+        modifyFeatures: true
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
@@ -90,33 +91,40 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                 }
             ));
 
-            if(legend.type == 'exact') {
-                this.element.find('.gbi_widget_legend_color').click(function() {
-                    var element = $(this);
-                    self._removeSelectControl();
-                    self._addSelectControl(element, legend.attribute, element.children().first().text())
-                });
-            }
-            if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                self.activeLayer.registerCallback('changes', function() {
-                    self.element.find('#applyChanges').first().removeAttr('disabled');
-                    self.element.find('#discardChanges').first().removeAttr('disabled');
-                })
-                self.activeLayer.registerCallback('success', function() {
-                    self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                    self.element.find('#discardChanges').first().attr('disabled', 'disabled');
-                })
-                self.element.find('#applyChanges').first().click(function() {
-                    self.activeLayer.save();
-                    self._removeSelectControl();
-                    self.render();
-                });
-                self.element.find('#discardChanges').first().click(function() {
-                    self.activeLayer.olLayer.refresh();
-                    self._removeSelectControl();
-                    self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                    self.element.find('#discardChanges').first().attr('disabled', 'disabled');
-                });
+            if(self.options.modifyFeatures) {
+
+                this.element.append(tmpl(
+                    gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate
+                ));
+
+                if(legend.type == 'exact') {
+                    this.element.find('.gbi_widget_legend_color').click(function() {
+                        var element = $(this);
+                        self._removeSelectControl();
+                        self._addSelectControl(element, legend.attribute, element.children().first().text())
+                    });
+                }
+                if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
+                    self.activeLayer.registerCallback('changes', function() {
+                        self.element.find('#applyChanges').first().removeAttr('disabled');
+                        self.element.find('#discardChanges').first().removeAttr('disabled');
+                    })
+                    self.activeLayer.registerCallback('success', function() {
+                        self.element.find('#applyChanges').first().attr('disabled', 'disabled');
+                        self.element.find('#discardChanges').first().attr('disabled', 'disabled');
+                    })
+                    self.element.find('#applyChanges').first().click(function() {
+                        self.activeLayer.save();
+                        self._removeSelectControl();
+                        self.render();
+                    });
+                    self.element.find('#discardChanges').first().click(function() {
+                        self.activeLayer.olLayer.refresh();
+                        self._removeSelectControl();
+                        self.element.find('#applyChanges').first().attr('disabled', 'disabled');
+                        self.element.find('#discardChanges').first().attr('disabled', 'disabled');
+                    });
+                }
             }
         } else {
             this.element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
@@ -172,6 +180,9 @@ gbi.widgets.ThematicalVectorLegend.template = '\
             <% } %>\
         </tbody>\
     </table>\
+';
+
+gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate = '\
     <button id="applyChanges" disabled="disabled">Apply Changes</button>\
     <button id="discardChanges" disabled="disabled">Discard Changes</button>\
 ';
