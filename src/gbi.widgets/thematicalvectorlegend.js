@@ -27,26 +27,27 @@ gbi.widgets.ThematicalVectorLegend = function(editor, options) {
 
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
-        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
-            $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-                self.render();
-            });
-        } else {
-            self.render();
-        }
-
+        self.render();
     });
 
-    if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
-        $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-            self.render();
-        });
-    } else {
+    $(gbi).on('gbi.layer.vector.ruleChanged', function(event) {
         self.render();
-    }
+    });
+
+    self.render();
 };
 gbi.widgets.ThematicalVectorLegend.prototype = {
     render: function() {
+        var self = this;
+        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
+            $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
+                self._render();
+            });
+        } else {
+            self._render();
+        }
+    },
+    _render: function() {
         var self = this;
         var legend = this.activeLayer.filteredFeatures();
         var entries = []
