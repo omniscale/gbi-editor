@@ -93,43 +93,62 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             if(legend.type == 'exact') {
                 this.element.find('.gbi_widget_legend_color').click(function() {
                     var element = $(this);
-                    element.addClass('highlight_legend_color');
-                    self.changeAttributeValue(element, legend.attribute, element.children().first().text());
+                    self._removeSelectControl();
+                    self._addSelectControl(element, legend.attribute, element.children().first().text())
                 });
             }
             if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
                 self.activeLayer.registerCallback('changes', function() {
                     self.element.find('#applyChanges').first().removeAttr('disabled');
+                    self.element.find('#discardChanges').first().removeAttr('disabled');
                 })
                 self.activeLayer.registerCallback('success', function() {
                     self.element.find('#applyChanges').first().attr('disabled', 'disabled');
+                    self.element.find('#discardChanges').first().attr('disabled', 'disabled');
                 })
                 self.element.find('#applyChanges').first().click(function() {
                     self.activeLayer.save();
+                    self._removeSelectControl();
+                    self.render();
+                });
+                self.element.find('#discardChanges').first().click(function() {
+                    self.activeLayer.olLayer.refresh();
+                    self._removeSelectControl();
+                    self.element.find('#applyChanges').first().attr('disabled', 'disabled');
+                    self.element.find('#discardChanges').first().attr('disabled', 'disabled');
                 });
             }
         } else {
             this.element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
         }
     },
-    changeAttributeValue: function(element, attribute, value) {
+    _addSelectControl: function(element, attribute, value) {
+        var self = this;
+        element.addClass('highlight_legend_color');
+        self.selectControl = new gbi.Controls.Select(self.activeLayer)
+        self.editor.map.addControl(self.selectControl)
+        self.activeLayer.registerEvent('featureselected', {attribute: attribute, value: value, self: self}, self._changeFeatureAttributeValue);
+        self.selectControl.activate();
+    },
+    _removeSelectControl: function() {
         var self = this;
         if(self.selectControl) {
+            self.selectControl.deactivate();
+            self.element.find('.highlight_legend_color').first().removeClass('highlight_legend_color');
+            self.activeLayer.unregisterEvent('featureselected', null, self._changeFeatureAttributeValue)
             self.editor.map.removeControl(self.selectControl);
             self.selectControl = false;
         }
-
-        self.selectControl = new gbi.Controls.Select(self.activeLayer)
-        self.editor.map.addControl(self.selectControl)
-        self.activeLayer.registerEvent('featureselected', null, function(f) {
-            f.feature.attributes[attribute] = value;
+    },
+    _changeFeatureAttributeValue: function(f) {
+        if(f.feature.attributes[this.attribute] != this.value) {
+            f.feature.attributes[this.attribute] = this.value;
             f.feature.state = OpenLayers.State.UPDATE;
-            self.selectControl.unselectFeature(f.feature);
-            if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                self.activeLayer.changesMade();
+            if(this.self.activeLayer instanceof gbi.Layers.SaveableVector) {
+                this.self.activeLayer.changesMade();
             }
-        });
-        self.selectControl.activate();
+        }
+        this.self.selectControl.unselectFeature(f.feature);
     }
 };
 
