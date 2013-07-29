@@ -92,38 +92,38 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             ));
 
             if(self.options.modifyFeatures) {
-
-                this.element.append(tmpl(
-                    gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate
-                ));
-
                 if(legend.type == 'exact') {
+                    this.element.append(tmpl(
+                        gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate
+                    ));
+
                     this.element.find('.gbi_widget_legend_color').click(function() {
                         var element = $(this);
                         self._removeSelectControl();
                         self._addSelectControl(element, legend.attribute, element.children().first().text())
                     });
-                }
-                if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                    self.activeLayer.registerCallback('changes', function() {
-                        self.element.find('#applyChanges').first().removeAttr('disabled');
-                        self.element.find('#discardChanges').first().removeAttr('disabled');
-                    })
-                    self.activeLayer.registerCallback('success', function() {
-                        self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                        self.element.find('#discardChanges').first().attr('disabled', 'disabled');
-                    })
-                    self.element.find('#applyChanges').first().click(function() {
-                        self.activeLayer.save();
-                        self._removeSelectControl();
-                        self.render();
-                    });
-                    self.element.find('#discardChanges').first().click(function() {
-                        self.activeLayer.olLayer.refresh();
-                        self._removeSelectControl();
-                        self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                        self.element.find('#discardChanges').first().attr('disabled', 'disabled');
-                    });
+
+                    if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
+                        self.activeLayer.registerCallback('changes', function() {
+                            self.element.find('#applyChanges').first().removeAttr('disabled');
+                            self.element.find('#discardChanges').first().removeAttr('disabled');
+                        })
+                        self.activeLayer.registerCallback('success', function() {
+                            self.element.find('#applyChanges').first().attr('disabled', 'disabled');
+                            self.element.find('#discardChanges').first().attr('disabled', 'disabled');
+                        })
+                        self.element.find('#applyChanges').first().click(function() {
+                            self.activeLayer.save();
+                            self._removeSelectControl();
+                            self.render();
+                        });
+                        self.element.find('#discardChanges').first().click(function() {
+                            self.activeLayer.olLayer.refresh();
+                            self._removeSelectControl();
+                            self.element.find('#applyChanges').first().attr('disabled', 'disabled');
+                            self.element.find('#discardChanges').first().attr('disabled', 'disabled');
+                        });
+                    }
                 }
             }
         } else {
