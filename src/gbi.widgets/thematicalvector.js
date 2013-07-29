@@ -8,9 +8,6 @@ var thematicalVectorLabel = {
     'min': OpenLayers.i18n('Min'),
     'max': OpenLayers.i18n('Max'),
     'execute': OpenLayers.i18n('Execute'),
-    'legendFor': OpenLayers.i18n('Legend for'),
-    'areaIn': OpenLayers.i18n('Area in'),
-    'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer'),
     'addInputField': OpenLayers.i18n('Add input'),
     'removeInputField': OpenLayers.i18n('Remove input'),
     'active': OpenLayers.i18n('Active'),
@@ -28,7 +25,6 @@ gbi.widgets.ThematicalVector = function(editor, options) {
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
-    this.legendElement = this.options.legendElement ? $('#' + this.options.legendElement) : false;
     this.editor = editor;
     this.activeLayer = editor.layerManager.active();
     this.attributes = [];
@@ -52,8 +48,6 @@ gbi.widgets.ThematicalVector = function(editor, options) {
         self.attributes = self.activeLayer.featuresAttributes();
         self.render();
     });
-
-
 };
 gbi.widgets.ThematicalVector.prototype = {
     CLASS_NAME: 'gbi.widgets.ThematicalVector',
@@ -67,10 +61,6 @@ gbi.widgets.ThematicalVector.prototype = {
                 defaultColors: gbi.widgets.ThematicalVector.defaultColors
             }
         ));
-
-        if(this.legendElement) {
-            this.renderLegend();
-        }
 
         $('#rangeInputDiv').hide();
 
@@ -121,52 +111,6 @@ gbi.widgets.ThematicalVector.prototype = {
         } else {
             this.addInput('exact');
             this.addInput('range');
-        }
-    },
-    renderLegend: function() {
-        var self = this;
-        var legend = this.activeLayer.filteredFeatures();
-        var entries = []
-        this.legendElement.empty();
-        if(legend) {
-            var units = 'm';
-            $.each(legend.result, function(idx, r) {
-                var value = '';
-                if(r.min && r.max) {
-                    value = r.min + ' <= x < ' + r.max;
-                } else if(r.min) {
-                    value = r.min + ' <= x';
-                } else if(r.max) {
-                    value = 'x < ' + r.max
-                } else {
-                    value = r.value;
-                }
-                var area = 0;
-                $.each(r.features, function(idx, feature) { area += feature.geometry.getGeodesicArea(self.editor.map.olMap.getProjectionObject())});
-                if(area > 100000) {
-                    area /= 1000000;
-                    area = Math.round(area * 10000) / 10000;
-                    units = 'km';
-                } else {
-                    area = Math.round(area * 100) / 100;
-                }
-                entries.push({
-                    color: r.color,
-                    value: value,
-                    area: area
-
-                });
-            });
-            this.legendElement.append(tmpl(
-                gbi.widgets.ThematicalVector.legendTemplate, {
-                    attribute: legend.attribute,
-                    type: thematicalVectorLabel[legend.type],
-                    entries: entries,
-                    units: units
-                }
-            ));
-        } else {
-            this.legendElement.append($('<div>' + thematicalVectorLabel.noThematicalMap + '</div>'));
         }
     },
     toggleExact: function() {
@@ -241,7 +185,6 @@ gbi.widgets.ThematicalVector.prototype = {
                 }
                 tds.push(maxInput)
         }
-
         var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVector.defaultColors[idx];
         var color = $(gbi.widgets.ThematicalVector.colorTemplate);
         color.attr('id', colorBaseId + idx);
@@ -308,9 +251,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 break;
         }
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), $('#rule-active').is(':checked'), filterOptions);
-        if(this.legendElement) {
-            this.renderLegend();
-        }
+
         this.activeLayer._saveRule();
     }
 };
@@ -400,26 +341,3 @@ gbi.widgets.ThematicalVector.template = '\
 gbi.widgets.ThematicalVector.inputTemplate = '<input type="text" id="" class="input-small">';
 gbi.widgets.ThematicalVector.selectTempalte = '<select id="" class="exactSelect input-medium"></select>';
 gbi.widgets.ThematicalVector.colorTemplate = '<input id="" class="color_picker styleControl input-small" value="" />';
-gbi.widgets.ThematicalVector.removeTemplate = '<i class="icon-remove pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>'
-
-gbi.widgets.ThematicalVector.legendTemplate = '\
-<h5>' + thematicalVectorLabel.legendFor + ' "<%=attribute%>" (<%=type%>)</h5>\
-<table class="table">\
-    <thead>\
-        <tr>\
-            <th class="text-center">' + thematicalVectorLabel.color + '</th>\
-            <th class="text-center">' + thematicalVectorLabel.value + '</th>\
-            <th class="text-center">' + thematicalVectorLabel.areaIn + ' <%=units%><sup>2</sup></th>\
-        </tr>\
-    </thead>\
-    <tbody>\
-        <% for(var key in entries) { %>\
-            <tr>\
-                <td class="text-center"><div class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;">&nbsp;</div></td>\
-                <td class="text-center"><%=entries[key].value%></td>\
-                <td class="text-center"><%=entries[key].area%></td>\
-            </tr>\
-        <% } %>\
-    </tbody>\
-</table>\
-';
