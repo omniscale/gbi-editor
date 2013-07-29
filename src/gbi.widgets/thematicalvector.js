@@ -223,14 +223,15 @@ gbi.widgets.ThematicalVector.prototype = {
                     element = $(element);
                     var value = element.find('.exactSelect').first().val() || false;
                     var color = element.find('.exactColor').first().val() || false;
-
-                    filterOptions.push({
-                        value: value,
-                        symbolizer: {
-                            'fillColor': color,
-                            'strokeColor': color
-                        }
-                    });
+                    if(value && color) {
+                        filterOptions.push({
+                            value: value,
+                            symbolizer: {
+                                'fillColor': color,
+                                'strokeColor': color
+                            }
+                        });
+                    }
                 });
                 break;
             case 'range':
@@ -239,14 +240,16 @@ gbi.widgets.ThematicalVector.prototype = {
                     var min = element.find('.rangeInputMin').first().val() || false;
                     var max = element.find('.rangeInputMax').first().val() || false;
                     var color = element.find('.rangeColor').first().val() || false;
-                    filterOptions.push({
-                        min: min,
-                        max: max,
-                        symbolizer: {
-                            'fillColor': color,
-                            'strokeColor': color
-                        }
-                    })
+                    if((min || max) && color) {
+                        filterOptions.push({
+                            min: min,
+                            max: max,
+                            symbolizer: {
+                                'fillColor': color,
+                                'strokeColor': color
+                            }
+                        });
+                    }
                 });
                 break;
         }
