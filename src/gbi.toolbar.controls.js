@@ -617,6 +617,16 @@ $.extend(gbi.Controls.Select.prototype, {
         }
     },
     /**
+     * Unselect given feature
+     *
+     * @memberof gbi.Controls.Select
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature to unselect
+     */
+    unselectFeature: function(feature) {
+        this.olControl.unselect(feature);
+    },
+    /**
      * Creates the OpenLayers.Control.SelectFeature control
      *
      * @memberof gbi.Controls.Select
