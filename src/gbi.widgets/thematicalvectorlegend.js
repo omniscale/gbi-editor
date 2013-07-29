@@ -132,25 +132,25 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
 };
 
 gbi.widgets.ThematicalVectorLegend.template = '\
-<h5>' + thematicalVectorLegendLabel.legendFor + ' "<%=attribute%>" (<%=type%>)</h5>\
-<table class="table">\
-    <thead>\
-        <tr>\
-            <th class="text-center">' + thematicalVectorLegendLabel.color + '</th>\
-            <th class="text-center">' + thematicalVectorLegendLabel.value + '</th>\
-            <th class="text-center">' + thematicalVectorLegendLabel.areaIn + ' <%=units%><sup>2</sup></th>\
-        </tr>\
-    </thead>\
-    <tbody>\
-        <% for(var key in entries) { %>\
+    <h5>' + thematicalVectorLegendLabel.legendFor + ' "<%=attribute%>" (<%=type%>)</h5>\
+    <table class="table">\
+        <thead>\
             <tr>\
-                <td class="text-center"><div class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;"><span class="hide"><%=entries[key].value%></div></td>\
-                <td class="text-center"><%=entries[key].value%></td>\
-                <td class="text-center"><%=entries[key].area%></td>\
+                <th class="text-center">' + thematicalVectorLegendLabel.color + '</th>\
+                <th class="text-center">' + thematicalVectorLegendLabel.value + '</th>\
+                <th class="text-center">' + thematicalVectorLegendLabel.areaIn + ' <%=units%><sup>2</sup></th>\
             </tr>\
-        <% } %>\
-    </tbody>\
-</table>\
-<button id="applyChanges" disabled="disabled">Apply Changes</button>\
-<button id="discardChanges" disabled="disabled">Discard Changes</button>\
+        </thead>\
+        <tbody>\
+            <% for(var key in entries) { %>\
+                <tr>\
+                    <td class="text-center"><div class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;"><span class="hide"><%=entries[key].value%></div></td>\
+                    <td class="text-center"><%=entries[key].value%></td>\
+                    <td class="text-center"><%=entries[key].area%></td>\
+                </tr>\
+            <% } %>\
+        </tbody>\
+    </table>\
+    <button id="applyChanges" disabled="disabled">Apply Changes</button>\
+    <button id="discardChanges" disabled="disabled">Discard Changes</button>\
 ';

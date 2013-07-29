@@ -199,7 +199,6 @@ gbi.widgets.ThematicalVector.prototype = {
             if(elements.length == 1) {
                 elements.first().removeClass('hide');
             }
-
         });
         tds.push(remove)
 
@@ -272,70 +271,70 @@ gbi.widgets.ThematicalVector.defaultColors = gbi.widgets.ThematicalVector.defaul
 ];
 
 gbi.widgets.ThematicalVector.template = '\
-<label for="active">\
-    <input type="checkbox" id="rule-active" />\
-    ' + thematicalVectorLabel.active + '\
-</label>\
-<div class="control-group">\
-    <label class="control-label" for="attribute">' + thematicalVectorLabel.attribute + ':</label>\
-    <div class="controls">\
-        <select id="attribute">\
-        <% for(var key in attributes) { %>\
-            <option value="<%=attributes[key]%>"><%=attributes[key]%></option>\
-        <% } %>\
-        </select>\
+    <label for="active">\
+        <input type="checkbox" id="rule-active" />\
+        ' + thematicalVectorLabel.active + '\
+    </label>\
+    <div class="control-group">\
+        <label class="control-label" for="attribute">' + thematicalVectorLabel.attribute + ':</label>\
+        <div class="controls">\
+            <select id="attribute">\
+            <% for(var key in attributes) { %>\
+                <option value="<%=attributes[key]%>"><%=attributes[key]%></option>\
+            <% } %>\
+            </select>\
+        </div>\
     </div>\
-</div>\
-<div class="btn-group"\
-     data-toggle="buttons-radio">\
-    <button id="toggleExact"\
-            type="button"\
-            class="btn btn-small active">\
-        ' + thematicalVectorLabel.exact + '\
-    </button>\
-    <button id="toggleRange"\
-            type="button"\
-            class="btn btn-small">\
-        ' + thematicalVectorLabel.range + '\
-    </button>\
-</div>\
-<div id="exactInputDiv">\
-    <h3>' + thematicalVectorLabel.exact + '</h3>\
-    <table class="exactInputControl table">\
-        <thead>\
-            <tr>\
-                <th>' + thematicalVectorLabel.choose + '</th>\
-                <th>' + thematicalVectorLabel.color + '</th>\
-                <th></th>\
-            </tr>\
-        </thead>\
-        <tbody>\
-            <tr class="hide no-inpput">\
-                <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
-            </tr>\
-        </tbody>\
-    </table>\
-</div>\
-<div id="rangeInputDiv">\
-    <h3>' + thematicalVectorLabel.range + '</h3>\
-    <table class="rangeInputControl table">\
-        <thead>\
-            <tr>\
-                <th>' + thematicalVectorLabel.min + '</th>\
-                <th>' + thematicalVectorLabel.max + '</th>\
-                <th>' + thematicalVectorLabel.color + '</th>\
-                <th></th>\
-            </tr>\
-        </thead>\
-        <tbody>\
-            <tr class="hide no-input">\
-                <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
-            </tr>\
-        </tbody>\
-    </table>\
-</div>\
-<button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
-<button class="btn btn-small pull-right" id="addInput">' + thematicalVectorLabel.addInputField + '</button>\
+    <div class="btn-group"\
+         data-toggle="buttons-radio">\
+        <button id="toggleExact"\
+                type="button"\
+                class="btn btn-small active">\
+            ' + thematicalVectorLabel.exact + '\
+        </button>\
+        <button id="toggleRange"\
+                type="button"\
+                class="btn btn-small">\
+            ' + thematicalVectorLabel.range + '\
+        </button>\
+    </div>\
+    <div id="exactInputDiv">\
+        <h3>' + thematicalVectorLabel.exact + '</h3>\
+        <table class="exactInputControl table">\
+            <thead>\
+                <tr>\
+                    <th>' + thematicalVectorLabel.choose + '</th>\
+                    <th>' + thematicalVectorLabel.color + '</th>\
+                    <th></th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr class="hide no-inpput">\
+                    <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
+                </tr>\
+            </tbody>\
+        </table>\
+    </div>\
+    <div id="rangeInputDiv">\
+        <h3>' + thematicalVectorLabel.range + '</h3>\
+        <table class="rangeInputControl table">\
+            <thead>\
+                <tr>\
+                    <th>' + thematicalVectorLabel.min + '</th>\
+                    <th>' + thematicalVectorLabel.max + '</th>\
+                    <th>' + thematicalVectorLabel.color + '</th>\
+                    <th></th>\
+                </tr>\
+            </thead>\
+            <tbody>\
+                <tr class="hide no-input">\
+                    <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
+                </tr>\
+            </tbody>\
+        </table>\
+    </div>\
+    <button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
+    <button class="btn btn-small pull-right" id="addInput">' + thematicalVectorLabel.addInputField + '</button>\
 ';
 
 gbi.widgets.ThematicalVector.inputTemplate = '<input type="text" id="" class="input-small">';
