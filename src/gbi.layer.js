@@ -276,7 +276,7 @@ gbi.Layers.Vector = function(options) {
         this.symbolizers = this.options.styleMap.styles['default'].rules[0].symbolizer;
     }
 
-    this.featureStylingRule = undefined;
+    this.featureStylingRule = false;
     this.featureStylingRuleIndex = [];
 
     if(this.options.attributePopup) {
@@ -332,12 +332,12 @@ $.extend(gbi.Layers.Vector.prototype, {
     addAttributeFilter: function(type, attribute, active, filterOptions) {
         var self = this;
         var rules = [];
-        this.featureStylingRule = {
+        this.featureStylingRule = $.isArray(filterOptions) && filterOptions.length > 0 ? {
             type: type,
             attribute: attribute,
             active: active,
             filterOptions: filterOptions
-        };
+        } : false;
 
         for(var i = this.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
             if(this.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
@@ -367,7 +367,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 $.each(filterOptions, function(idx, filter) {
                     var minFilter = false;
                     var maxFilter = false;
-                    var olFilter
+                    var olFilter = false;
 
                     if(OpenLayers.String.isNumeric(filter.min)) {
                         minFilter = new OpenLayers.Filter.Comparison({
