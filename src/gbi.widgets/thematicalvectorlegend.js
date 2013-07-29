@@ -13,29 +13,31 @@ gbi.widgets = gbi.widgets || {};
 gbi.widgets.ThematicalVectorLegend = function(editor, options) {
     var self = this;
     var defaults = {
-        element: 'thematicalvectorlegend',
-        modifyFeatures: true
+        element: 'thematicalvectorlegend'
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
     this.editor = editor;
-    this.activeLayer = editor.layerManager.active();
-    this.selectControl = false;
+    if(this.editor) {
+        this.activeLayer = editor.layerManager.active();
+        this.selectControl = false;
+        this.legend = false;
 
-    $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
-        self.activeLayer = layer;
-    });
+        $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
+            self.activeLayer = layer;
+        });
 
-    $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
-        self.activeLayer = layer;
+        $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
+            self.activeLayer = layer;
+            self.render();
+        });
+
+        $(gbi).on('gbi.layer.vector.ruleChanged', function(event) {
+            self.render();
+        });
+
         self.render();
-    });
-
-    $(gbi).on('gbi.layer.vector.ruleChanged', function(event) {
-        self.render();
-    });
-
-    self.render();
+    }
 };
 gbi.widgets.ThematicalVectorLegend.prototype = {
     render: function() {
@@ -50,12 +52,12 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
     },
     _render: function() {
         var self = this;
-        var legend = this.activeLayer.filteredFeatures();
+        self.legend = this.activeLayer.filteredFeatures();
         var entries = []
         this.element.empty();
-        if(legend) {
+        if(self.legend) {
             var units = 'm';
-            $.each(legend.result, function(idx, r) {
+            $.each(self.legend.result, function(idx, r) {
                 var value = '';
                 if(r.min && r.max) {
                     value = r.min + ' <= x < ' + r.max;
@@ -84,79 +86,15 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             });
             this.element.append(tmpl(
                 gbi.widgets.ThematicalVectorLegend.template, {
-                    attribute: legend.attribute,
-                    type: thematicalVectorLegendLabel[legend.type],
+                    attribute: self.legend.attribute,
+                    type: thematicalVectorLegendLabel[self.legend.type],
                     entries: entries,
                     units: units
                 }
             ));
-
-            if(self.options.modifyFeatures) {
-                if(legend.type == 'exact') {
-                    this.element.append(tmpl(
-                        gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate
-                    ));
-
-                    this.element.find('.gbi_widget_legend_color').click(function() {
-                        var element = $(this);
-                        self._removeSelectControl();
-                        self._addSelectControl(element, legend.attribute, element.children().first().text())
-                    });
-
-                    if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                        self.activeLayer.registerCallback('changes', function() {
-                            self.element.find('#applyChanges').first().removeAttr('disabled');
-                            self.element.find('#discardChanges').first().removeAttr('disabled');
-                        })
-                        self.activeLayer.registerCallback('success', function() {
-                            self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                            self.element.find('#discardChanges').first().attr('disabled', 'disabled');
-                        })
-                        self.element.find('#applyChanges').first().click(function() {
-                            self.activeLayer.save();
-                            self._removeSelectControl();
-                            self.render();
-                        });
-                        self.element.find('#discardChanges').first().click(function() {
-                            self.activeLayer.olLayer.refresh();
-                            self._removeSelectControl();
-                            self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                            self.element.find('#discardChanges').first().attr('disabled', 'disabled');
-                        });
-                    }
-                }
-            }
         } else {
             this.element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
         }
-    },
-    _addSelectControl: function(element, attribute, value) {
-        var self = this;
-        element.addClass('highlight_legend_color');
-        self.selectControl = new gbi.Controls.Select(self.activeLayer)
-        self.editor.map.addControl(self.selectControl)
-        self.activeLayer.registerEvent('featureselected', {attribute: attribute, value: value, self: self}, self._changeFeatureAttributeValue);
-        self.selectControl.activate();
-    },
-    _removeSelectControl: function() {
-        var self = this;
-        if(self.selectControl) {
-            self.selectControl.deactivate();
-            self.element.find('.highlight_legend_color').first().removeClass('highlight_legend_color');
-            self.activeLayer.unregisterEvent('featureselected', null, self._changeFeatureAttributeValue)
-            self.editor.map.removeControl(self.selectControl);
-            self.selectControl = false;
-        }
-    },
-    _changeFeatureAttributeValue: function(f) {
-        if(f.feature.attributes[this.attribute] != this.value) {
-            f.feature.attributes[this.attribute] = this.value;
-            f.feature.state = OpenLayers.State.UPDATE;
-            if(this.self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                this.self.activeLayer.changesMade();
-            }
-        }
-        this.self.selectControl.unselectFeature(f.feature);
     }
 };
 
@@ -180,9 +118,4 @@ gbi.widgets.ThematicalVectorLegend.template = '\
             <% } %>\
         </tbody>\
     </table>\
-';
-
-gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate = '\
-    <button id="applyChanges" class="btn btn-small btn-success" disabled="disabled">Apply Changes</button>\
-    <button id="discardChanges" class="btn btn-small" disabled="disabled">Discard Changes</button>\
 ';

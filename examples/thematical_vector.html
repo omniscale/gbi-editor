@@ -16,6 +16,7 @@
         <script type="text/javascript" src="../src/gbi.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvector.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegend.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegendchangeattributes.js"></script>
         <script type="text/javascript">
 
             OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
@@ -46,7 +47,7 @@
                 editor.addLayer(couchLayer);
 
                 var thematicalVector = new gbi.widgets.ThematicalVector(editor);
-                var thematicalVectorLegend = new gbi.widgets.ThematicalVectorLegend(editor)
+                var thematicalVectorLegend = new gbi.widgets.ThematicalVectorLegendChangeAttributes(editor)
             });
         </script>
     </head>
