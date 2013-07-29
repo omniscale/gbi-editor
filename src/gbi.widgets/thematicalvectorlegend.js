@@ -3,8 +3,10 @@ var thematicalVectorLegendLabel = {
     'areaIn': OpenLayers.i18n('Area in'),
     'noThematicalMap': OpenLayers.i18n('No thematical map present for this layer'),
     'value': OpenLayers.i18n('Value'),
-    'color': OpenLayers.i18n('Color'
-)};
+    'color': OpenLayers.i18n('Color'),
+    'exact': OpenLayers.i18n('Exact'),
+    'range': OpenLayers.i18n('Range')
+};
 
 gbi.widgets = gbi.widgets || {};
 
