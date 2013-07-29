@@ -183,6 +183,6 @@ gbi.widgets.ThematicalVectorLegend.template = '\
 ';
 
 gbi.widgets.ThematicalVectorLegend.modifyFeaturesTemplate = '\
-    <button id="applyChanges" disabled="disabled">Apply Changes</button>\
-    <button id="discardChanges" disabled="disabled">Discard Changes</button>\
+    <button id="applyChanges" class="btn btn-small btn-success" disabled="disabled">Apply Changes</button>\
+    <button id="discardChanges" class="btn btn-small" disabled="disabled">Discard Changes</button>\
 ';
