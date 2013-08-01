@@ -50,9 +50,10 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
     _addSelectControl: function(element, attribute, value) {
         var self = this;
         element.addClass('highlight_legend_color');
-        self.selectControl = new gbi.Controls.Select(self.activeLayer)
+        self.selectControl = new gbi.Controls.Select(self.activeLayer);
+        self.selectControlObject = {attribute: attribute, value: value, self: self};
         self.editor.map.addControl(self.selectControl)
-        self.activeLayer.registerEvent('featureselected', {attribute: attribute, value: value, self: self}, self._changeFeatureAttributeValue);
+        self.activeLayer.registerEvent('featureselected', self.selectControlObject, self._changeFeatureAttributeValue);
         self.selectControl.activate();
     },
     _removeSelectControl: function() {
@@ -60,9 +61,10 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         if(self.selectControl) {
             self.selectControl.deactivate();
             self.element.find('.highlight_legend_color').first().removeClass('highlight_legend_color');
-            self.activeLayer.unregisterEvent('featureselected', null, self._changeFeatureAttributeValue)
+            self.activeLayer.unregisterEvent('featureselected', self.selectControlObject, self._changeFeatureAttributeValue)
             self.editor.map.removeControl(self.selectControl);
             self.selectControl = false;
+            self.selectControlObject = false;
         }
     },
     _changeFeatureAttributeValue: function(f) {
