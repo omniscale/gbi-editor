@@ -297,6 +297,12 @@ gbi.Layers.Vector = function(options) {
         this.registerEvent('featureunselected', this, this._removePopup);
     }
 
+    //show popup when selectControl highlight a feature
+    //selectControl must trigger events on layer
+    if(this.options.hoverPopup) {
+        this.registerEvent('featurehighlighted', this, this._showPopup);
+        this.registerEvent('featureunhighlighted', this, this._removePopup);
+    }
 }
 gbi.Layers.Vector.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Vector.prototype, {
