@@ -90,6 +90,19 @@ gbi.Layers.Layer.prototype = {
         if(this.olLayer) {
             this.olLayer.events.unregister(type, obj, func);
         }
+    },
+    /**
+     * Triggers an event
+     *
+     * @memberof gbi.Layers.Layer
+     * @instance
+     * @param {String} type event name
+     * @param {Object} obj Object commited to eventListener
+     */
+    triggerEvent: function(type, obj) {
+        if(this.olLayer) {
+            this.olLayer.events.triggerEvent(type, obj);
+        }
     }
 };
 
