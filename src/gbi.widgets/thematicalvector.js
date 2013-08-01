@@ -254,8 +254,9 @@ gbi.widgets.ThematicalVector.prototype = {
                 break;
         }
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), $('#rule-active').is(':checked'), filterOptions);
-
-        this.activeLayer._saveRule();
+        if(this.activeLayer instanceof gbi.Layers.Couch) {
+            this.activeLayer._saveGBIData();
+        }
     }
 };
 
