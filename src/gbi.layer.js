@@ -222,7 +222,7 @@ gbi.Layers.Vector = function(options) {
     var self = this;
     var defaults = {
         editable: true,
-        attributePopup: false,
+        clickPopup: false,
         hoverPopup: false,
         maxAttributeValues: 100
     };
@@ -294,7 +294,8 @@ gbi.Layers.Vector = function(options) {
     this.featureStylingRule = false;
     this.featureStylingRuleIndex = [];
 
-    if(this.options.attributePopup) {
+    //show popup when selectControl click
+    if(this.options.clickPopup) {
         this.registerEvent('featureselected', this, this._showPopup);
         this.registerEvent('featureunselected', this, this._removePopup);
     }

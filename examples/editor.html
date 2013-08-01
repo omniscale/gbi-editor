@@ -38,7 +38,7 @@
                 var yellowLayer = new gbi.Layers.GeoJSON({
                     name: 'Yellow',
                     url: './data3.json',
-                    attributePopup: true,
+                    clickPopup: true,
                     symbolizers: {
                         'Point': {
                             fillColor: '#ff0',
@@ -56,7 +56,7 @@
                 var greenLayer = new gbi.Layers.GeoJSON({
                     name: 'Green',
                     url: './data2.json',
-                    attributePopup: true,
+                    clickPopup: true,
                     symbolizers: {
                         'Point': {
                             fillColor: '#0f0',
@@ -74,7 +74,7 @@
                 var redLayer = new gbi.Layers.GeoJSON({
                     name: 'Red',
                     url: './data.json',
-                    attributePopup: true,
+                    clickPopup: true,
                     symbolizers: {
                         'Point': {
                             fillColor: '#f00',
@@ -127,7 +127,7 @@
                 });
 
                 var styleeditor = new gbi.widgets.StyleEditor(editor);
-                var layermanager = new gbi.widgets.LayerManager(editor, {attributePopup: true});
+                var layermanager = new gbi.widgets.LayerManager(editor, {clickPopup: true});
                 var attributeeditor = new gbi.widgets.AttributeEditor(editor);
                 var mesure = new gbi.widgets.Measure(editor, {useToolbar: toolbar});
 

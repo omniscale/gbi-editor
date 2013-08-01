@@ -12,7 +12,7 @@ gbi.widgets.LayerManager = function(editor, options) {
     var defaults = {
         element: 'layermanager',
         little: false,
-        attributePopup: false
+        clickPopup: false
     };
 
     this.layerManager = editor.layerManager;
@@ -98,7 +98,7 @@ gbi.widgets.LayerManager.prototype = {
             if(newLayer) {
                 var vectorLayer = new gbi.Layers.Vector({
                     name: newLayer,
-                    attributePopup: self.attributePopup
+                    clickPopup: self.clickPopup
                 });
                 self.layerManager.addLayer(vectorLayer);
                 self.render();
