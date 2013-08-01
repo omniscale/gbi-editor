@@ -69,7 +69,7 @@ gbi.Layers.Layer.prototype = {
      * @memberof gbi.Layers.Layer
      * @instance
      * @param {String} type event name
-     * @param {Object} obj "this" in func contrext
+     * @param {Object} obj "this" in func context
      * @param {Function} func Called when event is triggered
      */
     registerEvent: function(type, obj, func) {
@@ -83,7 +83,7 @@ gbi.Layers.Layer.prototype = {
      * @memberof gbi.Layers.Layer
      * @instance
      * @param {String} type event name
-     * @param {Object} obj "this" in func contrext
+     * @param {Object} obj "this" in func context
      * @param {Function} func Function given to {registerEvent}
      */
     unregisterEvent: function(type, obj, func) {
