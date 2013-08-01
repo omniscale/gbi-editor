@@ -10,6 +10,7 @@
         <link rel="StyleSheet" type="text/css" href="../css/examples.css">
         <script type="text/javascript" src="../lib/OpenLayers-2.12.js"></script>
         <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="../lib/jquery-ui-1.10.3.custom.min.js"></script>
         <script type="text/javascript" src="../lib/micro.templating.js"></script>
         <script type="text/javascript" src="../lib/jquery.minicolors.js"></script>
         <script type="text/javascript" src="../lib/jquery.nouislider.js"></script>
@@ -17,6 +18,8 @@
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvector.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegend.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegendchangeattributes.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/featureattributelist.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/featureattributelistconfigurator.js"></script>
         <script type="text/javascript">
 
             OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
@@ -42,12 +45,17 @@
                         'Polygon': {
                             'label': "${foo}"
                         }
-                    }
+                    },
+                    hoverPopup: true
                 });
                 editor.addLayer(couchLayer);
 
                 var thematicalVector = new gbi.widgets.ThematicalVector(editor);
                 var thematicalVectorLegend = new gbi.widgets.ThematicalVectorLegendChangeAttributes(editor)
+                featureAttributeList = new gbi.widgets.FeatureAttributeList(editor, {featurePopup: 'hover'});
+                featureAttributesListConfigurator = new gbi.widgets.FeatureAttributesListConfigurator(editor);
+
+
             });
         </script>
     </head>
@@ -57,7 +65,12 @@
             <h2 class="text-center">Thematical vector map example</h2>
         </div>
         <div class="row-fluid">
-            <div class="span4 offset2">
+            <div class="span4">
+                <div id="featureattributelistconfigurator"></div>
+                <hr>
+                <div id="featureattributelist"></div>
+            </div>
+            <div class="span4">
                 <div id="map"></div>
                 <br>
                 <p>In this example you can filter attribute values and change there color depending on there value.</p>
@@ -69,10 +82,10 @@
                     <p>Also you need a running couchDB.</p>
                 </div>
             </div>
-            <div class="span3">
+            <div class="span2">
                 <div id="thematicalvector"></div>
             </div>
-            <div class="span3">
+            <div class="span2">
                 <div id="thematicalvectorlegend"></div>
             </div>
         </div>
