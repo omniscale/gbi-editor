@@ -88,7 +88,13 @@ gbi.widgets.FeatureAttributeList.template = '\
         <% for(var f_key in features) { %>\
             <tr class="show-feature" id="<%=f_key%>">\
                 <% for(var a_key in attributes) { %>\
-                    <td><%=features[f_key].attributes[attributes[a_key]]%></td>\
+                    <td>\
+                    <% if(features[f_key].attributes[attributes[a_key]]) { %>\
+                        <%=features[f_key].attributes[attributes[a_key]]%>\
+                    <% } else {%>\
+                        &nbsp;\
+                    <% } %>\
+                    </td>\
                 <% } %>\
             </tr>\
         <% } %>\
