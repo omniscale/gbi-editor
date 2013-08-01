@@ -495,6 +495,59 @@ $.extend(gbi.Controls.Merge.prototype, {
 });
 
 /**
+ * Creates a hover control
+ *
+ * @extends gbi.Controls.ToolbarItem
+ * @constructor
+ * @param {gbi.Layers.VectorLayer} layer
+ * @param [options] All {OpenLayers.Control.SelectFeature} options except hover are allowed.
+ */
+gbi.Controls.Hover = function(layer, options) {
+    var self = this;
+    var defaults = {
+        hover: true,
+        highlightOnly: true,
+        renderIntent: "temporary",
+        autoActivate: true,
+        eventListeners: {
+            //trigger events in layer couse events only triggered in control
+            featurehighlighted: function(f) {+
+                self.layer.triggerEvent('featurehighlighted', {feature: f.feature})
+            },
+            featureunhighlighted: function(f) {
+                self.layer.triggerEvent('featureunhighlighted', {feature: f.feature})
+            }
+        }
+    };
+
+    // prevent violating this control
+    if(options && options.hover) {
+        delete options.hover;
+    }
+
+    this.layer = layer
+    gbi.Controls.ToolbarItem.call(this, $.extend({}, defaults, options));
+    this.createControl();
+    console.log(this.olControl)
+};
+gbi.Controls.Hover.prototype = new gbi.Controls.ToolbarItem();
+$.extend(gbi.Controls.Hover.prototype, {
+    CLASS_NAME: 'gbi.Controls.Hover',
+    /**
+     * Creates the OpenLayers.Control.Hover control
+     *
+     * @memberof gbi.Controls.Hover
+     * @instance
+     * @private
+     */
+    _createControl: function() {
+        var olControl = new OpenLayers.Control.SelectFeature(this.layer.olLayer, this.options);
+        olControl.handlers.feature.stopDown = false;
+        return olControl;
+    }
+});
+
+/**
  * Baseclass for toolbar element which can handle more than one layer
  *
  * @class
@@ -581,7 +634,6 @@ gbi.Controls.Select = function(layers, options) {
         multipleKey: "shiftKey"
     };
     gbi.Controls.MultiLayerControl.call(this, layers, $.extend({}, defaults, options));
-
     this.createControl();
 };
 gbi.Controls.Select.prototype = new gbi.Controls.MultiLayerControl();

@@ -11,23 +11,8 @@ gbi.widgets.FeatureAttributeList = function(editor, options) {
     this.editor = editor;
     this.activeLayer = editor.layerManager.active();
     if(this.options.featurePopup == 'hover') {
-        this.hoverCtrl = new gbi.Controls.Select(this.activeLayer, {
-            hover: true,
-            highlightOnly: true,
-            renderIntent: "temporary",
-            autoActivate: true,
-            eventListeners: {
-            //trigger events in layer couse events only triggered in control
-            featurehighlighted: function(f) {
-                self.activeLayer.triggerEvent('featurehighlighted', {feature: f.feature})
-            },
-            featureunhighlighted: function(f) {
-                self.activeLayer.triggerEvent('featureunhighlighted', {feature: f.feature})
-            }
-        }
-        });
+        this.hoverCtrl = new gbi.Controls.Hover(this.activeLayer);
         this.editor.map.addControl(this.hoverCtrl);
-        this.hoverCtrl.activate();
     }
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
