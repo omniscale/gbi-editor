@@ -689,7 +689,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {OpenLayers.Feature.Vector} f
      */
     _showPopup: function(f) {
-        if(this.popup && f.feature == this.popupFeature) {
+        if(this.popup && f.feature.geometry == this.popupFeature.geometry) {
             this._removePopup();
         }
         this.popupFeature = f.feature;
