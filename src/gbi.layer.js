@@ -1032,6 +1032,7 @@ gbi.Layers.Couch = function(options) {
     if(this.options.loadStyle) {
         this._loadStyle();
     }
+    this._loadGBIData();
 };
 gbi.Layers.Couch.prototype = new gbi.Layers.SaveableVector();
 $.extend(gbi.Layers.Couch.prototype, {
@@ -1054,11 +1055,6 @@ $.extend(gbi.Layers.Couch.prototype, {
             },
             success: function(response) {
                 var responseObject = self.format.read(response.responseText);
-                var rule = false;
-                if(responseObject.rule != undefined) {
-                    var rule = responseObject.rule;
-                    delete responseObject.rule;
-                }
                 if(responseObject._rev != undefined) {
                     self.styleRev = responseObject._rev;
                     delete responseObject._rev;
@@ -1068,9 +1064,6 @@ $.extend(gbi.Layers.Couch.prototype, {
                 self.haveCustomStyle = Object.keys(responseObject).length > 0;
 
                 self.setStyle(responseObject);
-                if(rule) {
-                    self.addAttributeFilter(rule.type, rule.attribute, rule.active, rule.filterOptions);
-                }
             }
         });
     },
@@ -1082,73 +1075,11 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @private
      */
     _saveStyle: function() {
-        var stylingData = $.extend(true, {}, this.symbolizers);
-        if(this.styleRev) {
-            stylingData['_rev'] = this.styleRev;
-        }
-        if(this.featureStylingRule) {
-            stylingData = this._addRule(stylingData);
-        }
-        this._saveStylingDate(stylingData);
-    },
-    /**
-     * Saves thematical styling to couchDB
-     *
-     * @memberof gbi.Layers.Couch
-     * @instance
-     * @private
-     */
-    _saveRule: function() {
-        if(this.haveCustomStyle) {
-            this._saveStyle();
-        } else {
-            var stylingData = this._addRule({});
-            if(this.styleRev) {
-                stylingData['_rev'] = this.styleRev;
-            }
-            this._saveStylingDate(stylingData);
-        }
-    },
-    /**
-     * Add thematical styling to stylingData
-     *
-     * @memberof gbi.Layers.Couch
-     * @instance
-     * @private
-     * @param {Object} stylingData without thematical data
-     * @returns {Object} stylingData with thematical data
-     */
-    _addRule : function(stylingData) {
-        if(!this.featureStylingRule) {
-            return stylingData;
-        }
-        stylingData['rule'] = $.extend(true, {}, this.featureStylingRule);
-        $.each(stylingData.rule.filterOptions, function(idx, filter) {
-            delete filter['olFilter'];
-        });
-        return stylingData;
-    },
-    /**
-     * Remove thematical styling before save stylingData to CouchDB
-     *
-     * @memberof gbi.Layers.Couch
-     * @instance
-     * @private
-     */
-    _removeRule: function() {
-        delete this.featureStylingRule;
-        this._saveStyle()
-    },
-    /**
-     * Store style document in CouchDB
-     *
-     * @memberof gbi.Layers.Couch
-     * @instance
-     * @private
-     * @param {Object} stylingData
-     */
-    _saveStylingDate: function(stylingData) {
         var self = this;
+        var stylingData = $.extend(true, {}, this.symbolizers);
+        if(self.styleRev) {
+            stylingData['_rev'] = self.styleRev;
+        }
         var request = OpenLayers.Request.PUT({
             url: this.options.url + 'style',
             async: false,
@@ -1158,10 +1089,79 @@ $.extend(gbi.Layers.Couch.prototype, {
             data: this.format.write(stylingData),
             success: function(response) {
                 if(response.responseText) {
-                    jsonResponse = self.format.read(response.responseText);
+                    var jsonResponse = self.format.read(response.responseText);
                     if(jsonResponse.rev) {
                         self.styleRev = jsonResponse.rev;
                     }
+                }
+            }
+        });
+    },
+    _loadGBIData: function() {
+        var self = this;
+        var format = new OpenLayers.Format.JSON();
+        var request = OpenLayers.Request.GET({
+            url: this.options.url + 'gbi_editor',
+            async: false,
+            headers: {
+                'contentType': 'application/json'
+            },
+            success: function(response) {
+                var responseObject = self.format.read(response.responseText);
+
+                if(responseObject._rev != undefined) {
+                    self.gbiRev = responseObject._rev;
+                }
+                if(responseObject.thematical != undefined) {
+                    self.addAttributeFilter(
+                        responseObject.thematical.type,
+                        responseObject.thematical.attribute,
+                        responseObject.thematical.active,
+                        responseObject.thematical.filterOptions
+                    );
+                }
+                if(responseObject.popupAttributes != undefined) {
+                    self.popupAttributes(responseObject.popupAttributes);
+                }
+                if(responseObject.listAttributes != undefined) {
+                    self.listAttributes(responseObject.listAttributes);
+                }
+            }
+        });
+    },
+    _saveGBIData: function() {
+        var self = this;
+        var gbiData = {};
+
+        if(this.gbiRev) {
+            gbiData['_rev'] = this.gbiRev;
+        }
+
+        if(this.featureStylingRule) {
+            gbiData['thematical'] = $.extend(true, {}, this.featureStylingRule);
+            $.each(gbiData.thematical.filterOptions, function(idx, filter) {
+                delete filter['olFilter'];
+            });
+        }
+
+        if(this._popupAttributes) {
+            gbiData['popupAttributes'] = this._popupAttributes;
+        }
+
+        if(this._listAttributes) {
+            gbiData['listAttributes'] = this._listAttributes
+        }
+        var request = OpenLayers.Request.PUT({
+            url: this.options.url + 'gbi_editor',
+            async: false,
+            header: {
+                'Content-Type': 'application/json'
+            },
+            data: this.format.write(gbiData),
+            success: function(response) {
+                var jsonResponse = self.format.read(response.responseText);
+                if(jsonResponse.rev) {
+                    self.gbiRev = jsonResponse.rev;
                 }
             }
         });
