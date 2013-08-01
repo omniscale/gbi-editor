@@ -820,6 +820,10 @@ gbi.Layers.SaveableVector = function(options) {
 
         self.features = self.olLayer.features;
     });
+
+    $(gbi).on('gbi.layer.vector.featureAttributeChanged', function(event, feature) {
+        feature.state = OpenLayers.State.UPDATE;
+        self.changesMade();
     });
 
 };
