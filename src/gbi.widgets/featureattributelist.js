@@ -22,7 +22,6 @@ gbi.widgets.FeatureAttributeList = function(editor, options) {
                 self.activeLayer.triggerEvent('featurehighlighted', {feature: f.feature})
             },
             featureunhighlighted: function(f) {
-                console.log('here')
                 self.activeLayer.triggerEvent('featureunhighlighted', {feature: f.feature})
             }
         }
