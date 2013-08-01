@@ -614,6 +614,21 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.map.zoomToExtent(bounds);
     },
     /**
+     * Getter/Setter of listAttributes
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {String[]} List of attributes
+     * @returns {String[]} List of attributes
+     */
+    listAttributes: function(listAttributes) {
+        if(listAttributes) {
+            this._listAttributes = listAttributes;
+            $(gbi).trigger('gbi.layer.vector.listAttributesChanged', false);
+        }
+        return this._listAttributes;
+    },
+    /**
      * Getter/Setter of popupAttributes
      *
      * @memberof gbi.Layers.Vector
