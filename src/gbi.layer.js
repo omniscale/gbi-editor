@@ -603,6 +603,17 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
     },
     /**
+     * Center map on given feature
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature
+     */
+    showFeature: function(feature) {
+        var bounds = feature.geometry.getBounds();
+        this.olLayer.map.zoomToExtent(bounds);
+    },
+    /**
      * Selects all features of this layer with have given property equal given value
      *
      * @memberof gbi.Layers.Vector
