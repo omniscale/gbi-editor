@@ -219,6 +219,7 @@ $.extend(gbi.Layers.WMTS.prototype, {
  * @param {Boolean} [options.atrtibutePopop=false] Show a popup with feature attributes when select feature
  */
 gbi.Layers.Vector = function(options) {
+    var self = this;
     var defaults = {
         editable: true,
         attributePopup: false,
