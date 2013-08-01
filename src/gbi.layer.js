@@ -614,6 +614,21 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.map.zoomToExtent(bounds);
     },
     /**
+     * Getter/Setter of popupAttributes
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {String[]} List of attributes
+     * @returns {String[]} List of attributes
+     */
+    popupAttributes: function(popupAttributes) {
+        if(popupAttributes) {
+            this._popupAttributes = popupAttributes;
+            $(gbi).trigger('gbi.layer.vector.popupAttributesChanged', false);
+        }
+        return this._popupAttributes;
+    },
+    /**
      * Selects all features of this layer with have given property equal given value
      *
      * @memberof gbi.Layers.Vector
@@ -656,18 +671,23 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {OpenLayers.Feature.Vector} f
      */
     _showPopup: function(f) {
-        if(this.popup) {
+        if(this.popup && f.feature == this.popupFeature) {
             this._removePopup();
         }
-        var feature = f.feature;
-        var point = feature.geometry.getCentroid();
-        var content = this._renderAttributes(feature.attributes);
-        this.popup = new OpenLayers.Popup.FramedCloud(OpenLayers.i18n("Attributes"),
+        this.popupFeature = f.feature;
+        var point = this.popupFeature.geometry.getCentroid();
+        var content = this._renderAttributes(this.popupFeature.attributes);
+        if($.isArray(this._popupAttributes) && this._popupAttributes.length == 0) {
+            content = OpenLayers.i18n('No attributes selected');
+        }
+        this.popup = new OpenLayers.Popup.Anchored(OpenLayers.i18n("Attributes"),
             new OpenLayers.LonLat(point.x, point.y),
             null,
             content || OpenLayers.i18n('No attributes'),
             null,
-            true);
+            !this.options.hoverPopup);
+        this.popup.autoSize = true;
+
         this.olLayer.map.addPopup(this.popup);
     },
     /**
@@ -693,9 +713,15 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     _renderAttributes: function(attributes) {
         var container = $('<div></div>');
-        $.each(attributes, function(key, value) {
-            container.append($('<div><span>'+key+':</span><span>'+value+'</span></div>'));
-        });
+        if(this._popupAttributes) {
+            $.each(this._popupAttributes, function(idx, attribute) {
+                container.append($('<div><span>'+attribute+': </span><span>'+ (attributes[attribute] || OpenLayers.i18n('notDefined')) +'</span></div>'));
+            })
+        } else {
+            $.each(attributes, function(key, value) {
+                container.append($('<div><span>'+key+':</span><span>'+value+'</span></div>'));
+            });
+        }
         return container.html();
     }
 });
