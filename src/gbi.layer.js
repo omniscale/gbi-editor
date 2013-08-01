@@ -1021,6 +1021,7 @@ gbi.Layers.Couch = function(options) {
 
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
+        self.features = self.olLayer.features;
         $(gbi).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
