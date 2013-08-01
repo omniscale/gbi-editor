@@ -715,6 +715,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     _removePopup: function() {
         if(this.popup) {
             this.olLayer.map.removePopup(this.popup);
+            this.popupFeature = false;
         }
     },
     /**
