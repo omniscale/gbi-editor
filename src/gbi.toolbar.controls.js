@@ -634,7 +634,10 @@ $.extend(gbi.Controls.Select.prototype, {
      * @private
      */
     _createControl: function() {
-        return new OpenLayers.Control.SelectFeature(this.olLayers(), this.options);
+        var olControl = new OpenLayers.Control.SelectFeature(this.olLayers(), this.options);
+        // don't stop handlers chain on mouseDown over feature
+        olControl.handlers.feature.stopDown = false;
+        return olControl;
     }
 });
 
