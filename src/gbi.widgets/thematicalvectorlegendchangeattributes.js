@@ -68,13 +68,7 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         }
     },
     _changeFeatureAttributeValue: function(f) {
-        if(f.feature.attributes[this.attribute] != this.value) {
-            f.feature.attributes[this.attribute] = this.value;
-            f.feature.state = OpenLayers.State.UPDATE;
-            if(this.self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                this.self.activeLayer.changesMade();
-            }
-        }
+        this.self.activeLayer.changeFeatureAttribute(f.feature, this.attribute, this.value);
         this.self.selectControl.unselectFeature(f.feature);
     }
 });
