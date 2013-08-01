@@ -817,6 +817,9 @@ gbi.Layers.SaveableVector = function(options) {
         self.olLayer.events.register('featureadded', self, self._trackStatus);
         self.olLayer.events.register('featureremoved', self, self._trackStatus);
         self.olLayer.events.register('afterfeaturemodified', self, self._trackStatus);
+
+        self.features = self.olLayer.features;
+    });
     });
 
 };
