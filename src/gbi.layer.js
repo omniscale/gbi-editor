@@ -543,6 +543,21 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.addFeatures([feature], options);
     },
     /**
+     * Change/Add an attribute of/to given feature
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature
+     * @param {String} attribute
+     * @param {Object} value
+     */
+    changeFeatureAttribute: function(feature, attribute, value) {
+        if(feature.attributes[attribute] != value) {
+            feature.attributes[attribute] = value;
+            $(gbi).trigger('gbi.layer.vector.featureAttributeChanged', feature);
+        }
+    },
+    /**
      * Create a clone of this layer
      *
      * @memberof gbi.Layers.Vector
