@@ -343,6 +343,6 @@ gbi.widgets.ThematicalVector.template = '\
 ';
 
 gbi.widgets.ThematicalVector.inputTemplate = '<input type="text" id="" class="input-small">';
-gbi.widgets.ThematicalVector.selectTempalte = '<select id="" class="exactSelect input-medium"></select>';
+gbi.widgets.ThematicalVector.selectTempalte = '<select id="" class="exactSelect input-small"></select>';
 gbi.widgets.ThematicalVector.colorTemplate = '<input id="" class="color_picker styleControl input-small" value="" />';
 gbi.widgets.ThematicalVector.removeTemplate = '<i class="icon-remove pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>';
