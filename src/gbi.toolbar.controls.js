@@ -26,6 +26,9 @@ gbi.Controls.ToolbarItem.prototype = {
     createControl: function() {
         if(this.layer) {
             this.olControl = this._createControl();
+            if(!this.olControl.map) {
+                this.olControl.setMap(this.layer.olLayer.map)
+            }
             this.dummyControl = false;
         } else {
             this.olControl = new OpenLayers.Control(this.options);
