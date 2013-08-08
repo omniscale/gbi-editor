@@ -63,7 +63,9 @@ OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
      */
     setMap: function(map) {
         OpenLayers.Control.prototype.setMap.call(this, map);
-        OpenLayers.Element.addClass(this.panel_div, 'itemDisabled');
+        if(this.panel_div) {
+            OpenLayers.Element.addClass(this.panel_div, 'itemDisabled');
+        }
     },
     /**
      * Sets layer
