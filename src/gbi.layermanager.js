@@ -34,6 +34,7 @@ gbi.LayerManager.prototype = {
         var id = this.nextID();
         layer.id = layer.olLayer.gbiId = id;
         this._layers[id] = layer;
+        this.olMap.addLayer(layer.olLayer);
         if(layer.isVector) {
             this.vectorLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.vectorlayer.add', layer);
@@ -47,7 +48,6 @@ gbi.LayerManager.prototype = {
             this.rasterLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.rasterlayer.add', layer);
         }
-        this.olMap.addLayer(layer.olLayer);
         this.position(layer, this.minMaxPosition(layer)['max']);
         $(gbi).trigger('gbi.layermanager.layer.add');
 
