@@ -36,11 +36,18 @@ gbi.widgets.FeatureAttributesListConfigurator = function(editor, options) {
         self.attributes = self.activeLayer.featuresAttributes();
         self.render();
     });
+    self.render();
 };
 gbi.widgets.FeatureAttributesListConfigurator.prototype = {
     render: function() {
         var self = this;
         this.element.empty();
+
+        if(!this.activeLayer) {
+            this.element.append($('<div class="text-center">No layer selected</div>'));
+            return;
+        }
+
         this.element.append(tmpl(
             gbi.widgets.FeatureAttributesListConfigurator.template, {
                 attributes: self.attributes

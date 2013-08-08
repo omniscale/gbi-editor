@@ -37,30 +37,37 @@ gbi.widgets.FeatureAttributeList = function(editor, options) {
     $(gbi).on('gbi.layer.vector.featureAttributeChanged', function() {
         self.render();
     });
+    self.render();
 };
 gbi.widgets.FeatureAttributeList.prototype = {
     render: function() {
         var self = this;
         this.element.empty();
 
+        if(!self.activeLayer) {
+            this.element.append($('<div class="text-center">No layer selected</div>'));
+            return;
+        }
+
         var attributes = self.activeLayer ? self.activeLayer.listAttributes() || [] : [];
 
-        if(attributes.length > 0) {
-            this.element.append(tmpl(
-                gbi.widgets.FeatureAttributeList.template, {
-                    attributes: self.activeLayer.listAttributes() || self.attributes,
-                    features: self.activeLayer.features
-                }
-            ));
-
-            this.element.find('.show-feature').click(function() {
-                var element = $(this);
-                var feature = self.activeLayer.features[element.attr('id')];
-                self.activeLayer.showFeature(feature);
-            });
-        } else {
-            this.element.append($('<div class="text-center">No attributes selected</div>'))
+        if(attributes.length == 0) {
+            this.element.append($('<div class="text-center">No attributes selected</div>'));
+            return;
         }
+
+        this.element.append(tmpl(
+            gbi.widgets.FeatureAttributeList.template, {
+                attributes: self.activeLayer.listAttributes() || self.attributes,
+                features: self.activeLayer.features
+            }
+        ));
+
+        this.element.find('.show-feature').click(function() {
+            var element = $(this);
+            var feature = self.activeLayer.features[element.attr('id')];
+            self.activeLayer.showFeature(feature);
+        });
     }
 };
 

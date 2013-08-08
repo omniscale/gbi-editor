@@ -50,6 +50,8 @@ gbi.widgets.ThematicalVector = function(editor, options) {
         self.attributes = self.activeLayer.featuresAttributes();
         self.render();
     });
+
+    self.render();
 };
 gbi.widgets.ThematicalVector.prototype = {
     CLASS_NAME: 'gbi.widgets.ThematicalVector',
@@ -57,6 +59,12 @@ gbi.widgets.ThematicalVector.prototype = {
         var self = this;
 
         this.element.empty();
+
+        if(!self.activeLayer) {
+            this.element.append($('<div class="text-center">No layer selected</div>'));
+            return;
+        }
+
         this.element.append(tmpl(
             gbi.widgets.ThematicalVector.template, {
                 attributes: self.attributes,

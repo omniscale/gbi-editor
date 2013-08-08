@@ -25,10 +25,6 @@ gbi.widgets.ThematicalVectorLegend = function(editor, options) {
 
         $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
             self.activeLayer = layer;
-        });
-
-        $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
-            self.activeLayer = layer;
             self.render();
         });
 
@@ -55,6 +51,12 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
         self.legend = this.activeLayer ? this.activeLayer.filteredFeatures() : false;
         var entries = []
         this.element.empty();
+
+        if(!self.activeLayer) {
+            this.element.append($('<div class="text-center">No layer selected</div>'));
+            return;
+        }
+
         if(self.legend) {
             var units = 'm';
             $.each(self.legend.result, function(idx, r) {
