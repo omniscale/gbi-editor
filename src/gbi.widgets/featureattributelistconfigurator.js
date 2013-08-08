@@ -28,7 +28,7 @@ gbi.widgets.FeatureAttributesListConfigurator = function(editor, options) {
                 self.render();
             });
         } else {
-            self.attributes = self.activeLayer.featuresAttributes();
+            self.attributes = self.activeLayer ? self.activeLayer.featuresAttributes() : [];
             self.render();
         }
     });
@@ -47,8 +47,8 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
             }
         ));
 
-        var listAttributes = self.activeLayer.listAttributes();
-        var popupAttributes = self.activeLayer.popupAttributes();
+        var listAttributes = self.activeLayer ? self.activeLayer.listAttributes() : [];
+        var popupAttributes = self.activeLayer ? self.activeLayer.popupAttributes() : [];
 
         if(listAttributes) {
             this.element.find('.list-attribute').each(function(idx, elm) {

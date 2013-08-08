@@ -52,7 +52,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
     },
     _render: function() {
         var self = this;
-        self.legend = this.activeLayer.filteredFeatures();
+        self.legend = this.activeLayer ? this.activeLayer.filteredFeatures() : false;
         var entries = []
         this.element.empty();
         if(self.legend) {

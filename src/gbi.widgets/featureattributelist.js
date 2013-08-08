@@ -23,7 +23,7 @@ gbi.widgets.FeatureAttributeList = function(editor, options) {
                 self.render();
             });
         } else {
-            self.attributes = self.activeLayer.featuresAttributes();
+            self.attributes = self.activeLayer ? self.activeLayer.featuresAttributes() : [];
             self.render();
         }
     });
@@ -43,7 +43,7 @@ gbi.widgets.FeatureAttributeList.prototype = {
         var self = this;
         this.element.empty();
 
-        var attributes = self.activeLayer.listAttributes() || [];
+        var attributes = self.activeLayer ? self.activeLayer.listAttributes() || [] : [];
 
         if(attributes.length > 0) {
             this.element.append(tmpl(

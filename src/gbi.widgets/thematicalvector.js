@@ -38,7 +38,9 @@ gbi.widgets.ThematicalVector = function(editor, options) {
                 self.render();
             });
         } else {
-            self.attributes = self.activeLayer.featuresAttributes();
+            if(self.activeLayer) {
+                self.attributes = self.activeLayer.featuresAttributes();
+            }
             self.render();
         }
 
@@ -87,7 +89,7 @@ gbi.widgets.ThematicalVector.prototype = {
             self.execute();
         });
 
-        if(this.activeLayer.featureStylingRule) {
+        if(this.activeLayer && this.activeLayer.featureStylingRule) {
             this.element.find('#attribute').val(this.activeLayer.featureStylingRule.attribute);
             this.element.find('#rule-active').attr('checked', this.activeLayer.featureStylingRule.active)
             this.mode = this.activeLayer.featureStylingRule.type;
@@ -133,7 +135,7 @@ gbi.widgets.ThematicalVector.prototype = {
         var self = this;
         element.empty();
         element.append($('<option disabled selected>' + thematicalVectorLabel.selectValue + '</option>'));
-        var optionValues = self.activeLayer.attributeValues($('#attribute').val())
+        var optionValues = self.activeLayer ? self.activeLayer.attributeValues($('#attribute').val()) : [];
         $.each(optionValues, function(idx, value) {
             element.append($('<option value="'+ value+'">'+value+'</option>'));
         });
