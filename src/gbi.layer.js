@@ -1224,6 +1224,14 @@ $.extend(gbi.Layers.Couch.prototype, {
             },
             data: this.format.write({})
         });
+        OpenLayers.Request.PUT({
+            url: this.options.url + 'gbi_editor',
+            async: false,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: this.format.write({})
+        });
     },
     /**
      * Removes couchDB for this layer and destroys the layer
