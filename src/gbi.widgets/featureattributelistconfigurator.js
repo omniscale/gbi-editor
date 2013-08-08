@@ -50,7 +50,7 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
 
         this.element.append(tmpl(
             gbi.widgets.FeatureAttributesListConfigurator.template, {
-                attributes: self.attributes
+                attributes: self.attributes || []
             }
         ));
 
@@ -94,25 +94,29 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
 };
 
 gbi.widgets.FeatureAttributesListConfigurator.template = '\
-    <table class="table">\
-        <thead>\
-            <tr>\
-                <th>' + featuresAttributeListLabel.attribute + '</th>\
-                <th>' + featuresAttributeListLabel.showInList + '</th>\
-                <th>' + featuresAttributeListLabel.showInPopup + '</th>\
-            </tr>\
-        </thead>\
-        <tbody id="sortable">\
-            <% for(var a_key in attributes) { %>\
+    <% if(attributes.length == 0) { %>\
+        <div>Layer have no attributes</div>\
+    <% } else { %>\
+        <table class="table">\
+            <thead>\
                 <tr>\
-                    <td><%=attributes[a_key]%></td>\
-                    <td><input type="checkbox" class="list-attribute" value="<%=attributes[a_key]%>" /></td>\
-                    <td><input type="checkbox" class="popup-attribute" value="<%=attributes[a_key]%>" /></td>\
+                    <th>' + featuresAttributeListLabel.attribute + '</th>\
+                    <th>' + featuresAttributeListLabel.showInList + '</th>\
+                    <th>' + featuresAttributeListLabel.showInPopup + '</th>\
                 </tr>\
-            <% } %>\
-        </tbody>\
-    </table>\
-    <div class="text-center">\
-        <button id="setListAttributes">' + featuresAttributeListLabel.apply + '</button>\
-    </div>\
+            </thead>\
+            <tbody id="sortable">\
+                <% for(var a_key in attributes) { %>\
+                    <tr>\
+                        <td><%=attributes[a_key]%></td>\
+                        <td><input type="checkbox" class="list-attribute" value="<%=attributes[a_key]%>" /></td>\
+                        <td><input type="checkbox" class="popup-attribute" value="<%=attributes[a_key]%>" /></td>\
+                    </tr>\
+                <% } %>\
+            </tbody>\
+        </table>\
+        <div class="text-center">\
+            <button id="setListAttributes">' + featuresAttributeListLabel.apply + '</button>\
+        </div>\
+    <% } %>\
 ';
