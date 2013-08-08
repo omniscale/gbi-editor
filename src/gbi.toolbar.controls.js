@@ -511,7 +511,7 @@ gbi.Controls.Hover = function(layer, options) {
         autoActivate: true,
         eventListeners: {
             //trigger events in layer couse events only triggered in control
-            featurehighlighted: function(f) {+
+            featurehighlighted: function(f) {
                 self.layer.triggerEvent('featurehighlighted', {feature: f.feature})
             },
             featureunhighlighted: function(f) {
@@ -544,6 +544,14 @@ $.extend(gbi.Controls.Hover.prototype, {
         var olControl = new OpenLayers.Control.SelectFeature(this.layer.olLayer, this.options);
         olControl.handlers.feature.stopDown = false;
         return olControl;
+    },
+    changeLayer: function(layer) {
+        if(this.dummyControl || !layer) {
+            this.replaceToolbarControl(layer);
+        } else {
+            this.olControl.setLayer(layer.olLayer);
+        }
+        this.layer = layer;
     }
 });
 
