@@ -19,8 +19,6 @@ gbi.widgets.FeatureAttributesListConfigurator = function(editor, options) {
     this.element = $('#' + this.options.element);
     this.editor = editor;
     this.activeLayer = editor.layerManager.active();
-    this.activeLayer.listAttributes(this.activeLayer.listAttributes() || [])
-    this.activeLayer.popupAttributes(this.activeLayer.popupAttributes() || [])
 
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;

@@ -283,6 +283,9 @@ gbi.Layers.Vector = function(options) {
     this.isActive = false;
     this.isEditable = this.options.editable;
 
+    this._listAttributes = [];
+    this._popupAttributes = [];
+
     this.features = this.olLayer.features;
     if(!this.options.styleMap) {
         this.symbolizers = $.extend(true, {}, default_symbolizers, this.options.symbolizers);
