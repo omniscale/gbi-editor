@@ -53,6 +53,14 @@ gbi.Controls.ToolbarItem.prototype = {
         this.createControl();
         this.olToolbar.addControls([this.olControl]);
     },
+    replaceControl: function(layer) {
+        if(this.olToolbar) {
+            this.replaceToolbarControl(layer);
+        } else {
+            this.layer = layer;
+            this.createControl();
+        }
+    },
     /**
      * Gets active status of control
      *
@@ -191,7 +199,7 @@ $.extend(gbi.Controls.Draw.prototype, {
     changeLayer: function(layer) {
         this.layer = layer;
         if(this.dummyControl || !layer) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.layer = layer.olLayer;
             this._olSelectControl.setLayer(layer.olLayer);
@@ -259,7 +267,7 @@ $.extend(gbi.Controls.Edit.prototype, {
      */
     changeLayer: function(layer) {
         if(this.dummyControl || !layer) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.layer.olLayer.events.unregister('beforefeaturemodified', this, this._beforeModified);
             this.layer = layer;
@@ -381,7 +389,7 @@ $.extend(gbi.Controls.Delete.prototype, {
      */
     changeLayer: function(layer) {
         if(this.dummyControl || !layer) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.setLayer(layer.olLayer);
         }
@@ -430,7 +438,7 @@ $.extend(gbi.Controls.Split.prototype, {
      */
     changeLayer: function(layer) {
         if(this.dummyControl || !layer) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.setLayer(layer.olLayer);
         }
@@ -480,7 +488,7 @@ $.extend(gbi.Controls.Merge.prototype, {
      */
     changeLayer: function(layer) {
         if(this.dummyControl || !layer) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.setLayer(layer.olLayer);
         }
@@ -550,7 +558,7 @@ $.extend(gbi.Controls.Hover.prototype, {
     },
     changeLayer: function(layer) {
         if(this.dummyControl || !layer) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.setLayer(layer.olLayer);
         }
@@ -660,7 +668,7 @@ $.extend(gbi.Controls.Select.prototype, {
     addLayer: function(layer) {
         this.layers[layer.id] = layer;
         if(this.dummyControl) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.setLayer(this.olLayers());
         }
@@ -740,11 +748,7 @@ $.extend(gbi.Controls.Snap.prototype, {
     changeLayer: function(layer) {
         this.layer = layer;
         if(this.dummyControl || !layer) {
-            if(this.options.toolbar) {
-                this.replaceToolbarControl(layer);
-            } else {
-                this.createControl();
-            }
+            this.replaceControl(layer);
         } else {
             this.olControl.setLayer(layer.olLayer);
         }
@@ -760,11 +764,7 @@ $.extend(gbi.Controls.Snap.prototype, {
         this.layers[layer.id] = layer;
         this.layer = this.layer || layer;
         if(this.dummyControl) {
-            if(this.options.toolbar) {
-                this.replaceToolbarControl(layer);
-            } else {
-                this.createControl();
-            }
+            this.replaceControl(layer);
         } else {
             if(!this.olControl.layer) {
                 this.olControl.setLayer(layer.olLayer);
@@ -868,7 +868,7 @@ $.extend(gbi.Controls.Copy.prototype, {
     addLayer: function(layer) {
         this.layers[layer.id] = layer;
         if(this.dummyControl) {
-            this.replaceToolbarControl(layer);
+            this.replaceControl(layer);
         } else {
             this.olControl.layers(this.olLayers());
         }
