@@ -31,6 +31,9 @@ gbi.Controls.ToolbarItem.prototype = {
             }
             this.dummyControl = false;
         } else {
+            if(!this.dummyControl && this.olControl) {
+                this.olControl.destroy();
+            }
             this.olControl = new OpenLayers.Control(this.options);
             this.olControl.activate = function() {};
             this.olControl.trigger = function() {};
