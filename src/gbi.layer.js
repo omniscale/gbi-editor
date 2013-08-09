@@ -46,6 +46,7 @@ gbi.Layers.Layer.prototype = {
      * @private
      */
     destroy: function() {
+        $(this).off();
         this.olLayer.destroy();
     },
     /**
@@ -432,7 +433,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 });
                 break;
         };
-        $(gbi).trigger('gbi.layer.vector.ruleChanged', false);
+        $(this).trigger('gbi.layer.vector.ruleChanged', false);
         if(rules.length == 0 || !active) {
             this.olLayer.redraw();
             return;
@@ -562,7 +563,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     changeFeatureAttribute: function(feature, attribute, value) {
         if(feature.attributes[attribute] != value) {
             feature.attributes[attribute] = value;
-            $(gbi).trigger('gbi.layer.vector.featureAttributeChanged', feature);
+            $(this).trigger('gbi.layer.vector.featureAttributeChanged', feature);
             return true;
         }
         return false;
@@ -580,7 +581,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         console.log('removeFeatureAttribute')
         if(attribute in feature.attributes) {
             delete feature.attributes[attribute];
-            $(gbi).trigger('gbi.layer.vector.featureAttributeChanged', feature);
+            $(this).trigger('gbi.layer.vector.featureAttributeChanged', feature);
             return true;
         }
         return false;
@@ -652,7 +653,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     listAttributes: function(listAttributes) {
         if(listAttributes) {
             this._listAttributes = listAttributes;
-            $(gbi).trigger('gbi.layer.vector.listAttributesChanged', false);
+            $(this).trigger('gbi.layer.vector.listAttributesChanged', false);
         }
         return this._listAttributes;
     },
@@ -667,7 +668,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     popupAttributes: function(popupAttributes) {
         if(popupAttributes) {
             this._popupAttributes = popupAttributes;
-            $(gbi).trigger('gbi.layer.vector.popupAttributesChanged', false);
+            $(this).trigger('gbi.layer.vector.popupAttributesChanged', false);
         }
         return this._popupAttributes;
     },
@@ -842,7 +843,7 @@ gbi.Layers.SaveableVector = function(options) {
         self.unsavedChanges = false;
         if(response && response.object && response.object.features.length == 0) {
             self.loaded = true;
-            $(gbi).trigger('gbi.layer.couch.loadFeaturesEnd');
+            $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
         }
         self.olLayer.events.register('featureadded', self, self._trackStatus);
         self.olLayer.events.register('featureremoved', self, self._trackStatus);
@@ -851,7 +852,7 @@ gbi.Layers.SaveableVector = function(options) {
         self.features = self.olLayer.features;
     });
 
-    $(gbi).on('gbi.layer.vector.featureAttributeChanged', function(event, feature) {
+    $(this).on('gbi.layer.vector.featureAttributeChanged', function(event, feature) {
         if(feature.state != OpenLayers.State.INSERT) {
             feature.state = OpenLayers.State.UPDATE;
         }
@@ -1054,7 +1055,7 @@ gbi.Layers.Couch = function(options) {
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
         self.features = self.olLayer.features;
-        $(gbi).trigger('gbi.layer.couch.loadFeaturesEnd');
+        $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
     if(this.options.loadStyle) {
