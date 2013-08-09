@@ -568,6 +568,24 @@ $.extend(gbi.Layers.Vector.prototype, {
         return false;
     },
     /**
+     * Removes an attribute from given feature
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature
+     * @param {String} attribute
+     * @returns {Boolean} success
+     */
+    removeFeatureAttribute: function(feature, attribute) {
+        console.log('removeFeatureAttribute')
+        if(attribute in feature.attributes) {
+            delete feature.attributes[attribute];
+            $(gbi).trigger('gbi.layer.vector.featureAttributeChanged', feature);
+            return true;
+        }
+        return false;
+    },
+    /**
      * Create a clone of this layer
      *
      * @memberof gbi.Layers.Vector
