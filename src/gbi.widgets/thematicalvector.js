@@ -46,6 +46,11 @@ gbi.widgets.ThematicalVector = function(editor, options) {
 
     });
 
+    $(gbi).on('gbi.layer.vector.featureAttributeChanged', function() {
+        self.attributes = self.activeLayer.featuresAttributes();
+        self.render();
+    });
+
     $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
         self.attributes = self.activeLayer.featuresAttributes();
         self.render();
