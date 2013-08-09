@@ -1125,6 +1125,13 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    /**
+     * Loads gbi_editor document from couchDB
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
     _loadGBIData: function() {
         var self = this;
         var format = new OpenLayers.Format.JSON();
@@ -1157,6 +1164,13 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    /**
+     * Saves gbi_editor document to couchDB
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
     _saveGBIData: function() {
         var self = this;
         var gbiData = {};

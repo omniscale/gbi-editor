@@ -56,6 +56,15 @@ gbi.Controls.ToolbarItem.prototype = {
         this.createControl();
         this.olToolbar.addControls([this.olControl]);
     },
+    /**
+     * Reassign control.
+     *
+     * If control is placed in a toolbar, calls replaceToolbarControl
+     *
+     * @memberof gbi.Controls.ToolbarItem
+     * @instance
+     * @param {gbi.Layer} layer
+     */
     replaceControl: function(layer) {
         if(this.olToolbar) {
             this.replaceToolbarControl(layer);
@@ -559,6 +568,13 @@ $.extend(gbi.Controls.Hover.prototype, {
         olControl.handlers.feature.stopDown = false;
         return olControl;
     },
+    /**
+     * Sets layer for hovering features
+     *
+     * @memberof gbi.Controls.Hover
+     * @instance
+     * @param {gbi.Layers.VectorLayer} layer
+     */
     changeLayer: function(layer) {
         if(this.dummyControl || !layer) {
             this.replaceControl(layer);
