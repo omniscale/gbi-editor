@@ -15,7 +15,8 @@ gbi.Layers.Layer = function(options) {
     var defaults = {
         isBaseLayer: false,
         displayInLayerSwitcher: true,
-        visibility: true
+        visibility: true,
+        gbiLayer: this
     }
     this.options = $.extend({}, defaults, options);
     this.isRaster = true;
