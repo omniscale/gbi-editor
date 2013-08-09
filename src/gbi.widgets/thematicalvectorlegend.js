@@ -11,6 +11,9 @@ var thematicalVectorLegendLabel = {
 gbi.widgets = gbi.widgets || {};
 
 gbi.widgets.ThematicalVectorLegend = function(editor, options) {
+    if(!editor) {
+        return;
+    }
     var self = this;
     var defaults = {
         element: 'thematicalvectorlegend'
@@ -18,35 +21,27 @@ gbi.widgets.ThematicalVectorLegend = function(editor, options) {
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
     this.editor = editor;
-    if(this.editor) {
-        this.activeLayer = editor.layerManager.active();
-        this.selectControl = false;
-        this.legend = false;
 
-        $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
-            self.activeLayer = layer;
-            self.render();
-        });
+    this.activeLayer = editor.layerManager.active();
+    this.selectControl = false;
+    this.legend = false;
 
-        $(gbi).on('gbi.layer.vector.ruleChanged', function(event) {
-            self.render();
-        });
-
+    $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
+        self.activeLayer = layer;
+        if(self.activeLayer) {
+            self._registerLayerEvents(self.activeLayer);
+        }
         self.render();
+    });
+
+    if(this.activeLayer) {
+        this._registerLayerEvents(this.activeLayer);
     }
+
+    this.render();
 };
 gbi.widgets.ThematicalVectorLegend.prototype = {
     render: function() {
-        var self = this;
-        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
-            $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-                self._render();
-            });
-        } else {
-            self._render();
-        }
-    },
-    _render: function() {
         var self = this;
         self.legend = this.activeLayer ? this.activeLayer.filteredFeatures() : false;
         var entries = []
@@ -97,6 +92,17 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
         } else {
             this.element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
         }
+    },
+    _registerLayerEvents: function(layer) {
+        var self = this;
+        if(layer instanceof gbi.Layers.SaveableVector && !layer.loaded) {
+            $(layer).on('gbi.layer.couch.loadFeaturesEnd', function() {
+                self.render();
+            });
+        }
+        $(layer).on('gbi.layer.vector.ruleChanged', function(event) {
+            self.render();
+        });
     }
 };
 

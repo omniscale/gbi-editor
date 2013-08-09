@@ -17,26 +17,21 @@ gbi.widgets.FeatureAttributeList = function(editor, options) {
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
         self.hoverCtrl.changeLayer(layer);
-        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
-            $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-                self.attributes = self.activeLayer.featuresAttributes();
-                self.render();
-            });
+        if(self.activeLayer) {
+            self._registerLayerEvents(self.activeLayer);
+            self.attributes = self.activeLayer.featuresAttributes() || [];
         } else {
-            self.attributes = self.activeLayer ? self.activeLayer.featuresAttributes() : [];
-            self.render();
+            self.attributes = [];
         }
-    });
-    $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-        self.attributes = self.activeLayer.featuresAttributes();
         self.render();
+
     });
-    $(gbi).on('gbi.layer.vector.listAttributesChanged', function() {
-        self.render();
-    });
-    $(gbi).on('gbi.layer.vector.featureAttributeChanged', function() {
-        self.render();
-    });
+    if(this.activeLayer) {
+        this._registerLayerEvents(this.activeLayer);
+        this.attributes = this.activeLayer.featuresAttributes() || [];
+    } else {
+        this.attributes = [];
+    }
     self.render();
 };
 gbi.widgets.FeatureAttributeList.prototype = {
@@ -67,6 +62,21 @@ gbi.widgets.FeatureAttributeList.prototype = {
             var element = $(this);
             var feature = self.activeLayer.features[element.attr('id')];
             self.activeLayer.showFeature(feature);
+        });
+    },
+    _registerLayerEvents: function(layer) {
+        var self = this;
+        if(layer instanceof gbi.Layers.SaveableVector && !layer.loaded) {
+            $(layer).on('gbi.layer.couch.loadFeaturesEnd', function() {
+                self.attributes = layer.featuresAttributes();
+                self.render();
+            });
+        }
+        $(layer).on('gbi.layer.vector.listAttributesChanged', function() {
+            self.render();
+        });
+        $(layer).on('gbi.layer.vector.featureAttributeChanged', function() {
+            self.render();
         });
     }
 };

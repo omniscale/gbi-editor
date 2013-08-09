@@ -32,29 +32,20 @@ gbi.widgets.ThematicalVector = function(editor, options) {
 
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
-        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
-            $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-                self.attributes = self.activeLayer.featuresAttributes();
-                self.render();
-            });
+        if(self.activeLayer) {
+            self._registerLayerEvents(self.activeLayer);
+            self.attributes = self.activeLayer.featuresAttributes() || [];
         } else {
-            if(self.activeLayer) {
-                self.attributes = self.activeLayer.featuresAttributes();
-            }
-            self.render();
+            self.attributes = [];
         }
-
-    });
-
-    $(gbi).on('gbi.layer.vector.featureAttributeChanged', function() {
-        self.attributes = self.activeLayer.featuresAttributes();
         self.render();
     });
-
-    $(gbi).on('gbi.layer.couch.loadFeaturesEnd', function() {
-        self.attributes = self.activeLayer.featuresAttributes();
-        self.render();
-    });
+    if(this.activeLayer) {
+        this._registerLayerEvents(this.activeLayer);
+        this.attributes = this.activeLayer.featuresAttributes() || [];
+    } else {
+        this.attributes = [];
+    }
 
     self.render();
 };
@@ -272,6 +263,19 @@ gbi.widgets.ThematicalVector.prototype = {
         if(this.activeLayer instanceof gbi.Layers.Couch) {
             this.activeLayer._saveGBIData();
         }
+    },
+    _registerLayerEvents: function(layer) {
+        var self = this;
+        if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
+            $(layer).on('gbi.layer.couch.loadFeaturesEnd', function() {
+                self.attributes = layer.featuresAttributes();
+                self.render();
+            });
+        }
+        $(layer).on('gbi.layer.vector.featureAttributeChanged', function() {
+            self.attributes = layer.featuresAttributes();
+            self.render();
+        });
     }
 };
 
