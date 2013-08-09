@@ -1,3 +1,8 @@
+var featureAttributeListLabels = {
+    'noLayer': OpenLayers.i18n('No layer selected'),
+    'noAttribute': OpenLayers.i18n('No attributes selected'),
+}
+
 gbi.widgets = gbi.widgets || {};
 
 gbi.widgets.FeatureAttributeList = function(editor, options) {
@@ -40,14 +45,14 @@ gbi.widgets.FeatureAttributeList.prototype = {
         this.element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">No layer selected</div>'));
+            this.element.append($('<div class="text-center">' + featureAttributeListLabels.noLayer + '</div>'));
             return;
         }
 
         var attributes = self.activeLayer ? self.activeLayer.listAttributes() || [] : [];
 
         if(attributes.length == 0) {
-            this.element.append($('<div class="text-center">No attributes selected</div>'));
+            this.element.append($('<div class="text-center">' + featureAttributeListLabels.noAttribute + '</div>'));
             return;
         }
 

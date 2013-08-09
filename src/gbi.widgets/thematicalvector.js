@@ -12,7 +12,8 @@ var thematicalVectorLabel = {
     'removeInputField': OpenLayers.i18n('Remove input'),
     'active': OpenLayers.i18n('Active'),
     'choose': OpenLayers.i18n('Choose value'),
-    'noInput': OpenLayers.i18n('No entries')
+    'noInput': OpenLayers.i18n('No entries'),
+    'noLayer': OpenLayers.i18n('No layer selected')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -57,7 +58,7 @@ gbi.widgets.ThematicalVector.prototype = {
         this.element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">No layer selected</div>'));
+            this.element.append($('<div class="text-center">' + thematicalVectorLabel.noLayer + '</div>'));
             return;
         }
 

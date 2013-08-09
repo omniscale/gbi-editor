@@ -1,8 +1,10 @@
-var featuresAttributeListLabel = {
+var featuresAttributeListConfiguratorLabel = {
     'attribute': OpenLayers.i18n('Attributes'),
     'showInList': OpenLayers.i18n('Show in list'),
     'showInPopup': OpenLayers.i18n('Show in popup'),
-    'apply': OpenLayers.i18n('Apply')
+    'apply': OpenLayers.i18n('Apply'),
+    'noLayer': OpenLayers.i18n('No layer selected'),
+    'noAttributes': OpenLayers.i18n('Layer have no attributes')
 };
 
 
@@ -44,7 +46,7 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
         this.element.empty();
 
         if(!this.activeLayer) {
-            this.element.append($('<div class="text-center">No layer selected</div>'));
+            this.element.append($('<div class="text-center">' + featuresAttributeListConfiguratorLabel.noLayer + '</div>'));
             return;
         }
 
@@ -108,14 +110,14 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
 
 gbi.widgets.FeatureAttributesListConfigurator.template = '\
     <% if(attributes.length == 0) { %>\
-        <div>Layer have no attributes</div>\
+        <div>' + featuresAttributeListConfiguratorLabel.noAttributes + '</div>\
     <% } else { %>\
         <table class="table">\
             <thead>\
                 <tr>\
-                    <th>' + featuresAttributeListLabel.attribute + '</th>\
-                    <th>' + featuresAttributeListLabel.showInList + '</th>\
-                    <th>' + featuresAttributeListLabel.showInPopup + '</th>\
+                    <th>' + featuresAttributeListConfiguratorLabel.attribute + '</th>\
+                    <th>' + featuresAttributeListConfiguratorLabel.showInList + '</th>\
+                    <th>' + featuresAttributeListConfiguratorLabel.showInPopup + '</th>\
                 </tr>\
             </thead>\
             <tbody id="sortable">\
@@ -129,7 +131,7 @@ gbi.widgets.FeatureAttributesListConfigurator.template = '\
             </tbody>\
         </table>\
         <div class="text-center">\
-            <button id="setListAttributes">' + featuresAttributeListLabel.apply + '</button>\
+            <button id="setListAttributes">' + featuresAttributeListConfiguratorLabel.apply + '</button>\
         </div>\
     <% } %>\
 ';

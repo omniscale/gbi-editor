@@ -5,7 +5,8 @@ var thematicalVectorLegendLabel = {
     'value': OpenLayers.i18n('Value'),
     'color': OpenLayers.i18n('Color'),
     'exact': OpenLayers.i18n('Exact'),
-    'range': OpenLayers.i18n('Range')
+    'range': OpenLayers.i18n('Range'),
+    'noLayer': OpenLayers.i18n('No layer selected')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -48,7 +49,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
         this.element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">No layer selected</div>'));
+            this.element.append($('<div class="text-center">' + thematicalVectorLegendLabel.noLayer + '</div>'));
             return;
         }
 
