@@ -551,7 +551,6 @@ gbi.Controls.Hover = function(layer, options) {
     this.layer = layer
     gbi.Controls.ToolbarItem.call(this, $.extend({}, defaults, options));
     this.createControl();
-    console.log(this.olControl)
 };
 gbi.Controls.Hover.prototype = new gbi.Controls.ToolbarItem();
 $.extend(gbi.Controls.Hover.prototype, {
