@@ -579,8 +579,8 @@ $.extend(gbi.Controls.Hover.prototype, {
             this.replaceControl(layer);
         } else {
             this.olControl.setLayer(layer.olLayer);
+            this.layer = layer;
         }
-        this.layer = layer;
     }
 });
 
