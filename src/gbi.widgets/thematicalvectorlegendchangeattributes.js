@@ -10,9 +10,9 @@ gbi.widgets.ThematicalVectorLegendChangeAttributes = function(editor, options) {
 };
 gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype = new gbi.widgets.ThematicalVectorLegend();
 $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
-    _render: function() {
+    render: function() {
         var self = this;
-        gbi.widgets.ThematicalVectorLegend.prototype._render.call(this);
+        gbi.widgets.ThematicalVectorLegend.prototype.render.call(this);
         if(self.legend && self.legend.type == 'exact') {
             this.element.append(tmpl(
                 gbi.widgets.ThematicalVectorLegendChangeAttributes.template
