@@ -232,8 +232,8 @@ OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
      */
     destroy: function() {
         this._draw.destroy();
-        this.layer.event.unregister('featureselected', this, this._toggleControlState);
-        this.layer.event.unregister('featureunselected', this, this._toggleControlState);
+        this.layer.events.unregister('featureselected', this, this._toggleControlState);
+        this.layer.events.unregister('featureunselected', this, this._toggleControlState);
         OpenLayers.Control.prototype.destroy.apply(this, []);
     },
 
