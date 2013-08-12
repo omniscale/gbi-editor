@@ -322,11 +322,16 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
      */
-    setStyle: function(symbolizers) {
-        $.extend(true, this.symbolizers, symbolizers);
+    setStyle: function(symbolizers, temporary) {
+        var applySymbolizers;
+        if(temporary) {
+            applySymbolizers = $.extend(true, {}, this.symbolizers, symbolizers)
+        } else {
+            applySymbolizers = $.extend(true, this.symbolizers, symbolizers);
+        }
         var style = new OpenLayers.Style();
         style.addRules([
-            new OpenLayers.Rule({symbolizer: this.symbolizers})
+            new OpenLayers.Rule({symbolizer: applySymbolizers})
         ]);
         if(this.olLayer.styleMap) {
             this.olLayer.styleMap.styles['default'] = style;
