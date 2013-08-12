@@ -531,6 +531,16 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
     },
     /**
+     * Get feature of this layer by its id
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @returns {OpenLayers.Feature.Vector} feature if found
+     */
+    featureById: function(featureId) {
+        return this.olLayer.getFeatureById(featureId);
+    },
+    /**
      * Adds features to this layer
      *
      * @memberof gbi.Layers.Vector
@@ -578,7 +588,6 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @returns {Boolean} success
      */
     removeFeatureAttribute: function(feature, attribute) {
-        console.log('removeFeatureAttribute')
         if(attribute in feature.attributes) {
             delete feature.attributes[attribute];
             $(this).trigger('gbi.layer.vector.featureAttributeChanged', feature);
