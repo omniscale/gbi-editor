@@ -11,18 +11,20 @@
         <script type="text/javascript" src="../lib/OpenLayers-2.12.js"></script>
         <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="../lib/jquery-ui-1.10.3.custom.min.js"></script>
+        <script type="text/javascript" src="../lib/bootstrap.min.js"></script>
         <script type="text/javascript" src="../lib/micro.templating.js"></script>
         <script type="text/javascript" src="../lib/jquery.minicolors.js"></script>
         <script type="text/javascript" src="../lib/jquery.nouislider.js"></script>
         <script type="text/javascript" src="../src/gbi.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvector.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorconfigurator.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegend.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegendchangeattributes.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/featureattributelist.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/featureattributelistconfigurator.js"></script>
         <script type="text/javascript">
 
-            OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
+            OpenLayers.ProxyHost = "http://localhost:8081/cgi-bin/proxy.cgi?url=";
 
             $(document).ready(function() {
                 var editor = new gbi.Editor({
@@ -51,9 +53,9 @@
                 editor.addLayer(couchLayer);
 
                 var thematicalVector = new gbi.widgets.ThematicalVector(editor);
-                var thematicalVectorLegend = new gbi.widgets.ThematicalVectorLegendChangeAttributes(editor)
-                featureAttributeList = new gbi.widgets.FeatureAttributeList(editor, {featurePopup: 'hover'});
-                featureAttributesListConfigurator = new gbi.widgets.FeatureAttributesListConfigurator(editor);
+                // var thematicalVectorLegend = new gbi.widgets.ThematicalVectorLegendChangeAttributes(editor)
+                // featureAttributeList = new gbi.widgets.FeatureAttributeList(editor, {featurePopup: 'hover'});
+                // featureAttributesListConfigurator = new gbi.widgets.FeatureAttributesListConfigurator(editor);
 
 
             });
@@ -66,11 +68,9 @@
         </div>
         <div class="row-fluid">
             <div class="span4">
-                <div id="featureattributelistconfigurator"></div>
-                <hr>
-                <div id="featureattributelist"></div>
+                <div id="thematical-vector"></div>
             </div>
-            <div class="span4">
+            <div class="span6">
                 <div id="map"></div>
                 <br>
                 <p>In this example you can filter attribute values and change there color depending on there value.</p>
@@ -81,12 +81,6 @@
                     <p>The CGI script <code>[project_root]/cgi-bin/proxy.cgi</code> must be included.</p>
                     <p>Also you need a running couchDB.</p>
                 </div>
-            </div>
-            <div class="span2">
-                <div id="thematicalvector"></div>
-            </div>
-            <div class="span2">
-                <div id="thematicalvectorlegend"></div>
             </div>
         </div>
     </body>
