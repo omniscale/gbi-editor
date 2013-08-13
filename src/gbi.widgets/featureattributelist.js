@@ -1,6 +1,7 @@
 var featureAttributeListLabels = {
     'noLayer': OpenLayers.i18n('No layer selected'),
     'noAttribute': OpenLayers.i18n('No attributes selected'),
+    'reset': OpenLayers.i18n('Show all features')
 }
 
 gbi.widgets = gbi.widgets || {};
@@ -44,7 +45,7 @@ gbi.widgets.FeatureAttributeList = function(thematicalVector, options) {
     self.render();
 };
 gbi.widgets.FeatureAttributeList.prototype = {
-    render: function() {
+    render: function(features) {
         var self = this;
         this.element.empty();
 
@@ -52,7 +53,6 @@ gbi.widgets.FeatureAttributeList.prototype = {
             this.element.append($('<div class="text-center">' + featureAttributeListLabels.noLayer + '</div>'));
             return;
         }
-
         var attributes = self.activeLayer ? self.activeLayer.listAttributes() || [] : [];
 
         if(attributes.length == 0) {
@@ -62,16 +62,34 @@ gbi.widgets.FeatureAttributeList.prototype = {
 
         this.element.append(tmpl(
             gbi.widgets.FeatureAttributeList.template, {
-                attributes: self.activeLayer.listAttributes() || self.attributes,
-                features: self.activeLayer.features
+                attributes: this.options.fullList ? self.attributes : self.activeLayer.listAttributes() || self.attributes,
+                features: features || self.activeLayer.features,
+                resetButton: features ? true : false
             }
         ));
+
+        if(features) {
+            $('#reset-list').click(function() {
+                self.render();
+            });
+        }
 
         this.element.find('.show-feature').click(function() {
             var element = $(this);
             var feature = self.activeLayer.features[element.attr('id')];
             self.activeLayer.showFeature(feature);
         });
+    },
+    showFilteredFeatures: function(value) {
+        var filteredFeatures = this.activeLayer.filteredFeatures().result;
+        var features;
+        $.each(filteredFeatures, function(idx, filterItem) {
+            if(filterItem.value == value) {
+                features = filterItem.features;
+                return true;
+            }
+        });
+        this.render(features);
     },
     _registerLayerEvents: function(layer) {
         var self = this;
@@ -91,14 +109,18 @@ gbi.widgets.FeatureAttributeList.prototype = {
 };
 
 gbi.widgets.FeatureAttributeList.template = '\
+    <% if(resetButton) { %>\
+        <button class="btn btn-small" id="reset-list">' + featureAttributeListLabels.reset + '</button>\
+    <% } %>\
     <table class="table table-hover">\
         <tr>\
             <% for(var key in attributes) { %>\
                 <th><%=attributes[key]%></th>\
             <% } %>\
+            <th>&nbsp;</th>\
         </tr>\
         <% for(var f_key in features) { %>\
-            <tr class="show-feature" id="<%=f_key%>">\
+            <tr>\
                 <% for(var a_key in attributes) { %>\
                     <td>\
                     <% if(features[f_key].attributes[attributes[a_key]]) { %>\
@@ -108,6 +130,11 @@ gbi.widgets.FeatureAttributeList.template = '\
                     <% } %>\
                     </td>\
                 <% } %>\
+                <td>\
+                    <button class="btn btn-small show-feature" id="<%=f_key%>">\
+                        <i class="icon-fullscreen"></i>\
+                    </button>\
+                </td>\
             </tr>\
         <% } %>\
     </table>\
