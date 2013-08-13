@@ -136,6 +136,7 @@ gbi.widgets.FeatureAttributesListConfigurator.template = '\
         <table class="table">\
             <thead>\
                 <tr>\
+                    <th>&nbsp;</th>\
                     <th>' + featuresAttributeListConfiguratorLabel.attribute + '</th>\
                     <th>' + featuresAttributeListConfiguratorLabel.showInList + '</th>\
                     <th>' + featuresAttributeListConfiguratorLabel.showInPopup + '</th>\
@@ -144,6 +145,7 @@ gbi.widgets.FeatureAttributesListConfigurator.template = '\
             <tbody id="sortable">\
                 <% for(var a_key in attributes) { %>\
                     <tr>\
+                        <td><i class="icon-move opacity-1"></i></td>\
                         <td><%=attributes[a_key]%></td>\
                         <td><input type="checkbox" class="list-attribute" value="<%=attributes[a_key]%>" /></td>\
                         <td><input type="checkbox" class="popup-attribute" value="<%=attributes[a_key]%>" /></td>\

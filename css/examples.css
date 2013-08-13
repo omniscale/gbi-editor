@@ -67,6 +67,10 @@ th {
 
 }
 
+.opacity-1 {
+    opacity: 0.1;
+}
+
 /* Bootstrap overrides for normal OpenLayers look */
 img.olTileImage,
 .olPopup img {
