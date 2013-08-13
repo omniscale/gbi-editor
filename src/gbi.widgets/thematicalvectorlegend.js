@@ -89,9 +89,21 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                     attribute: self.legend.attribute,
                     type: thematicalVectorLegendLabel[self.legend.type],
                     entries: entries,
-                    units: units
+                    units: units,
+                    featureList: self.options.featureList instanceof gbi.widgets.FeatureAttributeList
                 }
             ));
+
+            if(self.options.featureList instanceof gbi.widgets.FeatureAttributeList) {
+                // bind events
+                $.each(entries, function(idx, entry) {
+                    $('#_' + entry.value + '_list_view').click(function() {
+                        self.options.featureList.showFilteredFeatures(entry.value);
+                        self.thematicalVector.showListView();
+                    });
+                });
+            }
+
         } else {
             this.element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
         }
@@ -117,6 +129,7 @@ gbi.widgets.ThematicalVectorLegend.template = '\
                 <th class="text-center">' + thematicalVectorLegendLabel.color + '</th>\
                 <th class="text-center">' + thematicalVectorLegendLabel.value + '</th>\
                 <th class="text-center">' + thematicalVectorLegendLabel.areaIn + ' <%=units%><sup>2</sup></th>\
+                <% if(featureList) { %><th class="text-center">&nbsp;</th><% } %>\
             </tr>\
         </thead>\
         <tbody>\
@@ -125,6 +138,13 @@ gbi.widgets.ThematicalVectorLegend.template = '\
                     <td class="text-center"><div class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;"><span class="hide"><%=entries[key].value%></div></td>\
                     <td class="text-center"><%=entries[key].value%></td>\
                     <td class="text-center"><%=entries[key].area%></td>\
+                    <% if(featureList) { %>\
+                        <td class="text-center">\
+                            <button id="_<%=entries[key].value%>_list_view" class="btn btn-small">\
+                                <i class="icon-list"></i>\
+                            </button>\
+                        </td>\
+                    <% } %>\
                 </tr>\
             <% } %>\
         </tbody>\
