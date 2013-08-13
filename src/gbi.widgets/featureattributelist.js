@@ -20,13 +20,8 @@ gbi.widgets.FeatureAttributeList = function(thematicalVector, options) {
     this.thematicalVector = thematicalVector;
     this.editor = thematicalVector.editor;
     this.activeLayer = this.editor.layerManager.active();
-    if(this.options.featurePopup == 'hover') {
-        this.hoverCtrl = new gbi.Controls.Hover(this.activeLayer);
-        this.editor.map.addControl(this.hoverCtrl);
-    }
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
-        self.hoverCtrl.changeLayer(layer);
         if(self.activeLayer) {
             self._registerLayerEvents(self.activeLayer);
             self.attributes = self.activeLayer.featuresAttributes() || [];
