@@ -321,6 +321,30 @@ gbi.Layers.Vector.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Vector.prototype, {
     CLASS_NAME: 'gbi.Layers.Vector',
     /**
+     * Activates the layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
+    activate: function() {
+        this.isActive = true;
+        if(this.options.hoverPopup) {
+            this.hoverCtrl.activate();
+        }
+    },
+    /**
+     * Deactivates the layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
+    deactivate: function() {
+        this.isActive = false;
+        if(this.options.hoverPopup) {
+            this.hoverCtrl.deactivate();
+        }
+    },
+    /**
      * Sets the style of this layer
      *
      * @memberof gbi.Layers.Vector

@@ -128,10 +128,10 @@ gbi.LayerManager.prototype = {
             return self._activeLayer;
         }
         if(self._activeLayer) {
-            self._activeLayer.isActive = false;
+            self._activeLayer.deactivate();
         }
         self._activeLayer = layer;
-        self._activeLayer.isActive = true;
+        self._activeLayer.activate();
         $(gbi).trigger('gbi.layermanager.layer.active', layer);
     },
     /**
