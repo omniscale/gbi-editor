@@ -310,6 +310,11 @@ gbi.Layers.Vector = function(options) {
     if(this.options.hoverPopup) {
         this.registerEvent('featurehighlighted', this, this._showPopup);
         this.registerEvent('featureunhighlighted', this, this._removePopup);
+        this.registerEvent('added', this, function() {
+            console.log('added', self.olLayer.map)
+            self.hoverCtrl = new gbi.Controls.Hover(self);
+            self.olLayer.map.addControl(self.hoverCtrl.olControl);
+        });
     }
 }
 gbi.Layers.Vector.prototype = new gbi.Layers.Layer();
