@@ -5,8 +5,8 @@ var thematicalVectorLegendChangeAttributesLabel = {
 
 gbi.widgets = gbi.widgets || {};
 
-gbi.widgets.ThematicalVectorLegendChangeAttributes = function(editor, options) {
-    gbi.widgets.ThematicalVectorLegend.call(this, editor, $.extend({}, options));
+gbi.widgets.ThematicalVectorLegendChangeAttributes = function(thematicalVector, options) {
+    gbi.widgets.ThematicalVectorLegend.call(this, thematicalVector, $.extend({}, options));
 };
 gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype = new gbi.widgets.ThematicalVectorLegend();
 $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {

@@ -5,7 +5,10 @@ var featureAttributeListLabels = {
 
 gbi.widgets = gbi.widgets || {};
 
-gbi.widgets.FeatureAttributeList = function(editor, options) {
+gbi.widgets.FeatureAttributeList = function(thematicalVector, options) {
+    if(!(thematicalVector instanceof gbi.widgets.ThematicalVector)) {
+        return;
+    }
     var self = this;
     var defaults = {
         element: 'featureattributelist',
@@ -13,8 +16,9 @@ gbi.widgets.FeatureAttributeList = function(editor, options) {
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
-    this.editor = editor;
-    this.activeLayer = editor.layerManager.active();
+    this.thematicalVector = thematicalVector;
+    this.editor = thematicalVector.editor;
+    this.activeLayer = this.editor.layerManager.active();
     if(this.options.featurePopup == 'hover') {
         this.hoverCtrl = new gbi.Controls.Hover(this.activeLayer);
         this.editor.map.addControl(this.hoverCtrl);

@@ -11,19 +11,21 @@ var thematicalVectorLegendLabel = {
 
 gbi.widgets = gbi.widgets || {};
 
-gbi.widgets.ThematicalVectorLegend = function(editor, options) {
-    if(!editor) {
+gbi.widgets.ThematicalVectorLegend = function(thematicalVector, options) {
+    if(!(thematicalVector instanceof gbi.widgets.ThematicalVector)) {
         return;
     }
     var self = this;
     var defaults = {
-        element: 'thematicalvectorlegend'
+        element: 'thematicalvectorlegend',
+        featureList: false
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
-    this.editor = editor;
+    this.thematicalVector = thematicalVector
+    this.editor = thematicalVector.editor;
 
-    this.activeLayer = editor.layerManager.active();
+    this.activeLayer = this.editor.layerManager.active();
     this.selectControl = false;
     this.legend = false;
 

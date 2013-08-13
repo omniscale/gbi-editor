@@ -11,7 +11,10 @@ var featuresAttributeListConfiguratorLabel = {
 
 gbi.widgets = gbi.widgets || {};
 
-gbi.widgets.FeatureAttributesListConfigurator = function(editor, options) {
+gbi.widgets.FeatureAttributesListConfigurator = function(thematicalVector, options) {
+    if(!(thematicalVector instanceof gbi.widgets.ThematicalVector)) {
+        return;
+    }
     var self = this;
     var defaults = {
         element: 'featureattributelistconfigurator',
@@ -19,8 +22,9 @@ gbi.widgets.FeatureAttributesListConfigurator = function(editor, options) {
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
-    this.editor = editor;
-    this.activeLayer = editor.layerManager.active();
+    this.thematicalVector = thematicalVector
+    this.editor = thematicalVector.editor;
+    this.activeLayer = this.editor.layerManager.active();
 
     $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
         self.activeLayer = layer;
