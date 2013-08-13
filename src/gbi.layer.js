@@ -225,6 +225,7 @@ gbi.Layers.Vector = function(options) {
         editable: true,
         clickPopup: false,
         hoverPopup: false,
+        hoverAutoActive: true,
         maxAttributeValues: 100
     };
     var default_symbolizers = {
@@ -310,8 +311,9 @@ gbi.Layers.Vector = function(options) {
         this.registerEvent('featurehighlighted', this, this._showPopup);
         this.registerEvent('featureunhighlighted', this, this._removePopup);
         this.registerEvent('added', this, function() {
-            console.log('added', self.olLayer.map)
-            self.hoverCtrl = new gbi.Controls.Hover(self);
+            self.hoverCtrl = new gbi.Controls.Hover(self, {
+                toolbar: false
+            });
             self.olLayer.map.addControl(self.hoverCtrl.olControl);
         });
     }
@@ -327,7 +329,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     activate: function() {
         this.isActive = true;
-        if(this.options.hoverPopup) {
+        if(this.options.hoverPopup && this.options.hoverAutoActive) {
             this.hoverCtrl.activate();
         }
     },
@@ -761,6 +763,28 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
     },
     /**
+     * Activates hover control if present
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
+    activateHover: function() {
+        if(this.options.hoverPopup) {
+            this.hoverCtrl.activate();
+        }
+    },
+    /**
+     * Deactivates hover control if present
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
+    deactivateHover: function() {
+        if(this.options.hoverPopup) {
+            this.hoverCtrl.deactivate();
+        }
+    },
+    /**
      * Displays a popup with feature attributes
      *
      * @memberof gbi.Layers.Vector
@@ -890,7 +914,6 @@ gbi.Layers.SaveableVector = function(options) {
 
     this.loaded = false;
     this.unsavedChanges = false;
-
     gbi.Layers.Vector.call(this, options);
 
     this.olLayer.events.register('loadend', '', function(response) {
