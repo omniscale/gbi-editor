@@ -1,4 +1,4 @@
-var thematicalVectorLabel = {
+var thematicalVectorConfiguratorLabel = {
     'selectValue': OpenLayers.i18n('Select a value'),
     'attribute': OpenLayers.i18n('Attribute'),
     'exact': OpenLayers.i18n('Exact'),
@@ -18,16 +18,20 @@ var thematicalVectorLabel = {
 
 gbi.widgets = gbi.widgets || {};
 
-gbi.widgets.ThematicalVector = function(editor, options) {
+gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
+    if(!(thematicalVector instanceof gbi.widgets.ThematicalVector)) {
+        return;
+    }
     var self = this;
     var defaults = {
-        element: 'thematicalvector',
+        element: 'thematicalvectorconfigurator',
         mode: 'exact'
     }
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
-    this.editor = editor;
-    this.activeLayer = editor.layerManager.active();
+    this.thematicalVector = thematicalVector
+    this.editor = thematicalVector.editor;
+    this.activeLayer = this.editor.layerManager.active();
     this.attributes = [];
     this.mode = this.options.mode;
 
@@ -50,22 +54,22 @@ gbi.widgets.ThematicalVector = function(editor, options) {
 
     self.render();
 };
-gbi.widgets.ThematicalVector.prototype = {
-    CLASS_NAME: 'gbi.widgets.ThematicalVector',
+gbi.widgets.ThematicalVectorConfigurator.prototype = {
+    CLASS_NAME: 'gbi.widgets.ThematicalVectorConfigurator',
     render: function() {
         var self = this;
 
         this.element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">' + thematicalVectorLabel.noLayer + '</div>'));
+            this.element.append($('<div class="text-center">' + thematicalVectorConfiguratorLabel.noLayer + '</div>'));
             return;
         }
 
         this.element.append(tmpl(
-            gbi.widgets.ThematicalVector.template, {
+            gbi.widgets.ThematicalVectorConfigurator.template, {
                 attributes: self.attributes,
-                defaultColors: gbi.widgets.ThematicalVector.defaultColors
+                defaultColors: gbi.widgets.ThematicalVectorConfigurator.defaultColors
             }
         ));
 
@@ -139,7 +143,7 @@ gbi.widgets.ThematicalVector.prototype = {
     fillExactInputSelect: function(element, value) {
         var self = this;
         element.empty();
-        element.append($('<option disabled selected>' + thematicalVectorLabel.selectValue + '</option>'));
+        element.append($('<option disabled selected>' + thematicalVectorConfiguratorLabel.selectValue + '</option>'));
         var optionValues = self.activeLayer ? self.activeLayer.attributeValues($('#attribute').val()) : [];
         $.each(optionValues, function(idx, value) {
             element.append($('<option value="'+ value+'">'+value+'</option>'));
@@ -162,7 +166,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 colorBaseId = 'exactColor_';
                 colorClass = 'exactColor';
 
-                var select = $(gbi.widgets.ThematicalVector.selectTempalte);
+                var select = $(gbi.widgets.ThematicalVectorConfigurator.selectTempalte);
                 select.attr('id', selectBaseId + idx);
                 this.fillExactInputSelect(select);
                 if(filterOption) {
@@ -177,7 +181,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 colorBaseId = 'rangeColor_';
                 colorClass = 'rangeColor';
 
-                var minInput = $(gbi.widgets.ThematicalVector.inputTemplate);
+                var minInput = $(gbi.widgets.ThematicalVectorConfigurator.inputTemplate);
                 minInput.attr('id', minBaseId + idx);
                 minInput.addClass('rangeInputMin');
                 if(filterOption) {
@@ -185,7 +189,7 @@ gbi.widgets.ThematicalVector.prototype = {
                 }
                 tds.push(minInput);
 
-                var maxInput = $(gbi.widgets.ThematicalVector.inputTemplate);
+                var maxInput = $(gbi.widgets.ThematicalVectorConfigurator.inputTemplate);
                 maxInput.attr('id', maxBaseId + idx);
                 maxInput.addClass('rangeInputMax');
                 if(filterOption) {
@@ -193,14 +197,14 @@ gbi.widgets.ThematicalVector.prototype = {
                 }
                 tds.push(maxInput)
         }
-        var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVector.defaultColors[idx];
-        var color = $(gbi.widgets.ThematicalVector.colorTemplate);
+        var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVectorConfigurator.defaultColors[idx];
+        var color = $(gbi.widgets.ThematicalVectorConfigurator.colorTemplate);
         color.attr('id', colorBaseId + idx);
         color.addClass(colorClass);
         color.val(colorValue);
         tds.push(color)
 
-        var remove = $(gbi.widgets.ThematicalVector.removeTemplate);
+        var remove = $(gbi.widgets.ThematicalVectorConfigurator.removeTemplate);
         remove.click(function() {
             $(this).parent().parent().remove();
             var elements = $('.' + self.mode + 'InputControl tbody tr');
@@ -280,7 +284,7 @@ gbi.widgets.ThematicalVector.prototype = {
     }
 };
 
-gbi.widgets.ThematicalVector.defaultColors = gbi.widgets.ThematicalVector.defaultColors || [
+gbi.widgets.ThematicalVectorConfigurator.defaultColors = gbi.widgets.ThematicalVectorConfigurator.defaultColors || [
     '#ff0000',
     '#00ff00',
     '#0000ff',
@@ -295,13 +299,13 @@ gbi.widgets.ThematicalVector.defaultColors = gbi.widgets.ThematicalVector.defaul
     '#007777'
 ];
 
-gbi.widgets.ThematicalVector.template = '\
+gbi.widgets.ThematicalVectorConfigurator.template = '\
     <label for="active">\
         <input type="checkbox" id="rule-active" />\
-        ' + thematicalVectorLabel.active + '\
+        ' + thematicalVectorConfiguratorLabel.active + '\
     </label>\
     <div class="control-group">\
-        <label class="control-label" for="attribute">' + thematicalVectorLabel.attribute + ':</label>\
+        <label class="control-label" for="attribute">' + thematicalVectorConfiguratorLabel.attribute + ':</label>\
         <div class="controls">\
             <select id="attribute">\
             <% for(var key in attributes) { %>\
@@ -315,54 +319,54 @@ gbi.widgets.ThematicalVector.template = '\
         <button id="toggleExact"\
                 type="button"\
                 class="btn btn-small active">\
-            ' + thematicalVectorLabel.exact + '\
+            ' + thematicalVectorConfiguratorLabel.exact + '\
         </button>\
         <button id="toggleRange"\
                 type="button"\
                 class="btn btn-small">\
-            ' + thematicalVectorLabel.range + '\
+            ' + thematicalVectorConfiguratorLabel.range + '\
         </button>\
     </div>\
     <div id="exactInputDiv">\
-        <h3>' + thematicalVectorLabel.exact + '</h3>\
+        <h3>' + thematicalVectorConfiguratorLabel.exact + '</h3>\
         <table class="exactInputControl table">\
             <thead>\
                 <tr>\
-                    <th>' + thematicalVectorLabel.choose + '</th>\
-                    <th>' + thematicalVectorLabel.color + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.choose + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.color + '</th>\
                     <th></th>\
                 </tr>\
             </thead>\
             <tbody>\
                 <tr class="hide no-inpput">\
-                    <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
+                    <td colspan="4" class="text-center">' + thematicalVectorConfiguratorLabel.noInput + '</td>\
                 </tr>\
             </tbody>\
         </table>\
     </div>\
     <div id="rangeInputDiv">\
-        <h3>' + thematicalVectorLabel.range + '</h3>\
+        <h3>' + thematicalVectorConfiguratorLabel.range + '</h3>\
         <table class="rangeInputControl table">\
             <thead>\
                 <tr>\
-                    <th>' + thematicalVectorLabel.min + '</th>\
-                    <th>' + thematicalVectorLabel.max + '</th>\
-                    <th>' + thematicalVectorLabel.color + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.min + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.max + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.color + '</th>\
                     <th></th>\
                 </tr>\
             </thead>\
             <tbody>\
                 <tr class="hide no-input">\
-                    <td colspan="4" class="text-center">' + thematicalVectorLabel.noInput + '</td>\
+                    <td colspan="4" class="text-center">' + thematicalVectorConfiguratorLabel.noInput + '</td>\
                 </tr>\
             </tbody>\
         </table>\
     </div>\
-    <button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorLabel.execute + '</button>\
-    <button class="btn btn-small pull-right" id="addInput">' + thematicalVectorLabel.addInputField + '</button>\
+    <button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorConfiguratorLabel.execute + '</button>\
+    <button class="btn btn-small pull-right" id="addInput">' + thematicalVectorConfiguratorLabel.addInputField + '</button>\
 ';
 
-gbi.widgets.ThematicalVector.inputTemplate = '<input type="text" id="" class="input-small">';
-gbi.widgets.ThematicalVector.selectTempalte = '<select id="" class="exactSelect input-small"></select>';
-gbi.widgets.ThematicalVector.colorTemplate = '<input id="" class="color_picker styleControl input-small" value="" />';
-gbi.widgets.ThematicalVector.removeTemplate = '<i class="icon-remove pointer" title="' + thematicalVectorLabel.removeInputField + '"></i>';
+gbi.widgets.ThematicalVectorConfigurator.inputTemplate = '<input type="text" id="" class="input-small">';
+gbi.widgets.ThematicalVectorConfigurator.selectTempalte = '<select id="" class="exactSelect input-small"></select>';
+gbi.widgets.ThematicalVectorConfigurator.colorTemplate = '<input id="" class="color_picker styleControl input-small" value="" />';
+gbi.widgets.ThematicalVectorConfigurator.removeTemplate = '<i class="icon-remove pointer" title="' + thematicalVectorConfiguratorLabel.removeInputField + '"></i>';
