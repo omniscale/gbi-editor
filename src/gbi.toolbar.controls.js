@@ -534,7 +534,6 @@ gbi.Controls.Hover = function(layer, options) {
         hover: true,
         highlightOnly: true,
         renderIntent: "temporary",
-        autoActivate: true,
         eventListeners: {
             //trigger events in layer couse events only triggered in control
             featurehighlighted: function(f) {
