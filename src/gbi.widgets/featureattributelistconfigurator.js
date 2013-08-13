@@ -65,16 +65,25 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
 
         if(listAttributes) {
             this.element.find('.list-attribute').each(function(idx, elm) {
-                if($.inArray(elm.value, listAttributes) != -1) {
-                    $(elm).attr('checked', 'checked');
+                elm = $(elm);
+                elm.change(function() {
+                    self._restrictAttributes(elm, '.list-attribute', 5)
+                })
+                if($.inArray(elm.val(), listAttributes) != -1) {
+                    elm.attr('checked', 'checked');
                 }
+
             })
         }
 
         if(popupAttributes) {
             this.element.find('.popup-attribute').each(function(idx, elm) {
-                if($.inArray(elm.value, popupAttributes) != -1) {
-                    $(elm).attr('checked', 'checked');
+                elm = $(elm);
+                elm.change(function() {
+                    self._restrictAttributes(elm, '.popup-attribute', 5)
+                });
+                if($.inArray(elm.val(), popupAttributes) != -1) {
+                    elm.attr('checked', 'checked');
                 }
             })
         }
@@ -109,6 +118,14 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
             self.attributes = layer.featuresAttributes() || [];
             self.render();
         });
+    },
+    _restrictAttributes: function(elm, selector, max) {
+        var self = this;
+        var count = self.element.find(selector + ':checked').length;
+        if(count > max) {
+            elm.removeAttr('checked');
+            console.log('Only ' + max + ' or less attributes can be selected')
+        }
     }
 };
 
