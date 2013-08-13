@@ -123,6 +123,9 @@ gbi.Controls.ToolbarItem.prototype = {
      */
     unregisterEvent: function(type, obj, func) {
         this.olControl.events.unregister(type, obj, func);
+    },
+    destroy: function() {
+        this.olControl.destroy();
     }
 };
 

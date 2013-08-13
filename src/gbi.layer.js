@@ -43,7 +43,6 @@ gbi.Layers.Layer.prototype = {
      *
      * @memberof gbi.Layers.Layer
      * @instance
-     * @private
      */
     destroy: function() {
         $(this).off();
@@ -343,6 +342,18 @@ $.extend(gbi.Layers.Vector.prototype, {
         if(this.options.hoverPopup) {
             this.hoverCtrl.deactivate();
         }
+    },
+    /**
+     * Destroys the layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
+    destroy: function() {
+        if(this.options.hoverPopup) {
+            this.hoverCtrl.destroy();
+        }
+        gbi.Layers.Layer.prototype.destroy.call(this);
     },
     /**
      * Sets the style of this layer
