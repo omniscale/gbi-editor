@@ -1445,5 +1445,28 @@ $.extend(gbi.Layers.WFST.prototype, {
             value: value
         });
         this.olLayer.refresh({force: true});
+    },
+    /**
+     * Returns attributes defined in schema
+     *
+     * @memberof gbi.Layers.WFST
+     * @instance
+     * @returns {String[]} attributes
+     */
+    attributes: function() {
+        var attributes = this.olLayer.protocol.attribute_order.slice();;
+        // remove geometry column
+        delete attributes[attributes.indexOf(this.options.geometryName)];
+        return attributes;
+    },
+    /**
+     * Returns type of given attribute
+     *
+     * @memberof gbi.Layer.WFST
+     * @instance
+     * @returns {String} attribute type
+     */
+    attributeType: function(attribute) {
+        return this.olLayer.protocol.attribute_types[attribute];
     }
 });
