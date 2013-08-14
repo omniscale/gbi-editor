@@ -62,18 +62,20 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             $.each(self.legend.result, function(idx, r) {
                 var value = '';
                 if(r.min && r.max) {
-                    value = r.min + ' <= x < ' + r.max;
+                    value = r.min + ' <= ' + self.legend.attribute + ' < ' + r.max;
                 } else if(r.min) {
-                    value = r.min + ' <= x';
+                    value = r.min + ' <= ' + self.legend.attribute;
                 } else if(r.max) {
-                    value = 'x < ' + r.max
+                    value =  self.legend.attribute + ' < ' + r.max
                 } else {
                     value = r.value;
                 }
                 entries.push({
                     id: r.id,
+                    attribute: self.legend.attribute,
                     color: r.color,
-                    value: value
+                    value: value,
+                    type: self.legend.type
                 });
             })
 
@@ -92,7 +94,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                 // bind events
                 $.each(entries, function(idx, entry) {
                     $('#_' + entry.id + '_list_view').click(function() {
-                        self.options.featureList.showFilteredFeatures(entry.value);
+                        self.options.featureList.showFilteredFeatures(entry);
                         self.thematicalVector.showListView();
                     });
                 });

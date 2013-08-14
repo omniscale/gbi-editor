@@ -1,9 +1,9 @@
 var featureAttributeListLabels = {
     'noLayer': OpenLayers.i18n('No layer selected'),
     'noAttribute': OpenLayers.i18n('No attributes selected'),
-    'reset': OpenLayers.i18n('Show all features'),
     'shortList': OpenLayers.i18n('Short list'),
-    'fullList': OpenLayers.i18n('Complete list')
+    'fullList': OpenLayers.i18n('Complete list'),
+    'filter': OpenLayers.i18n('Filter')
 }
 
 gbi.widgets = gbi.widgets || {};
@@ -44,13 +44,13 @@ gbi.widgets.FeatureAttributeList = function(thematicalVector, options) {
     }
 };
 gbi.widgets.FeatureAttributeList.prototype = {
-    render: function(_features) {
+    render: function(_features, filterValue) {
         var self = this;
         var element = $('#' + this.options.element);
         element.empty();
         var shortListAttributes = self.activeLayer ? self.activeLayer.listAttributes() || [] : [];
         var fullListAttributes = self.activeLayer ? self.activeLayer.featuresAttributes() || [] : [];
-        var features = features || self.activeLayer.features;
+        var features = _features || self.activeLayer.features;
         var shortListFeatures = features.slice();
 
         $.each(shortListFeatures, function(idx, feature) {
@@ -79,7 +79,7 @@ gbi.widgets.FeatureAttributeList.prototype = {
                 fullListAttributes: fullListAttributes,
                 shortListFeatures: shortListFeatures,
                 features: features,
-                resetButton: _features ? true : false
+                filterValue: filterValue
             }
         ));
 
@@ -91,12 +91,9 @@ gbi.widgets.FeatureAttributeList.prototype = {
             element.find('#fullList').addClass('hide');
             element.find('#shortList').removeClass('hide');
         });
-
-        if(_features) {
-            element.find('#reset-list').click(function() {
-                self.render();
-            });
-        }
+        element.find('#removeFilter').click(function() {
+            self.render();
+        });
 
         element.find('.show-feature').click(function() {
             var element = $(this);
@@ -104,16 +101,16 @@ gbi.widgets.FeatureAttributeList.prototype = {
             self.activeLayer.showFeature(feature);
         });
     },
-    showFilteredFeatures: function(value) {
+    showFilteredFeatures: function(entry) {
         var filteredFeatures = this.activeLayer.filteredFeatures().result;
         var features;
         $.each(filteredFeatures, function(idx, filterItem) {
-            if(filterItem.value == value) {
+            if(filterItem.id == entry.id) {
                 features = filterItem.features;
                 return true;
             }
         });
-        this.render(features);
+        this.render(features, {'attribute': entry.attribute, 'value': entry.value, 'type': entry.type});
     },
     _registerLayerEvents: function(layer) {
         var self = this;
@@ -133,6 +130,14 @@ gbi.widgets.FeatureAttributeList.prototype = {
 };
 
 gbi.widgets.FeatureAttributeList.template = '\
+    <% if(filterValue) { %>\
+        <div>\
+            <h4 class="inline-block">' + featureAttributeListLabels.filter + ': <% if(filterValue.type == "range") { %><%=filterValue.value%><% } else { %><%=filterValue.attribute%> = <%=filterValue.value%><% } %></h4>\
+            <button class="btn btn-small" id="removeFilter">\
+                <i class="icon-remove"></i>\
+            </button>\
+        </div>\
+    <% } %>\
     <div class="btn-group"\
          data-toggle="buttons-radio">\
         <button id="toggleShortList"\
