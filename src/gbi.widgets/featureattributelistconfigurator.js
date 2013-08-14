@@ -157,7 +157,7 @@ gbi.widgets.FeatureAttributesListConfigurator.template = '\
             </tbody>\
         </table>\
         <div class="text-center">\
-            <button id="setListAttributes">' + featuresAttributeListConfiguratorLabel.apply + '</button>\
+            <button id="setListAttributes" class="btn btn-small">' + featuresAttributeListConfiguratorLabel.apply + '</button>\
         </div>\
     <% } %>\
 ';
