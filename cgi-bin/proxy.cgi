@@ -15,7 +15,7 @@ import sys, os
 
 # Designed to prevent Open Proxy type stuff.
 
-allowedHosts = ['localhost:5984', 'www.ks.rlp.de']
+allowedHosts = ['localhost:5984', 'www.ks.rlp.de', '192.168.107.145']
 
 method = os.environ["REQUEST_METHOD"]
 
