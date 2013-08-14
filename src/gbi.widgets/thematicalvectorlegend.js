@@ -91,7 +91,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             if(self.options.featureList instanceof gbi.widgets.FeatureAttributeList) {
                 // bind events
                 $.each(entries, function(idx, entry) {
-                    $('#_' + entry.value + '_list_view').click(function() {
+                    $('#_' + entry.id + '_list_view').click(function() {
                         self.options.featureList.showFilteredFeatures(entry.value);
                         self.thematicalVector.showListView();
                     });
