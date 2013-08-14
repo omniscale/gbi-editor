@@ -81,6 +81,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                     area = Math.round(area * 100) / 100;
                 }
                 entries.push({
+                    id: entries.length,
                     color: r.color,
                     value: value,
                     area: area
@@ -137,13 +138,13 @@ gbi.widgets.ThematicalVectorLegend.template = '\
         </thead>\
         <tbody>\
             <% for(var key in entries) { %>\
-                <tr>\
-                    <td class="text-center"><div class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;"><span class="hide"><%=entries[key].value%></div></td>\
+                <tr id="_<%=entries[key].id%>_row">\
+                    <td class="text-center"><div id="_<%=entries[key].id%>_color" class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;"><span class="hide"><%=entries[key].value%></div></td>\
                     <td class="text-center"><%=entries[key].value%></td>\
                     <td class="text-center"><%=entries[key].area%></td>\
                     <% if(featureList) { %>\
                         <td class="text-center">\
-                            <button id="_<%=entries[key].value%>_list_view" class="btn btn-small">\
+                            <button id="_<%=entries[key].id%>_list_view" class="btn btn-small">\
                                 <i class="icon-list"></i>\
                             </button>\
                         </td>\

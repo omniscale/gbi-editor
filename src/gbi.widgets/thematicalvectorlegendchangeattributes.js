@@ -21,8 +21,9 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
 
             element.find('.gbi_widget_legend_color').click(function() {
                 var _this = $(this);
+                var id = _this.attr('id').split('_')[1]
                 self._removeSelectControl(element);
-                self._addSelectControl(_this, self.legend.attribute, _this.children().first().text())
+                self._addSelectControl(element, id, self.legend.attribute, _this.children().first().text())
             });
 
             if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
@@ -48,9 +49,9 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
             }
         }
     },
-    _addSelectControl: function(element, attribute, value) {
+    _addSelectControl: function(element, id, attribute, value) {
         var self = this;
-        element.addClass('highlight_legend_color');
+        element.find('#_' + id + '_row').addClass('warning')
         self.selectControl = new gbi.Controls.Select(self.activeLayer);
         self.selectControlObject = {attribute: attribute, value: value, self: self};
         self.editor.map.addControl(self.selectControl)
@@ -61,7 +62,7 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         var self = this;
         if(self.selectControl) {
             self.selectControl.deactivate();
-            element.find('.highlight_legend_color').first().removeClass('highlight_legend_color');
+            element.find('tr.warning').removeClass('warning');
             self.activeLayer.unregisterEvent('featureselected', self.selectControlObject, self._changeFeatureAttributeValue)
             self.editor.map.removeControl(self.selectControl);
             self.selectControl = false;
