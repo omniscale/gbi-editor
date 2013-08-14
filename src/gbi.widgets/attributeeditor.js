@@ -1,12 +1,11 @@
 var attributeEditorLabel = {
     'noAttributes': OpenLayers.i18n('No attributes'),
-    'remove': OpenLayers.i18n('remove'),
-    'formTitle': OpenLayers.i18n('Add attribute'),
     'key': OpenLayers.i18n('Key'),
-    'value': OpenLayers.i18n('Value'),
+    'val': OpenLayers.i18n('Value'),
     'add': OpenLayers.i18n('Add'),
-    'saveAttributes': OpenLayers.i18n('Save attributes')
-
+    'formTitle': OpenLayers.i18n('Add attribute'),
+    'addAttributesNotPossible': OpenLayers.i18n('No new attributes posible'),
+    'sameKeyDifferentValue': OpenLayers.i18n('Different values for same attribute')
 }
 
 gbi.widgets = gbi.widgets || {};
@@ -14,162 +13,248 @@ gbi.widgets = gbi.widgets || {};
 gbi.widgets.AttributeEditor = function(editor, options) {
     var self = this;
     var defaults = {
-        element: 'attributeeditor'
+        element: 'attributeeditor',
+        allowNewAttributes: true
     };
-    this.keyIDs = {};
-    this.keyCounter = 0;
-    this.featuresAttributes = {};
-    this.newAttributes = {};
     this.layerManager = editor.layerManager;
     this.options = $.extend({}, defaults, options);
     this.element = $('#' + this.options.element);
     this.selectedFeatures = [];
+    this.featureChanges = {};
     this.changed = false;
+    this.labelValue = undefined;
+    this.renderAttributes = false;
 
-    $.each(this.layerManager.vectorLayers, function(idx, layer) {
-        layer.registerEvent('featureselected', self, function(f) {
-            this.selectedFeatures.push(f.feature);
-            this._attributes();
-        });
-        layer.registerEvent('featureunselected', self, function(f) {
-            var idx = this.selectedFeatures.indexOf(f.feature);
-            if(idx != -1) {
-                this.selectedFeatures.splice(idx, 1);
-                this._attributes();
-            }
-        });
+    this.registerEvents();
+
+    $(gbi).on('gbi.layermanager.layer.add', function(event, layer) {
+       self.registerEvents();
     });
 };
+
 gbi.widgets.AttributeEditor.prototype = {
     CLASS_NAME: 'gbi.widgets.AttributeEditor',
+
+    registerEvents: function() {
+        var self = this;
+        $.each(self.layerManager.vectorLayers, function(idx, layer) {
+            layer.registerEvent('featureselected', self, function(f) {
+                if(!(f.feature.id in self.featureChanges)) {
+                    self.featureChanges[f.feature.id] = {'added': {}, 'edited': {}, 'removed': []};
+                }
+                self.selectedFeatures.push(f.feature);
+                self.render();
+            });
+            layer.registerEvent('featureunselected', self, function(f) {
+                var idx = $.inArray(f.feature, self.selectedFeatures);
+                if(idx != -1) {
+                    self.selectedFeatures.splice(idx, 1);
+                    self.render();
+                }
+            });
+        });
+    },
     render: function() {
         var self = this;
+        var activeLayer = this.layerManager.active();
+        var attributes = this.renderAttributes || activeLayer.featuresAttributes();
+        var selectedFeatureAttributes = {};
+        var editable = true;
+        $.each(self.selectedFeatures, function(idx, feature) {
+            if(feature.layer != activeLayer.olLayer) {
+                editable = false;
+            }
+        })
+        $.each(this.selectedFeatures, function(idx, feature) {
+            $.each(attributes, function(idx, key) {
+                var equal = true;
+                var value = feature.attributes[key];
+                if(key in selectedFeatureAttributes) {
+                    equal = selectedFeatureAttributes[key].value == value;
+                    if(!equal) {
+                        selectedFeatureAttributes[key] = {'equal': false};
+                    }
+                } else {
+                    selectedFeatureAttributes[key] = {'equal': equal, 'value': value};
+                }
+            });
+        });
+
         this.element.empty();
         if(this.selectedFeatures.length > 0) {
             this.element.append(tmpl(
-                gbi.widgets.AttributeEditor.template,
-                {attributes: $.extend({}, this.featuresAttributes, this.newAttributes), keyIDs: this.keyIDs}
+                gbi.widgets.AttributeEditor.template, {
+                    attributes: attributes,
+                    selectedFeatureAttributes: selectedFeatureAttributes,
+                    editable: editable,
+                    allowNewAttributes: this.options.allowNewAttributes
+                }
             ));
+
             //bind events
-            $.each($.extend({}, this.featuresAttributes, this.newAttributes), function(key, value) {
-                $('#_'+self.keyIDs[key]).change(function() {
-                    var newVal = $('#_'+self.keyIDs[key]).val();
+            $.each(attributes, function(idx, key) {
+                $('#_'+key).change(function() {
+                    var newVal = $('#_'+key).val();
                     self.edit(key, newVal);
                 });
-                $('#_'+self.keyIDs[key]+'_remove').click(function() {
+                $('#_'+key+'_remove').click(function() {
                     self.remove(key);
+                    return false;
+                });
+                $('#_'+key+'_label').click(function() {
+                    self.label(key);
+                    return false;
                 });
             });
             $('#addKeyValue').click(function() {
                 var key = $('#_newKey').val();
                 var val = $('#_newValue').val();
-                self.add(key, val);
+                if (key && val) {
+                    self.add(key, val);
+                    self._applyAttributes();
+                }
+                return false;
             });
-            $('#saveAttributes').click(function() {
-                self._applyAttributes();
-            });
-            if(!this.changed) {
-                $('#saveAttributes').attr('disabled', 'disabled');
-            }
         }
     },
     add: function(key, value) {
-        if(!this.newAttributes[key] && !this.featuresAttributes[key]) {
-            this.newAttributes[key] = value;
-            this.keyIDs[key] = this.keyCounter++;
-            this.changed = true;
-            this.render();
-        }
+        var self = this;
+        $.each(this.selectedFeatures, function(idx, feature) {
+            self.featureChanges[feature.id]['added'][key] = value;
+        });
+        this._applyAttributes();
+        this.changed = true;
+        this.render();
     },
     edit: function(key, value) {
-        if(key in this.featuresAttributes) {
-            this.featuresAttributes[key] = value;
-            this.changed = true;
-            this.render();
-        } else if (key in this.newAttributes) {
-            this.newAttributes[key] = value;
-            this.changed = true;
-            this.render();
-        }
+        var self = this;
+        $.each(this.selectedFeatures, function(idx, feature) {
+            self.featureChanges[feature.id]['edited'][key] = value;
+        });
+        this.changed = true;
+        this._applyAttributes();
+        this.render();
     },
     remove: function(key) {
-        delete this.featuresAttributes[key];
-        delete this.newAttributes[key];
-        delete this.keyIDs[key];
+        var self = this;
+        $.each(this.selectedFeatures, function(idx, feature) {
+            if($.inArray(key, self.featureChanges[feature.id]['removed']) == -1) {
+                self.featureChanges[feature.id]['removed'].push(key);
+            }
+        });
         this.changed = true;
+        this._applyAttributes();
+        this.render();
+    },
+    label: function(key) {
+        var symbolizers;
+        if(this.labelValue == key) {
+            symbolizers = {};
+            $('#_' + key + '_label i')
+                .removeClass('icon-eye-close')
+                .addClass('icon-eye-open');
+            this.labelValue = undefined;
+        } else {
+            var symbol = {'label': key + ': ${' + key + '}'};
+            var symbolizers = {
+                'Point': symbol,
+                'Line': symbol,
+                'Polygon': symbol
+            };
+            $('.add-label-button i')
+                .removeClass('icon-eye-close')
+                .addClass('icon-eye-open');
+            $('#_' + key + '_label i')
+                .removeClass('icon-eye-open')
+                .addClass('icon-eye-close');
+            this.labelValue = key;
+        }
+        this.layerManager.active().setStyle(symbolizers, true)
+    },
+    setAttributes: function(attributes) {
+        this.renderAttributes = attributes;
         this.render();
     },
     _applyAttributes: function() {
         var self = this;
-        $.each(this.selectedFeatures, function(idx, feature) {
-            feature.attributes = $.extend({}, self.featuresAttributes, self.newAttributes);
-            var gbiLayer = self.layerManager.layerById(feature.layer.gbiId);
-            if(gbiLayer instanceof gbi.Layers.SaveableVector) {
-                if(feature.state != OpenLayers.State.INSERT) {
-                    feature.state = OpenLayers.State.UPDATE;
+        var activeLayer = this.layerManager.active();
+        $.each($.extend(true, {}, this.featureChanges), function(featureId, changeSet) {
+            var feature = activeLayer.featureById(featureId);
+            if (feature) {
+                // remove
+                $.each(changeSet['removed'], function(idx, key) {
+                    activeLayer.removeFeatureAttribute(feature, key);
+                });
+                self.featureChanges[feature.id]['removed'] = [];
+                // edit
+                $.each(changeSet['edited'], function(key, value) {
+                    activeLayer.changeFeatureAttribute(feature, key, value);
+                });
+                self.featureChanges[feature.id]['edited'] = {};
+                // add
+                $.each(changeSet['added'], function(key, value) {
+                    activeLayer.changeFeatureAttribute(feature, key, value)
+                });
+                self.featureChanges[feature.id]['added'] = {};
+
+                // remove not selected features
+                if($.inArray(feature, self.selectedFeatures) == -1) {
+                    delete self.featureChanges[featureId];
                 }
-                gbiLayer.changesMade();
             }
         });
     },
-    _attributes: function() {
-        var self = this;
-        this.element.empty();
-        this.featuresAttributes = {};
-        var newFeatureAttributes = false;
-        if(this.selectedFeatures.length == 0) {
-            this.attributeLayers = null;
-            this.newAttributes = {};
-            this.changed = false;
-        } else {
-            $.each(this.selectedFeatures, function(idx, feature) {
-                $.each(feature.attributes, function(key, value) {
-                    if(!(key in self.featuresAttributes)) {
-                        self.featuresAttributes[key] = value;
-                        self.keyIDs[key] = self.keyCounter++;
-                        if(idx>0) {
-                            newFeatureAttributes = true;
-                        }
-                    }
-                });
-                if(!newFeatureAttributes) {
-                    $.each(self.featuresAttributes, function(key, value) {
-                        if(!(key in feature.attributes)) {
-                            newFeatureAttributes = true;
-                        }
-                    });
-                }
-            });
-            this.changed = newFeatureAttributes || Object.keys(this.newAttributes).length > 0;
-        }
-        this.render();
-    }
 };
+
 gbi.widgets.AttributeEditor.template = '\
-<% if(Object.keys(attributes).length == 0) { %>\
-    <span>'+attributeEditorLabel.noAttributes+'</span>\
+<% if(attributes.length == 0) { %>\
+    <span>'+attributeEditorLabel.noAttributes+'.</span>\
 <% } else { %>\
     <% for(var key in attributes) { %>\
         <form id="view_attributes" class="form-inline">\
-            <label class="key-label" for="_<%=keyIDs[key]%>"><%=key%></label>\
-            <input class="input-medium" type="text" id="_<%=keyIDs[key]%>" value="<%=attributes[key]%>" />\
-            <button id="_<%=keyIDs[key]%>_remove" title="remove" class="btn btn-small"> \
+            <label class="key-label" for="_<%=attributes[key]%>"><%=attributes[key]%></label>\
+            <% if(selectedFeatureAttributes[attributes[key]]) { %>\
+                <% if(selectedFeatureAttributes[attributes[key]]["equal"]) {%>\
+                    <input class="input-medium" type="text" id="_<%=attributes[key]%>" value="<%=selectedFeatureAttributes[attributes[key]]["value"]%>" \
+                <% } else {%>\
+                    <input class="input-medium" type="text" id="_<%=attributes[key]%>" placeholder="'+attributeEditorLabel.sameKeyDifferentValue+'" \
+                <% } %>\
+            <% } else { %>\
+                <input class="input-medium" type="text" id="_<%=attributes[key]%>"\
+            <% } %>\
+            <% if(!editable) { %>\
+                disabled=disabled \
+            <% } %>\
+            />\
+            <% if(editable) { %>\
+            <button id="_<%=attributes[key]%>_label" title="label" class="btn btn-small add-label-button"> \
+                <i class="icon-eye-open"></i>\
+            </button>\
+            <button id="_<%=attributes[key]%>_remove" title="remove" class="btn btn-small"> \
                 <i class="icon-remove"></i>\
             </button> \
+            <% } %>\
         </form>\
     <% } %>\
 <% } %>\
-<hr>\
-<h5>'+attributeEditorLabel.formTitle+'</h5>\
-<form class="form-inline"> \
-    <label class="key-label" for="_newKey">'+attributeEditorLabel.key+'</label> \
-    <input type="text" id="_newKey" class="input-medium">\
-</form>\
-<form class="form-inline"> \
-    <label class="key-label" for="_newValue">'+attributeEditorLabel.value+'</label> \
-    <input type="text" id="_newValue" class="input-medium">\
-</form>\
-<button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
-<hr>\
-<button class="btn btn-small" id="saveAttributes">'+attributeEditorLabel.saveAttributes+'</button>\
+<% if(editable && allowNewAttributes) { %>\
+    <h4>'+attributeEditorLabel.formTitle+'</h4>\
+    <form class="form-horizontal"> \
+    	 <div class="control-group"> \
+    		<label class="control-label" for="_newKey">'+attributeEditorLabel.key+'</label> \
+    		<div class="controls">\
+    			<input type="text" id="_newKey" class="input-medium">\
+    		</div>\
+    	</div>\
+    	 <div class="control-group"> \
+    		<label class="control-label" for="_newValue">'+attributeEditorLabel.val+'</label> \
+    		<div class="controls">\
+    			<input type="text" id="_newValue" class="input-medium">\
+    		</div>\
+    	</div>\
+        <button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
+    </form>\
+<% } else { %>\
+    <span>'+attributeEditorLabel.addAttributesNotPossible+'.</span>\
+<% } %>\
 ';
