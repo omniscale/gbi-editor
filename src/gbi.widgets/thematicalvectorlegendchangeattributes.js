@@ -12,37 +12,38 @@ gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype = new gbi.widgets.T
 $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
     render: function() {
         var self = this;
+        var element = $('#' + this.options.element);
         gbi.widgets.ThematicalVectorLegend.prototype.render.call(this);
         if(self.legend && self.legend.type == 'exact') {
-            this.element.append(tmpl(
+            element.append(tmpl(
                 gbi.widgets.ThematicalVectorLegendChangeAttributes.template
             ));
 
-            this.element.find('.gbi_widget_legend_color').click(function() {
-                var element = $(this);
-                self._removeSelectControl();
-                self._addSelectControl(element, self.legend.attribute, element.children().first().text())
+            element.find('.gbi_widget_legend_color').click(function() {
+                var _this = $(this);
+                self._removeSelectControl(element);
+                self._addSelectControl(_this, self.legend.attribute, _this.children().first().text())
             });
 
             if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
                 self.activeLayer.registerCallback('changes', function() {
-                    self.element.find('#applyChanges').first().removeAttr('disabled');
-                    self.element.find('#discardChanges').first().removeAttr('disabled');
+                    element.find('#applyChanges').first().removeAttr('disabled');
+                    element.find('#discardChanges').first().removeAttr('disabled');
                 })
                 self.activeLayer.registerCallback('success', function() {
-                    self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                    self.element.find('#discardChanges').first().attr('disabled', 'disabled');
+                    element.find('#applyChanges').first().attr('disabled', 'disabled');
+                    element.find('#discardChanges').first().attr('disabled', 'disabled');
                 })
-                self.element.find('#applyChanges').first().click(function() {
+                element.find('#applyChanges').first().click(function() {
                     self.activeLayer.save();
-                    self._removeSelectControl();
+                    self._removeSelectControl(element);
                     self.render();
                 });
-                self.element.find('#discardChanges').first().click(function() {
+                element.find('#discardChanges').first().click(function() {
                     self.activeLayer.olLayer.refresh();
-                    self._removeSelectControl();
-                    self.element.find('#applyChanges').first().attr('disabled', 'disabled');
-                    self.element.find('#discardChanges').first().attr('disabled', 'disabled');
+                    self._removeSelectControl(element);
+                    element.find('#applyChanges').first().attr('disabled', 'disabled');
+                    element.find('#discardChanges').first().attr('disabled', 'disabled');
                 });
             }
         }
@@ -56,11 +57,11 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         self.activeLayer.registerEvent('featureselected', self.selectControlObject, self._changeFeatureAttributeValue);
         self.selectControl.activate();
     },
-    _removeSelectControl: function() {
+    _removeSelectControl: function(element) {
         var self = this;
         if(self.selectControl) {
             self.selectControl.deactivate();
-            self.element.find('.highlight_legend_color').first().removeClass('highlight_legend_color');
+            element.find('.highlight_legend_color').first().removeClass('highlight_legend_color');
             self.activeLayer.unregisterEvent('featureselected', self.selectControlObject, self._changeFeatureAttributeValue)
             self.editor.map.removeControl(self.selectControl);
             self.selectControl = false;

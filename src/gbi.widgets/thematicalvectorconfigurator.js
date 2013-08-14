@@ -25,10 +25,10 @@ gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
     var self = this;
     var defaults = {
         element: 'thematicalvectorconfigurator',
-        mode: 'exact'
+        mode: 'exact',
+        initOnly: false
     }
     this.options = $.extend({}, defaults, options);
-    this.element = $('#' + this.options.element);
     this.thematicalVector = thematicalVector
     this.editor = thematicalVector.editor;
     this.activeLayer = this.editor.layerManager.active();
@@ -52,21 +52,23 @@ gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
         this.attributes = [];
     }
 
-    self.render();
+    if(!this.options.initOnly) {
+        self.render();
+    }
 };
 gbi.widgets.ThematicalVectorConfigurator.prototype = {
     CLASS_NAME: 'gbi.widgets.ThematicalVectorConfigurator',
     render: function() {
         var self = this;
-
-        this.element.empty();
+        var element = $('#' + this.options.element);
+        element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">' + thematicalVectorConfiguratorLabel.noLayer + '</div>'));
+            element.append($('<div class="text-center">' + thematicalVectorConfiguratorLabel.noLayer + '</div>'));
             return;
         }
 
-        this.element.append(tmpl(
+        element.append(tmpl(
             gbi.widgets.ThematicalVectorConfigurator.template, {
                 attributes: self.attributes,
                 defaultColors: gbi.widgets.ThematicalVectorConfigurator.defaultColors
@@ -99,8 +101,8 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         });
 
         if(this.activeLayer && this.activeLayer.featureStylingRule) {
-            this.element.find('#attribute').val(this.activeLayer.featureStylingRule.attribute);
-            this.element.find('#rule-active').attr('checked', this.activeLayer.featureStylingRule.active)
+            element.find('#attribute').val(this.activeLayer.featureStylingRule.attribute);
+            element.find('#rule-active').attr('checked', this.activeLayer.featureStylingRule.active)
             this.mode = this.activeLayer.featureStylingRule.type;
             switch(this.mode) {
                 case 'exact':

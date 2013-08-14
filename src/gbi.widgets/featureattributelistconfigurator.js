@@ -18,10 +18,10 @@ gbi.widgets.FeatureAttributesListConfigurator = function(thematicalVector, optio
     var self = this;
     var defaults = {
         element: 'featureattributelistconfigurator',
-        mode: 'exact'
+        mode: 'exact',
+        initOnly: false
     }
     this.options = $.extend({}, defaults, options);
-    this.element = $('#' + this.options.element);
     this.thematicalVector = thematicalVector
     this.editor = thematicalVector.editor;
     this.activeLayer = this.editor.layerManager.active();
@@ -42,19 +42,22 @@ gbi.widgets.FeatureAttributesListConfigurator = function(thematicalVector, optio
     } else {
         this.attributes = [];
     }
-    this.render();
+    if(!this.options.initOnly) {
+        self.render();
+    }
 };
 gbi.widgets.FeatureAttributesListConfigurator.prototype = {
     render: function() {
         var self = this;
-        this.element.empty();
+        var element = $('#' + this.options.element);
+        element.empty();
 
         if(!this.activeLayer) {
-            this.element.append($('<div class="text-center">' + featuresAttributeListConfiguratorLabel.noLayer + '</div>'));
+            element.append($('<div class="text-center">' + featuresAttributeListConfiguratorLabel.noLayer + '</div>'));
             return;
         }
 
-        this.element.append(tmpl(
+        element.append(tmpl(
             gbi.widgets.FeatureAttributesListConfigurator.template, {
                 attributes: self.attributes || []
             }
@@ -64,7 +67,7 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
         var popupAttributes = self.activeLayer ? self.activeLayer.popupAttributes() : [];
 
         if(listAttributes) {
-            this.element.find('.list-attribute').each(function(idx, elm) {
+            element.find('.list-attribute').each(function(idx, elm) {
                 elm = $(elm);
                 elm.change(function() {
                     self._restrictAttributes(elm, '.list-attribute', 5)
@@ -77,7 +80,7 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
         }
 
         if(popupAttributes) {
-            this.element.find('.popup-attribute').each(function(idx, elm) {
+            element.find('.popup-attribute').each(function(idx, elm) {
                 elm = $(elm);
                 elm.change(function() {
                     self._restrictAttributes(elm, '.popup-attribute', 5)
@@ -88,7 +91,7 @@ gbi.widgets.FeatureAttributesListConfigurator.prototype = {
             })
         }
 
-        this.element.find('#sortable').sortable();
+        element.find('#sortable').sortable();
 
         $('#setListAttributes').click(function() {
             var listAttributes = [];

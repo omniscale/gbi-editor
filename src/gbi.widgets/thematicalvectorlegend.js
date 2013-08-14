@@ -18,10 +18,10 @@ gbi.widgets.ThematicalVectorLegend = function(thematicalVector, options) {
     var self = this;
     var defaults = {
         element: 'thematicalvectorlegend',
-        featureList: false
+        featureList: false,
+        initOnly: false
     }
     this.options = $.extend({}, defaults, options);
-    this.element = $('#' + this.options.element);
     this.thematicalVector = thematicalVector
     this.editor = thematicalVector.editor;
 
@@ -41,17 +41,20 @@ gbi.widgets.ThematicalVectorLegend = function(thematicalVector, options) {
         this._registerLayerEvents(this.activeLayer);
     }
 
-    this.render();
+    if(!this.options.initOnly) {
+        self.render();
+    }
 };
 gbi.widgets.ThematicalVectorLegend.prototype = {
     render: function() {
         var self = this;
+        var element = $('#' + this.options.element);
         self.legend = this.activeLayer ? this.activeLayer.filteredFeatures() : false;
         var entries = []
-        this.element.empty();
+        element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">' + thematicalVectorLegendLabel.noLayer + '</div>'));
+            element.append($('<div class="text-center">' + thematicalVectorLegendLabel.noLayer + '</div>'));
             return;
         }
 
@@ -84,7 +87,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
 
                 });
             });
-            this.element.append(tmpl(
+            element.append(tmpl(
                 gbi.widgets.ThematicalVectorLegend.template, {
                     attribute: self.legend.attribute,
                     type: thematicalVectorLegendLabel[self.legend.type],
@@ -105,7 +108,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             }
 
         } else {
-            this.element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
+            element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
         }
     },
     _registerLayerEvents: function(layer) {

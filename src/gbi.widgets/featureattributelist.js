@@ -13,10 +13,10 @@ gbi.widgets.FeatureAttributeList = function(thematicalVector, options) {
     var self = this;
     var defaults = {
         element: 'featureattributelist',
-        mode: 'exact'
+        mode: 'exact',
+        initOnly: false
     }
     this.options = $.extend({}, defaults, options);
-    this.element = $('#' + this.options.element);
     this.thematicalVector = thematicalVector;
     this.editor = thematicalVector.editor;
     this.activeLayer = this.editor.layerManager.active();
@@ -37,25 +37,28 @@ gbi.widgets.FeatureAttributeList = function(thematicalVector, options) {
     } else {
         this.attributes = [];
     }
-    self.render();
+    if(!this.options.initOnly) {
+        self.render();
+    }
 };
 gbi.widgets.FeatureAttributeList.prototype = {
     render: function(features) {
         var self = this;
-        this.element.empty();
+        var element = $('#' + this.options.element);
+        element.empty();
 
         if(!self.activeLayer) {
-            this.element.append($('<div class="text-center">' + featureAttributeListLabels.noLayer + '</div>'));
+            element.append($('<div class="text-center">' + featureAttributeListLabels.noLayer + '</div>'));
             return;
         }
         var attributes = self.activeLayer ? self.activeLayer.listAttributes() || [] : [];
 
         if(attributes.length == 0) {
-            this.element.append($('<div class="text-center">' + featureAttributeListLabels.noAttribute + '</div>'));
+            element.append($('<div class="text-center">' + featureAttributeListLabels.noAttribute + '</div>'));
             return;
         }
 
-        this.element.append(tmpl(
+        element.append(tmpl(
             gbi.widgets.FeatureAttributeList.template, {
                 attributes: this.options.fullList ? self.attributes : self.activeLayer.listAttributes() || self.attributes,
                 features: features || self.activeLayer.features,
@@ -69,7 +72,7 @@ gbi.widgets.FeatureAttributeList.prototype = {
             });
         }
 
-        this.element.find('.show-feature').click(function() {
+        element.find('.show-feature').click(function() {
             var element = $(this);
             var feature = self.activeLayer.features[element.attr('id')];
             self.activeLayer.showFeature(feature);
