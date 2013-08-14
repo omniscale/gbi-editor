@@ -569,6 +569,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                     return true;
                 }
                 result[idx] = {
+                    'id': idx,
                     'color': filterOption.symbolizer.fillColor,
                     'value': filterOption.value,
                     'min': filterOption.min,

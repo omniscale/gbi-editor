@@ -59,7 +59,6 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
         }
 
         if(self.legend) {
-            var units = 'm';
             $.each(self.legend.result, function(idx, r) {
                 var value = '';
                 if(r.min && r.max) {
@@ -71,32 +70,23 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                 } else {
                     value = r.value;
                 }
-                var area = 0;
-                $.each(r.features, function(idx, feature) { area += feature.geometry.getGeodesicArea(self.editor.map.olMap.getProjectionObject())});
-                if(area > 100000) {
-                    area /= 1000000;
-                    area = Math.round(area * 10000) / 10000;
-                    units = 'km';
-                } else {
-                    area = Math.round(area * 100) / 100;
-                }
                 entries.push({
-                    id: entries.length,
+                    id: r.id,
                     color: r.color,
-                    value: value,
-                    area: area
-
+                    value: value
                 });
-            });
+            })
+
             element.append(tmpl(
                 gbi.widgets.ThematicalVectorLegend.template, {
                     attribute: self.legend.attribute,
                     type: thematicalVectorLegendLabel[self.legend.type],
                     entries: entries,
-                    units: units,
                     featureList: self.options.featureList instanceof gbi.widgets.FeatureAttributeList
                 }
             ));
+
+            self.updateAreas(element);
 
             if(self.options.featureList instanceof gbi.widgets.FeatureAttributeList) {
                 // bind events
@@ -110,6 +100,26 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
 
         } else {
             element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
+        }
+    },
+    updateAreas: function(element) {
+        var self = this;
+        self.legend = this.activeLayer ? this.activeLayer.filteredFeatures() : false;
+        if(self.legend) {
+            var units = 'm';
+            $.each(self.legend.result, function(idx, r) {
+                var area = 0;
+                $.each(r.features, function(idx, feature) { area += feature.geometry.getGeodesicArea(self.editor.map.olMap.getProjectionObject())});
+                if(area > 100000) {
+                    area /= 1000000;
+                    area = Math.round(area * 10000) / 10000;
+                    units = 'km';
+                } else {
+                    area = Math.round(area * 100) / 100;
+                }
+                element.find('#_' + r.id + '_area').text(area)
+            });
+            element.find('#area-unit').text(units);
         }
     },
     _registerLayerEvents: function(layer) {
@@ -132,7 +142,7 @@ gbi.widgets.ThematicalVectorLegend.template = '\
             <tr>\
                 <th class="text-center">' + thematicalVectorLegendLabel.color + '</th>\
                 <th class="text-center">' + thematicalVectorLegendLabel.value + '</th>\
-                <th class="text-center">' + thematicalVectorLegendLabel.areaIn + ' <%=units%><sup>2</sup></th>\
+                <th class="text-center">' + thematicalVectorLegendLabel.areaIn + ' <span id="area-unit"></span><sup>2</sup></th>\
                 <% if(featureList) { %><th class="text-center">&nbsp;</th><% } %>\
             </tr>\
         </thead>\
@@ -141,7 +151,7 @@ gbi.widgets.ThematicalVectorLegend.template = '\
                 <tr id="_<%=entries[key].id%>_row">\
                     <td class="text-center"><div id="_<%=entries[key].id%>_color" class="gbi_widget_legend_color inline-block" style="background-color: <%=entries[key].color%>;"><span class="hide"><%=entries[key].value%></div></td>\
                     <td class="text-center"><%=entries[key].value%></td>\
-                    <td class="text-center"><%=entries[key].area%></td>\
+                    <td class="text-center" id="_<%=entries[key].id%>_area"></td>\
                     <% if(featureList) { %>\
                         <td class="text-center">\
                             <button id="_<%=entries[key].id%>_list_view" class="btn btn-small">\

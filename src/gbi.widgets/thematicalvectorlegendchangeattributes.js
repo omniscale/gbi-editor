@@ -72,6 +72,7 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
     _changeFeatureAttributeValue: function(f) {
         this.self.activeLayer.changeFeatureAttribute(f.feature, this.attribute, this.value);
         this.self.selectControl.unselectFeature(f.feature);
+        this.self.updateAreas($('#' + this.self.options.element));
     }
 });
 
