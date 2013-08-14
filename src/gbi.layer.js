@@ -296,8 +296,8 @@ gbi.Layers.Vector = function(options) {
         this.symbolizers = this.options.styleMap.styles['default'].rules[0].symbolizer;
     }
 
+    this.featureStylingRuleActive = false;
     this.featureStylingRule = false;
-    this.featureStylingRuleIndex = [];
 
     //show popup when selectControl click
     if(this.options.clickPopup) {
@@ -387,6 +387,11 @@ $.extend(gbi.Layers.Vector.prototype, {
         this._applyFilterOptions();
         this.olLayer.redraw();
     },
+    activateFeatureStylingRule: function(active) {
+        this.featureStylingRuleActive = active;
+        this._applyFilterOptions();
+        this.olLayer.redraw();
+    },
     /**
      * Apply filters to styling
      *
@@ -397,13 +402,12 @@ $.extend(gbi.Layers.Vector.prototype, {
     _applyFilterOptions: function() {
         var self = this;
         var rules = [];
-        if(self.featureStylingRule) {
-            for(var i = self.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
-                if(self.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
-                    self.olLayer.styleMap.styles.default.rules.splice(i, 1);
-                }
+        for(var i = self.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
+            if(self.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
+                self.olLayer.styleMap.styles.default.rules.splice(i, 1);
             }
-
+        }
+        if(self.featureStylingRule && self.featureStylingRuleActive) {
             switch(self.featureStylingRule.type) {
                 case 'exact':
                     $.each(self.featureStylingRule.filterOptions, function(idx, filter) {
