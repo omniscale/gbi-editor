@@ -13,7 +13,15 @@ var thematicalVectorConfiguratorLabel = {
     'active': OpenLayers.i18n('Active'),
     'choose': OpenLayers.i18n('Choose value'),
     'noInput': OpenLayers.i18n('No entries'),
-    'noLayer': OpenLayers.i18n('No layer selected')
+    'noLayer': OpenLayers.i18n('No layer selected'),
+    'attributes': OpenLayers.i18n('Attributes'),
+    'showInList': OpenLayers.i18n('Show in list'),
+    'showInPopup': OpenLayers.i18n('Show in popup'),
+    'apply': OpenLayers.i18n('Apply'),
+    'noLayer': OpenLayers.i18n('No layer selected'),
+    'noAttributes': OpenLayers.i18n('Layer have no attributes'),
+    'mapSettings': OpenLayers.i18n('Map Settings'),
+    'listSettings': OpenLayers.i18n('List Settings')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -99,6 +107,52 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         $('#executeFilter').click(function() {
             self.execute();
         });
+
+        var listAttributes = self.activeLayer ? self.activeLayer.listAttributes() : [];
+        var popupAttributes = self.activeLayer ? self.activeLayer.popupAttributes() : [];
+
+        if(listAttributes) {
+            element.find('.list-attribute').each(function(idx, elm) {
+                elm = $(elm);
+                elm.change(function() {
+                    self._restrictAttributes(elm, '.list-attribute', 5)
+                })
+                if($.inArray(elm.val(), listAttributes) != -1) {
+                    elm.attr('checked', 'checked');
+                }
+
+            })
+        }
+
+        if(popupAttributes) {
+            element.find('.popup-attribute').each(function(idx, elm) {
+                elm = $(elm);
+                elm.change(function() {
+                    self._restrictAttributes(elm, '.popup-attribute', 5)
+                });
+                if($.inArray(elm.val(), popupAttributes) != -1) {
+                    elm.attr('checked', 'checked');
+                }
+            })
+        }
+
+        element.find('#sortable').sortable();
+
+        $('#setListAttributes').click(function() {
+            var listAttributes = [];
+            var popupAttributes = [];
+            $.each(self.element.find('.list-attribute:checked'), function(idx, checkbox) {
+                listAttributes.push(checkbox.value);
+            });
+            $.each(self.element.find('.popup-attribute:checked'), function(idx, checkbox) {
+                popupAttributes.push(checkbox.value);
+            });
+            self.activeLayer.listAttributes(listAttributes);
+            self.activeLayer.popupAttributes(popupAttributes);
+            if(self.activeLayer instanceof gbi.Layers.Couch) {
+                self.activeLayer._saveGBIData();
+            }
+        })
 
         if(this.activeLayer && this.activeLayer.featureStylingRule) {
             element.find('#attribute').val(this.activeLayer.featureStylingRule.attribute);
@@ -283,6 +337,14 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             self.attributes = layer.featuresAttributes();
             self.render();
         });
+    },
+    _restrictAttributes: function(elm, selector, max) {
+        var self = this;
+        var count = self.element.find(selector + ':checked').length;
+        if(count > max) {
+            elm.removeAttr('checked');
+            console.log('Only ' + max + ' or less attributes can be selected')
+        }
     }
 };
 
@@ -302,6 +364,7 @@ gbi.widgets.ThematicalVectorConfigurator.defaultColors = gbi.widgets.ThematicalV
 ];
 
 gbi.widgets.ThematicalVectorConfigurator.template = '\
+    <h4>' + thematicalVectorConfiguratorLabel.mapSettings + '</h4>\
     <div class="control-group">\
         <label class="control-label" for="attribute">' + thematicalVectorConfiguratorLabel.attribute + ':</label>\
         <div class="controls">\
@@ -326,7 +389,6 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
         </button>\
     </div>\
     <div id="exactInputDiv">\
-        <h3>' + thematicalVectorConfiguratorLabel.exact + '</h3>\
         <table class="exactInputControl table">\
             <thead>\
                 <tr>\
@@ -343,7 +405,6 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
         </table>\
     </div>\
     <div id="rangeInputDiv">\
-        <h3>' + thematicalVectorConfiguratorLabel.range + '</h3>\
         <table class="rangeInputControl table">\
             <thead>\
                 <tr>\
@@ -362,6 +423,35 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
     </div>\
     <button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorConfiguratorLabel.execute + '</button>\
     <button class="btn btn-small pull-right" id="addInput">' + thematicalVectorConfiguratorLabel.addInputField + '</button>\
+    <hr>\
+    <h4>' + thematicalVectorConfiguratorLabel.listSettings + '</h4>\
+    <% if(attributes.length == 0) { %>\
+        <div>' + thematicalVectorConfiguratorLabel.noAttributes + '</div>\
+    <% } else { %>\
+        <table class="table">\
+            <thead>\
+                <tr>\
+                    <th>&nbsp;</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.attributes + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.showInList + '</th>\
+                    <th>' + thematicalVectorConfiguratorLabel.showInPopup + '</th>\
+                </tr>\
+            </thead>\
+            <tbody id="sortable">\
+                <% for(var a_key in attributes) { %>\
+                    <tr>\
+                        <td><i class="icon-move opacity-1"></i></td>\
+                        <td><%=attributes[a_key]%></td>\
+                        <td><input type="checkbox" class="list-attribute" value="<%=attributes[a_key]%>" /></td>\
+                        <td><input type="checkbox" class="popup-attribute" value="<%=attributes[a_key]%>" /></td>\
+                    </tr>\
+                <% } %>\
+            </tbody>\
+        </table>\
+        <div class="text-center">\
+            <button id="setListAttributes" class="btn btn-small">' + thematicalVectorConfiguratorLabel.apply + '</button>\
+        </div>\
+    <% } %>\
 ';
 
 gbi.widgets.ThematicalVectorConfigurator.inputTemplate = '<input type="text" id="" class="input-small">';

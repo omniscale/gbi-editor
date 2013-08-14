@@ -1,9 +1,8 @@
 var thematicalVectorLabels = {
-    'mapSettings': OpenLayers.i18n('Map settings'),
     'legend': OpenLayers.i18n('Legend'),
     'shortList': OpenLayers.i18n('Short list'),
     'fullList': OpenLayers.i18n('Complete list'),
-    'listSettings': OpenLayers.i18n('List settings'),
+    'settings': OpenLayers.i18n('Settings'),
     'active': OpenLayers.i18n('Active')
 }
 
@@ -17,8 +16,7 @@ gbi.widgets.ThematicalVector = function(editor, options) {
         "components": {
             configurator: true,
             legend: true,
-            list: true,
-            listConfigurator: true
+            list: true
         }
     };
     self.options = $.extend({}, defaults, options);
@@ -73,12 +71,6 @@ gbi.widgets.ThematicalVector = function(editor, options) {
             });
         }
     }
-    if(self.options.components.listConfigurator) {
-        self.components["listConfigurator"] = new gbi.widgets.FeatureAttributesListConfigurator(self, {
-            'element': 'thematical-feature-list-options',
-            initOnly: true
-        });
-    }
     self.render();
 };
 gbi.widgets.ThematicalVector.prototype = {
@@ -121,7 +113,7 @@ gbi.widgets.ThematicalVector.template = '\
 <% if(active) { %>\
     <ul id="tabs" class="nav nav-tabs">\
         <li class="active">\
-            <a href="#thematical-settings" data-toggle="tab">' + thematicalVectorLabels.mapSettings + '</a>\
+            <a href="#thematical-legend" data-toggle="tab">' + thematicalVectorLabels.legend + '</a>\
         </li>\
         <li>\
             <a href="#thematical-short-list" id="thematical-short-list-tab" data-toggle="tab">' + thematicalVectorLabels.shortList + '</a>\
@@ -130,16 +122,13 @@ gbi.widgets.ThematicalVector.template = '\
             <a href="#thematical-full-list" id="thematical-full-list-tab" data-toggle="tab">' + thematicalVectorLabels.fullList + '</a>\
         </li>\
         <li>\
-            <a href="#thematical-legend" data-toggle="tab">' + thematicalVectorLabels.legend + '</a>\
-        </li>\
-        <li>\
-            <a href="#thematical-list-settings" data-toggle="tab">' + thematicalVectorLabels.listSettings + '</a>\
+            <a href="#thematical-settings" data-toggle="tab">' + thematicalVectorLabels.settings + '</a>\
         </li>\
     </ul>\
     <div class="tab-content">\
-        <div class="tab-pane fade in active" id="thematical-settings">\
-            <h4>' + thematicalVectorLabels.mapSettings + '</h4>\
-            <div id="thematical-settings-element"></div>\
+        <div class="tab-pane fade in active" id="thematical-legend">\
+            <h4>' + thematicalVectorLabels.legend + '</h4>\
+            <div id="thematical-legend-element"></div>\
         </div>\
         <div class="tab-pane fade" id="thematical-short-list">\
             <h4>' + thematicalVectorLabels.shortList + '</h4>\
@@ -149,13 +138,8 @@ gbi.widgets.ThematicalVector.template = '\
             <h4>' + thematicalVectorLabels.fullList + '</h4>\
             <div id="thematical-feature-full-list"></div>\
         </div>\
-        <div class="tab-pane fade" id="thematical-legend">\
-            <h4>' + thematicalVectorLabels.legend + '</h4>\
-            <div id="thematical-legend-element"></div>\
-        </div>\
-        <div class="tab-pane fade" id="thematical-list-settings">\
-            <h4>' + thematicalVectorLabels.listSettings + '</h4>\
-            <div id="thematical-feature-list-options"></div>\
+        <div class="tab-pane fade" id="thematical-settings">\
+            <div id="thematical-settings-element"></div>\
         </div>\
     </div>\
 <% } %>\
