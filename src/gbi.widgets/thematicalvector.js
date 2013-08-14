@@ -95,7 +95,7 @@ gbi.widgets.ThematicalVector.prototype = {
         });
     },
     showListView: function() {
-        $('#thematical-short-list-tab').tab('show');
+        $('#thematical-list-tab').tab('show');
     }
 };
 gbi.widgets.ThematicalVector.template = '\
