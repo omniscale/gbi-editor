@@ -387,8 +387,13 @@ $.extend(gbi.Layers.Vector.prototype, {
         this._applyFilterOptions();
         this.olLayer.redraw();
     },
-    activateFeatureStylingRule: function(active) {
-        this.featureStylingRuleActive = active;
+    activateFeatureStylingRule: function() {
+        this.featureStylingRuleActive = true;
+        this._applyFilterOptions();
+        this.olLayer.redraw();
+    },
+    deactivateFeatureStylingRule: function() {
+        this.featureStylingRuleActive = false;
         this._applyFilterOptions();
         this.olLayer.redraw();
     },
