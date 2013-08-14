@@ -6,7 +6,8 @@ var thematicalVectorLegendLabel = {
     'color': OpenLayers.i18n('Color'),
     'exact': OpenLayers.i18n('Exact'),
     'range': OpenLayers.i18n('Range'),
-    'noLayer': OpenLayers.i18n('No layer selected')
+    'noLayer': OpenLayers.i18n('No layer selected'),
+    'createThematicalMap': OpenLayers.i18n('Create thematical map')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -54,7 +55,7 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
         element.empty();
 
         if(!self.activeLayer) {
-            element.append($('<div class="text-center">' + thematicalVectorLegendLabel.noLayer + '</div>'));
+            element.append($('<div>' + thematicalVectorLegendLabel.noLayer + '</div>'));
             return;
         }
 
@@ -101,7 +102,10 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
             }
 
         } else {
-            element.append($('<div>' + thematicalVectorLegendLabel.noThematicalMap + '</div>'));
+            element.append(tmpl(gbi.widgets.ThematicalVectorLegend.noLayerTemplate));
+            element.find('#createThematicalMap').click(function() {
+                self.thematicalVector.showSettings();
+            });
         }
     },
     updateAreas: function(element) {
@@ -165,6 +169,11 @@ gbi.widgets.ThematicalVectorLegend.template = '\
             <% } %>\
         </tbody>\
     </table>\
+';
+gbi.widgets.ThematicalVectorLegend.noLayerTemplate = '\
+<div class="text-center">' + thematicalVectorLegendLabel.noLayer + '.<br>\
+<button id="createThematicalMap" class="btn btn-small">' + thematicalVectorLegendLabel.createThematicalMap + '</button>\
+</div>\
 ';
 
 var thematicalVectorLegendChangeAttributesLabel = {
@@ -244,7 +253,6 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         this.self.updateAreas($('#' + this.self.options.element));
     }
 });
-
 
 gbi.widgets.ThematicalVectorLegendChangeAttributes.template = '\
     <button id="applyChanges" class="btn btn-small btn-success" disabled="disabled">' + thematicalVectorLegendChangeAttributesLabel.applyChanges + '</button>\

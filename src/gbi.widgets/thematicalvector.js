@@ -96,6 +96,9 @@ gbi.widgets.ThematicalVector.prototype = {
     },
     showListView: function() {
         $('#thematical-list-tab').tab('show');
+    },
+    showSettings: function() {
+        $('#thematical-settings-tab').tab('show');
     }
 };
 gbi.widgets.ThematicalVector.template = '\
@@ -106,13 +109,13 @@ gbi.widgets.ThematicalVector.template = '\
 <% if(active) { %>\
     <ul id="tabs" class="nav nav-tabs">\
         <li class="active">\
-            <a href="#thematical-legend" data-toggle="tab">' + thematicalVectorLabels.legend + '</a>\
+            <a href="#thematical-legend" id="thematical-legend-tab" data-toggle="tab">' + thematicalVectorLabels.legend + '</a>\
         </li>\
         <li>\
             <a href="#thematical-list" id="thematical-list-tab" data-toggle="tab">' + thematicalVectorLabels.list + '</a>\
         </li>\
         <li>\
-            <a href="#thematical-settings" data-toggle="tab">' + thematicalVectorLabels.settings + '</a>\
+            <a href="#thematical-settings" id="thematical-settings-tab" data-toggle="tab">' + thematicalVectorLabels.settings + '</a>\
         </li>\
     </ul>\
     <div class="tab-content">\
