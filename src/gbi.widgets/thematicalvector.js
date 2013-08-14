@@ -114,7 +114,7 @@ gbi.widgets.ThematicalVector.prototype = {
     }
 };
 gbi.widgets.ThematicalVector.template = '\
-<label for="active">\
+<label for="thematical-map-active" class="checkbox">\
     <input type="checkbox" <% if(active) {%>checked="checked"<% } %> id="thematical-map-active" />\
     ' + thematicalVectorLabels.active + '\
 </label>\
