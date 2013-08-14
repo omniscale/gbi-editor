@@ -1242,7 +1242,6 @@ $.extend(gbi.Layers.Couch.prototype, {
                     self.addAttributeFilter(
                         responseObject.thematical.type,
                         responseObject.thematical.attribute,
-                        responseObject.thematical.active,
                         responseObject.thematical.filterOptions
                     );
                 }
