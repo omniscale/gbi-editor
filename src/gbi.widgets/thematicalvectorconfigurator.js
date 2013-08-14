@@ -302,10 +302,6 @@ gbi.widgets.ThematicalVectorConfigurator.defaultColors = gbi.widgets.ThematicalV
 ];
 
 gbi.widgets.ThematicalVectorConfigurator.template = '\
-    <label for="active">\
-        <input type="checkbox" id="rule-active" />\
-        ' + thematicalVectorConfiguratorLabel.active + '\
-    </label>\
     <div class="control-group">\
         <label class="control-label" for="attribute">' + thematicalVectorConfiguratorLabel.attribute + ':</label>\
         <div class="controls">\
