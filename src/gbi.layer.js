@@ -485,14 +485,15 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {String} attribute
      * @param {Object[]} filterOptions Contains the parameters for each filter
      */
-    addAttributeFilter: function(type, attribute, active, filterOptions) {
+    addAttributeFilter: function(type, attribute, filterOptions) {
         var self = this;
-        this.featureStylingRule = $.isArray(filterOptions) && filterOptions.length > 0 ? {
+        var newFeatureStylingRule = $.isArray(filterOptions) && filterOptions.length > 0 ? {
             type: type,
             attribute: attribute,
-            active: active,
             filterOptions: filterOptions
         } : false;
+
+        this.featureStylingRule = newFeatureStylingRule;
 
         this._applyFilterOptions();
         $(this).trigger('gbi.layer.vector.ruleChanged', false);
