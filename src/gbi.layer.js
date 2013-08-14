@@ -384,7 +384,89 @@ $.extend(gbi.Layers.Vector.prototype, {
                 "select": this.selectStyle
             });
         }
+        this._applyFilterOptions();
         this.olLayer.redraw();
+    },
+    /**
+     * Apply filters to styling
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @private
+     */
+    _applyFilterOptions: function() {
+        var self = this;
+        var rules = [];
+        if(self.featureStylingRule) {
+            for(var i = self.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
+                if(self.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
+                    self.olLayer.styleMap.styles.default.rules.splice(i, 1);
+                }
+            }
+
+            switch(self.featureStylingRule.type) {
+                case 'exact':
+                    $.each(self.featureStylingRule.filterOptions, function(idx, filter) {
+                        filter.olFilter = new OpenLayers.Filter.Comparison({
+                            type: OpenLayers.Filter.Comparison.EQUAL_TO,
+                            property: self.featureStylingRule.attribute,
+                            value: filter.value
+                        });
+
+                        if(filter.symbolizer) {
+                            rules.push(new OpenLayers.Rule({
+                                filter: filter.olFilter,
+                                symbolizer: filter.symbolizer,
+                                propertyFilter: true
+                            }));
+                        }
+                    });
+                    break;
+                case 'range':
+                    $.each(self.featureStylingRule.filterOptions, function(idx, filter) {
+                        var minFilter = false;
+                        var maxFilter = false;
+                        var olFilter = false;
+
+                        if(OpenLayers.String.isNumeric(filter.min)) {
+                            minFilter = new OpenLayers.Filter.Comparison({
+                                type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
+                                property: self.featureStylingRule.attribute,
+                                value: OpenLayers.String.numericIf(filter.min)
+                            });
+                        }
+                        if(OpenLayers.String.isNumeric(filter.max)) {
+                            maxFilter = new OpenLayers.Filter.Comparison({
+                                type: OpenLayers.Filter.Comparison.LESS_THAN,
+                                property: self.featureStylingRule.attribute,
+                                value: OpenLayers.String.numericIf(filter.max)
+                            });
+                        }
+
+                        if(!minFilter && !maxFilter) {
+                            return;
+                        }
+
+                        if(minFilter && maxFilter) {
+                            olFilter = new OpenLayers.Filter.Logical({
+                                type: OpenLayers.Filter.Logical.AND,
+                                filters: [minFilter, maxFilter]
+                            });
+                        }
+                        filter.olFilter = olFilter || minFilter || maxFilter;
+
+                        if(filter.symbolizer) {
+                            rules.push(new OpenLayers.Rule({
+                                filter: filter.olFilter,
+                                symbolizer: filter.symbolizer,
+                                propertyFilter: true
+                            }));
+                        }
+                    });
+                    break;
+            };
+            self.olLayer.styleMap.styles.default.rules = self.olLayer.styleMap.styles.default.rules.concat(rules);
+        }
     },
     /**
      * Adds property filters
@@ -405,7 +487,6 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     addAttributeFilter: function(type, attribute, active, filterOptions) {
         var self = this;
-        var rules = [];
         this.featureStylingRule = $.isArray(filterOptions) && filterOptions.length > 0 ? {
             type: type,
             attribute: attribute,
@@ -413,81 +494,8 @@ $.extend(gbi.Layers.Vector.prototype, {
             filterOptions: filterOptions
         } : false;
 
-        for(var i = this.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
-            if(this.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
-                self.olLayer.styleMap.styles.default.rules.splice(i, 1);
-            }
-        }
-
-        switch(type) {
-            case 'exact':
-                $.each(filterOptions, function(idx, filter) {
-                    filter.olFilter = new OpenLayers.Filter.Comparison({
-                        type: OpenLayers.Filter.Comparison.EQUAL_TO,
-                        property: attribute,
-                        value: filter.value
-                    });
-
-                    if(filter.symbolizer) {
-                        rules.push(new OpenLayers.Rule({
-                            filter: filter.olFilter,
-                            symbolizer: filter.symbolizer,
-                            propertyFilter: true
-                        }));
-                    }
-                });
-                break;
-            case 'range':
-                $.each(filterOptions, function(idx, filter) {
-                    var minFilter = false;
-                    var maxFilter = false;
-                    var olFilter = false;
-
-                    if(OpenLayers.String.isNumeric(filter.min)) {
-                        minFilter = new OpenLayers.Filter.Comparison({
-                            type: OpenLayers.Filter.Comparison.GREATER_THAN_OR_EQUAL_TO,
-                            property: attribute,
-                            value: OpenLayers.String.numericIf(filter.min)
-                        });
-                    }
-                    if(OpenLayers.String.isNumeric(filter.max)) {
-                        maxFilter = new OpenLayers.Filter.Comparison({
-                            type: OpenLayers.Filter.Comparison.LESS_THAN,
-                            property: attribute,
-                            value: OpenLayers.String.numericIf(filter.max)
-                        });
-                    }
-
-                    if(!minFilter && !maxFilter) {
-                        return;
-                    }
-
-                    if(minFilter && maxFilter) {
-                        olFilter = new OpenLayers.Filter.Logical({
-                            type: OpenLayers.Filter.Logical.AND,
-                            filters: [minFilter, maxFilter]
-                        });
-                    }
-                    filter.olFilter = olFilter || minFilter || maxFilter;
-
-                    if(filter.symbolizer) {
-                        rules.push(new OpenLayers.Rule({
-                            filter: filter.olFilter,
-                            symbolizer: filter.symbolizer,
-                            propertyFilter: true
-                        }));
-                    }
-                });
-                break;
-        };
+        this._applyFilterOptions();
         $(this).trigger('gbi.layer.vector.ruleChanged', false);
-        if(rules.length == 0 || !active) {
-            this.olLayer.redraw();
-            return;
-        }
-
-        this.olLayer.styleMap.styles.default.rules = this.olLayer.styleMap.styles.default.rules.concat(rules);
-
         this.olLayer.redraw();
     },
     /**
