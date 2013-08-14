@@ -225,7 +225,7 @@ gbi.Layers.Vector = function(options) {
         editable: true,
         clickPopup: false,
         hoverPopup: false,
-        hoverAutoActive: true,
+        hoverAutoActive: false,
         maxAttributeValues: 100
     };
     var default_symbolizers = {
