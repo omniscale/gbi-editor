@@ -1,9 +1,8 @@
 var thematicalVectorLabels = {
     'legend': OpenLayers.i18n('Legend'),
-    'shortList': OpenLayers.i18n('Short list'),
-    'fullList': OpenLayers.i18n('Complete list'),
     'settings': OpenLayers.i18n('Settings'),
-    'active': OpenLayers.i18n('Active')
+    'active': OpenLayers.i18n('Active'),
+    'list': OpenLayers.i18n('List')
 }
 
 gbi.widgets = gbi.widgets || {};
@@ -38,14 +37,8 @@ gbi.widgets.ThematicalVector = function(editor, options) {
 
     self.components = {};
     if(self.options.components.list) {
-        self.components["shortList"] = new gbi.widgets.FeatureAttributeList(self, {
-            'element': 'thematical-feature-short-list',
-            featurePopup: 'hover',
-            initOnly: true
-        });
-        self.components["fullList"] = new gbi.widgets.FeatureAttributeList(self, {
-            'element': 'thematical-feature-full-list',
-            fullList: true,
+        self.components["list"] = new gbi.widgets.FeatureAttributeList(self, {
+            'element': 'thematical-feature-list',
             featurePopup: 'hover',
             initOnly: true
         });
@@ -60,13 +53,13 @@ gbi.widgets.ThematicalVector = function(editor, options) {
         if(self.options.changeAttributes) {
             self.components["legend"] = new gbi.widgets.ThematicalVectorLegendChangeAttributes(self, {
                 'element': 'thematical-legend-element',
-                'featureList': self.components.shortList,
+                'featureList': self.components.list,
                 initOnly: true
             });
         } else {
             self.components["legend"] = new gbi.widgets.ThematicalVectorLegend(self, {
                 'element': 'thematical-legend-element',
-                'featureList': self.components.shortList,
+                'featureList': self.components.list,
                 initOnly: true
             });
         }
@@ -116,10 +109,7 @@ gbi.widgets.ThematicalVector.template = '\
             <a href="#thematical-legend" data-toggle="tab">' + thematicalVectorLabels.legend + '</a>\
         </li>\
         <li>\
-            <a href="#thematical-short-list" id="thematical-short-list-tab" data-toggle="tab">' + thematicalVectorLabels.shortList + '</a>\
-        </li>\
-        <li>\
-            <a href="#thematical-full-list" id="thematical-full-list-tab" data-toggle="tab">' + thematicalVectorLabels.fullList + '</a>\
+            <a href="#thematical-list" id="thematical-list-tab" data-toggle="tab">' + thematicalVectorLabels.list + '</a>\
         </li>\
         <li>\
             <a href="#thematical-settings" data-toggle="tab">' + thematicalVectorLabels.settings + '</a>\
@@ -130,13 +120,9 @@ gbi.widgets.ThematicalVector.template = '\
             <h4>' + thematicalVectorLabels.legend + '</h4>\
             <div id="thematical-legend-element"></div>\
         </div>\
-        <div class="tab-pane fade" id="thematical-short-list">\
-            <h4>' + thematicalVectorLabels.shortList + '</h4>\
-            <div id="thematical-feature-short-list"></div>\
-        </div>\
-        <div class="tab-pane fade" id="thematical-full-list">\
-            <h4>' + thematicalVectorLabels.fullList + '</h4>\
-            <div id="thematical-feature-full-list"></div>\
+        <div class="tab-pane fade" id="thematical-list">\
+            <h4>' + thematicalVectorLabels.list + '</h4>\
+            <div id="thematical-feature-list"></div>\
         </div>\
         <div class="tab-pane fade" id="thematical-settings">\
             <div id="thematical-settings-element"></div>\
