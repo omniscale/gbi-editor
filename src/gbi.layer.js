@@ -838,7 +838,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         var container = $('<div></div>');
         if(this._popupAttributes) {
             $.each(this._popupAttributes, function(idx, attribute) {
-                container.append($('<div><span>'+attribute+': </span><span>'+ (attributes[attribute] || OpenLayers.i18n('notDefined')) +'</span></div>'));
+                container.append($('<div><span>'+attribute+': </span><span>'+ (attributes[attribute] || OpenLayers.i18n('Not defined')) +'</span></div>'));
             })
         } else {
             $.each(attributes, function(key, value) {
@@ -1379,19 +1379,19 @@ $.extend(gbi.Layers.Couch.prototype, {
 });
 
 /**
- * Creates a WFS layer
+ * Creates a WFS-T layer
  *
  * @constructor
  * @extends gbi.Layers.SaveableVector
  * @param options All OpenLayers.Layer.Vector options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Layer/Vector-js.html|OpenLayers.Layer.Vector}
  * @param {String} options.featureNS Namespace
- * @param {String} options.featureType
+ * @param {String} options.featureType Layername
  * @param {String} options.geometryName Name of geometry column
  * @param {Integer} [options.maxFeatures=500]
  * @param {String} options.typename
  * @param {String} [options.srsName=EPSG:3857] EPSG code of WFS source
  */
-gbi.Layers.WFS = function(options) {
+gbi.Layers.WFST = function(options) {
     var defaults = {
         featureNS: '',
         featureType: '',
@@ -1420,13 +1420,13 @@ gbi.Layers.WFS = function(options) {
     };
     gbi.Layers.SaveableVector.call(this, $.extend({}, defaults, options, wfsExtension));
 };
-gbi.Layers.WFS.prototype = new gbi.Layers.SaveableVector();
-$.extend(gbi.Layers.WFS.prototype, {
-    CLASS_NAME: 'gbi.Layers.WFS',
+gbi.Layers.WFST.prototype = new gbi.Layers.SaveableVector();
+$.extend(gbi.Layers.WFST.prototype, {
+    CLASS_NAME: 'gbi.Layers.WFST',
     /**
-     * Adds a filter to the WFS request
+     * Adds a filter to the WFS-T request
      *
-     * @memberof gbi.Layers.WFS
+     * @memberof gbi.Layers.WFST
      * @instance
      * @param {String} property
      * @param {String} value
