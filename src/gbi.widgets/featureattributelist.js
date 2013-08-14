@@ -111,12 +111,15 @@ gbi.widgets.FeatureAttributeList.template = '\
         <button class="btn btn-small" id="reset-list">' + featureAttributeListLabels.reset + '</button>\
     <% } %>\
     <table class="table table-hover">\
-        <tr>\
-            <% for(var key in attributes) { %>\
-                <th><%=attributes[key]%></th>\
-            <% } %>\
-            <th>&nbsp;</th>\
-        </tr>\
+        <thead>\
+            <tr>\
+                <% for(var key in attributes) { %>\
+                    <th><%=attributes[key]%></th>\
+                <% } %>\
+                <th>&nbsp;</th>\
+            </tr>\
+        </thead>\
+        <tbody>\
         <% for(var f_key in features) { %>\
             <tr>\
                 <% for(var a_key in attributes) { %>\
@@ -135,5 +138,6 @@ gbi.widgets.FeatureAttributeList.template = '\
                 </td>\
             </tr>\
         <% } %>\
+        </tbody>\
     </table>\
 ';
