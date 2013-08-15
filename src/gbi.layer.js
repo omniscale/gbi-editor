@@ -1152,6 +1152,15 @@ gbi.Layers.Couch = function(options) {
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
         self.features = self.olLayer.features;
+        self.registerEvent('featureadded', self, function() {
+            $(self).trigger('gbi.layers.couch.unsavedChanges');
+        });
+        self.registerEvent('afterfeaturemodified', self, function() {
+            $(self).trigger('gbi.layers.couch.unsavedChanges');
+        });
+        self.registerEvent('featureremoved', self, function() {
+            $(self).trigger('gbi.layers.couch.unsavedChanges');
+        });
         $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
