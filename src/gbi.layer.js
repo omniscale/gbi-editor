@@ -1089,6 +1089,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
         if (e.feature && (e.feature.state == OpenLayers.State.DELETE || e.feature.state == OpenLayers.State.UPDATE || e.feature.state == OpenLayers.State.INSERT)) {
             //XXXkai: set unsavedChanges to false when new feature inserted and then deleted?
             this.unsavedChanges = true;
+            $(this).trigger('gbi.layer.saveableVector.unsavedChanges');
             this._change();
         }
     },
@@ -1155,15 +1156,6 @@ gbi.Layers.Couch = function(options) {
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
         self.features = self.olLayer.features;
-        self.registerEvent('featureadded', self, function() {
-            $(self).trigger('gbi.layers.couch.unsavedChanges');
-        });
-        self.registerEvent('afterfeaturemodified', self, function() {
-            $(self).trigger('gbi.layers.couch.unsavedChanges');
-        });
-        self.registerEvent('featureremoved', self, function() {
-            $(self).trigger('gbi.layers.couch.unsavedChanges');
-        });
         $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
