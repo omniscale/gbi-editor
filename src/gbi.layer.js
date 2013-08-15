@@ -936,11 +936,11 @@ gbi.Layers.SaveableVector = function(options) {
     }
 
     this.loaded = false;
-    this.unsavedChanges = false;
+    this.unsavedFeatureChanges = false;
     gbi.Layers.Vector.call(this, options);
 
     this.olLayer.events.register('loadend', '', function(response) {
-        self.unsavedChanges = false;
+        self.unsavedFeatureChanges = false;
         if(response && response.object && response.object.features.length == 0) {
             self.loaded = true;
             $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
@@ -948,6 +948,7 @@ gbi.Layers.SaveableVector = function(options) {
         self.olLayer.events.register('featureadded', self, self._trackStatus);
         self.olLayer.events.register('featureremoved', self, self._trackStatus);
         self.olLayer.events.register('afterfeaturemodified', self, self._trackStatus);
+
 
         self.features = self.olLayer.features;
     });
@@ -1054,7 +1055,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
      * @private
      */
     _success: function(response) {
-        this.unsavedChanges = false;
+        this.unsavedFeatureChanges = false;
         this._change();
         if(this.callbacks.success) {
             var self = this;
@@ -1088,7 +1089,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
     _trackStatus: function(e) {
         if (e.feature && (e.feature.state == OpenLayers.State.DELETE || e.feature.state == OpenLayers.State.UPDATE || e.feature.state == OpenLayers.State.INSERT)) {
             //XXXkai: set unsavedChanges to false when new feature inserted and then deleted?
-            this.unsavedChanges = true;
+            this.unsavedFeatureChanges = true;
             $(this).trigger('gbi.layer.saveableVector.unsavedChanges');
             this._change();
         }
@@ -1100,8 +1101,11 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
      * @instance
      */
     changesMade: function() {
-        this.unsavedChanges = true;
+        this.unsavedFeatureChanges = true;
         this._change();
+    },
+    unsavedChanges: function() {
+        return this.unsavedFeatureChanges;
     }
 });
 
@@ -1126,6 +1130,8 @@ gbi.Layers.Couch = function(options) {
 
     this.haveCustomStyle = false;
     this.styleRev = false;
+    this.unsavedStyleChanges = false;
+    this.unsavedGBIEditorChanges = false;
 
     this.format = new OpenLayers.Format.JSON();
 
@@ -1147,34 +1153,29 @@ gbi.Layers.Couch = function(options) {
     delete options.readExt;
     delete options.bulkExt;
 
-    gbi.Layers.SaveableVector.call(this, $.extend({}, defaults, options, couchExtension));
-
+    gbi.Layers.SaveableVector.call(this, $.extend(true, {}, defaults, options, couchExtension));
     if(this.options.createDB) {
         this._createCouchDB();
     }
 
-    $(this).on('gbi.layer.vector.featureAttributeChanged', function() {
-        self.unsavedChanges = true;
-    });
-    $(this).on('gbi.layer.vector.gbi.layer.vector.styleChanged', function() {
-        self.unsavedChanges = true;
-    });
-    $(this).on('gbi.layer.vector.gbi.layer.vector.ruleChanged', function() {
-        self.unsavedChanges = true;
-    });
-    $(this).on('gbi.layer.vector.gbi.layer.vector.listAttributesChanged', function() {
-        self.unsavedChanges = true;
-    });
-    $(this).on('gbi.layer.vector.gbi.layer.vector.popupAttributesChanged', function() {
-        self.unsavedChanges = true;
-    });
-    $(this).on('gbi.layer.vector.gbi.layer.vector.styleChanged', function() {
-        self.unsavedChanges = true;
-    });
-
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
         self.features = self.olLayer.features;
+            $(this).on('gbi.layer.vector.featureAttributeChanged', function() {
+        self.unsavedFeatureChanges = true;
+        });
+        $(this).on('gbi.layer.vector.gbi.layer.vector.styleChanged', function() {
+            self.unsavedStyleChanges = true;
+        });
+        $(this).on('gbi.layer.vector.gbi.layer.vector.ruleChanged', function() {
+            self.unsavedGBIEditorChanges = true;
+        });
+        $(this).on('gbi.layer.vector.gbi.layer.vector.listAttributesChanged', function() {
+            self.unsavedGBIEditorChanges = true;
+        });
+        $(this).on('gbi.layer.vector.gbi.layer.vector.popupAttributesChanged', function() {
+            self.unsavedGBIEditorChanges = true;
+        });
         $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
@@ -1203,6 +1204,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'contentType': 'application/json'
             },
             success: function(response) {
+                self.unsavedStyleChanges = false;
                 var responseObject = self.format.read(response.responseText);
                 if(responseObject._rev != undefined) {
                     self.styleRev = responseObject._rev;
@@ -1237,6 +1239,7 @@ $.extend(gbi.Layers.Couch.prototype, {
             },
             data: this.format.write(stylingData),
             success: function(response) {
+                self.unsavedStyleChanges = false;
                 if(response.responseText) {
                     var jsonResponse = self.format.read(response.responseText);
                     if(jsonResponse.rev) {
@@ -1263,6 +1266,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'contentType': 'application/json'
             },
             success: function(response) {
+                self.unsavedGBIEditorChanges = false;
                 var responseObject = self.format.read(response.responseText);
 
                 if(responseObject._rev != undefined) {
@@ -1321,6 +1325,7 @@ $.extend(gbi.Layers.Couch.prototype, {
             },
             data: this.format.write(gbiData),
             success: function(response) {
+                self.unsavedGBIEditorChanges = false;
                 var jsonResponse = self.format.read(response.responseText);
                 if(jsonResponse.rev) {
                     self.gbiRev = jsonResponse.rev;
@@ -1422,6 +1427,9 @@ $.extend(gbi.Layers.Couch.prototype, {
         this._loadStyle();
         this._loadGBIData();
         gbi.Layers.SaveableVector.prototype.refresh.apply(this)
+    },
+    unsavedChanges: function() {
+        return this.unsavedFeatureChanges || this.unsavedStyleChanges || this.unsavedGBIEditorChanges;
     }
 });
 
