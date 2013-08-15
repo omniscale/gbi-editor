@@ -357,6 +357,9 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
         gbi.Layers.Layer.prototype.destroy.call(this);
     },
+    refresh: function() {
+        this.olLayer.refresh();
+    },
     /**
      * Sets the style of this layer
      *
@@ -1403,6 +1406,11 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'Content-Type': 'application/json'
             }
         });
+    },
+    refresh: function() {
+        this._loadStyle();
+        this._loadGBIData();
+        gbi.Layers.SaveableVector.prototype.refresh.apply(this)
     }
 });
 
