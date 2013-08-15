@@ -385,6 +385,7 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
         }
         this._applyFilterOptions();
+        $(this).trigger('gbi.layer.vector.styleChanged')
         this.olLayer.redraw();
     },
     activateFeatureStylingRule: function() {
