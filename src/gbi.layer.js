@@ -1126,6 +1126,13 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
         this.unsavedFeatureChanges = true;
         this._change();
     },
+    /**
+     * Checks if new or edited features unsaved
+     *
+     * @memberof gbi.Layers.SaveableVector
+     * @instance
+     * @returns {Boolean} unsaved feature changes
+     */
     unsavedChanges: function() {
         return this.unsavedFeatureChanges;
     }
