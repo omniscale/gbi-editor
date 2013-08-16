@@ -285,7 +285,8 @@ gbi.Layers.Vector = function(options) {
     this.isActive = false;
     this.isEditable = this.options.editable;
 
-    this._listAttributes = [];
+    this._shortListAttributes = [];
+    this._fullListAttributes = [];
     this._popupAttributes = [];
 
     this.features = this.olLayer.features;
@@ -642,6 +643,9 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     changeFeatureAttribute: function(feature, attribute, value) {
         if(feature.attributes[attribute] != value) {
+            if(this._fullListAttributes.length > 0 && $.inArray(attribute, this._fullListAttributes) == -1) {
+                this._fullListAttributes.push(attribute);
+            }
             feature.attributes[attribute] = value;
             $(this).trigger('gbi.layer.vector.featureAttributeChanged', feature);
             return true;
@@ -659,6 +663,9 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     removeFeatureAttribute: function(feature, attribute) {
         if(attribute in feature.attributes) {
+            if(this._fullListAttributes.length > 0 && $.inArray(attribute, this._fullListAttributes) != -1) {
+                this._fullListAttributes.splice(this._fullListAttributes.indexOf(attribute), 1);
+            }
             delete feature.attributes[attribute];
             $(this).trigger('gbi.layer.vector.featureAttributeChanged', feature);
             return true;
@@ -722,19 +729,34 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.map.zoomToExtent(bounds);
     },
     /**
-     * Getter/Setter of listAttributes
+     * Getter/Setter of shortListAttributes
      *
      * @memberof gbi.Layers.Vector
      * @instance
      * @param {String[]} List of attributes
      * @returns {String[]} List of attributes
      */
-    listAttributes: function(listAttributes) {
-        if(listAttributes) {
-            this._listAttributes = listAttributes;
+    shortListAttributes: function(shortListAttributes) {
+        if(shortListAttributes) {
+            this._shortListAttributes = shortListAttributes;
             $(this).trigger('gbi.layer.vector.listAttributesChanged', false);
         }
-        return this._listAttributes;
+        return this._shortListAttributes;
+    },
+    /**
+     * Getter/Setter of fullListAttributes
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {String[]} List of attributes
+     * @returns {String[]} List of attributes
+     */
+    fullListAttributes: function(fullListAttributes) {
+        if(fullListAttributes) {
+            this._fullListAttributes = fullListAttributes;
+            $(this).trigger('gbi.layer.vector.listAttributesChanged', false);
+        }
+        return this._fullListAttributes;
     },
     /**
      * Getter/Setter of popupAttributes
@@ -1282,8 +1304,11 @@ $.extend(gbi.Layers.Couch.prototype, {
                 if(responseObject.popupAttributes != undefined) {
                     self.popupAttributes(responseObject.popupAttributes);
                 }
-                if(responseObject.listAttributes != undefined) {
-                    self.listAttributes(responseObject.listAttributes);
+                if(responseObject.shortListAttributes != undefined) {
+                    self.shortListAttributes(responseObject.shortListAttributes);
+                }
+                if(responseObject.fullListAttributes != undefined) {
+                    self.fullListAttributes(responseObject.fullListAttributes);
                 }
             }
         });
@@ -1314,8 +1339,11 @@ $.extend(gbi.Layers.Couch.prototype, {
             gbiData['popupAttributes'] = this._popupAttributes;
         }
 
-        if(this._listAttributes) {
-            gbiData['listAttributes'] = this._listAttributes
+        if(this._shortListAttributes) {
+            gbiData['shortListAttributes'] = this._shortListAttributes
+        }
+        if(this._fullListAttributes) {
+            gbiData['fullListAttributes'] = this._fullListAttributes
         }
         var request = OpenLayers.Request.PUT({
             url: this.options.url + 'gbi_editor',
