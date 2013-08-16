@@ -1139,6 +1139,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
  * @param opitons All OpenLayers.Layer.Vector options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Layer/Vector-js.html|OpenLayers.Layer.Vector}
  * @param {Boolean} [options.createDB=true] Creates a couchDB if not exists
  * @param {Boolean} [options.loadStyle=true] Loads layer style from couchDB if exists
+ * @param {Boolean} [options.loadGBI=true] Loads layer gbi_editor from couchDB if exists
  */
 gbi.Layers.Couch = function(options) {
     var self = this;
@@ -1146,18 +1147,22 @@ gbi.Layers.Couch = function(options) {
         readExt: '_all_docs?include_docs=true',
         bulkExt: '_bulk_docs?include_docs=true',
         createDB: true,
-        loadStyle: true
+        loadStyle: true,
+        loadGBI: true
     };
     options = $.extend({}, defaults, options);
 
     this.haveCustomStyle = false;
     this.styleRev = false;
+    this.gbiRev = false;
     this.unsavedStyleChanges = false;
     this.unsavedGBIEditorChanges = false;
 
     this.format = new OpenLayers.Format.JSON();
 
     var nameLowerCase = options.name.toLowerCase();
+
+    this.couchUrl = options.url;
     options.url += nameLowerCase.replace(/[^a-z0-9]*/g, '') + '/';
 
     var couchExtension = {
@@ -1176,6 +1181,36 @@ gbi.Layers.Couch = function(options) {
     delete options.bulkExt;
 
     gbi.Layers.SaveableVector.call(this, $.extend(true, {}, defaults, options, couchExtension));
+
+    this.defaultDocuments = {
+        'metadata': {
+            created: false,
+            data: {
+                title: self.options.name,
+                type: 'GeoJSON'
+            },
+            callback: false
+        },
+        'style': {
+            created: false,
+            data: {},
+            callback: function(response) {
+                if(response.rev != undefined) {
+                    self.styleRev = response.rev;
+                }
+            }
+        },
+        'gbi_editor': {
+            created: false,
+            data: {},
+            callback: function(response) {
+                if(response.rev != undefined) {
+                    self.gbiRev = response.rev;
+                }
+            }
+        }
+    };
+
     if(this.options.createDB) {
         this._createCouchDB();
     }
@@ -1204,7 +1239,9 @@ gbi.Layers.Couch = function(options) {
     if(this.options.loadStyle) {
         this._loadStyle();
     }
-    this._loadGBIData();
+    if(this.options.loadGBI) {
+        this._loadGBIData();
+    }
 };
 gbi.Layers.Couch.prototype = new gbi.Layers.SaveableVector();
 $.extend(gbi.Layers.Couch.prototype, {
@@ -1241,7 +1278,18 @@ $.extend(gbi.Layers.Couch.prototype, {
         });
     },
     /**
-     * Prepares styling informations for insert into couchDB
+     * Prepare style document data for insert into couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @returns {Object} styleData
+     */
+    _prepareStylingData: function() {
+        return $.extend(true, {}, this.symbolizers);
+    },
+    /**
+     * Insert style document into couch
      *
      * @memberof gbi.Layers.Couch
      * @instance
@@ -1249,7 +1297,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      */
     _saveStyle: function() {
         var self = this;
-        var stylingData = $.extend(true, {}, this.symbolizers);
+        var stylingData = self._prepareStylingData();
         if(self.styleRev) {
             stylingData['_rev'] = self.styleRev;
         }
@@ -1314,6 +1362,44 @@ $.extend(gbi.Layers.Couch.prototype, {
         });
     },
     /**
+     * Prepares gbi_editor document data for insert into couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @returns {Object} gbiData
+     */
+    _prepareGBIData: function() {
+        var self = this;
+        var gbiData = {};
+
+        if(this.gbiRev) {
+            console.log('have gbiRev', this.gbiRev)
+            gbiData['_rev'] = this.gbiRev;
+        }
+
+        if(this.featureStylingRule) {
+            gbiData['thematical'] = $.extend(true, {}, this.featureStylingRule);
+            if(gbiData.thematical.filterOptions) {
+                $.each(gbiData.thematical.filterOptions, function(idx, filter) {
+                    delete filter['olFilter'];
+                });
+            }
+        }
+
+        if(this._popupAttributes) {
+            gbiData['popupAttributes'] = this._popupAttributes;
+        }
+
+        if(this._shortListAttributes) {
+            gbiData['shortListAttributes'] = this._shortListAttributes
+        }
+        if(this._fullListAttributes) {
+            gbiData['fullListAttributes'] = this._fullListAttributes
+        }
+        return gbiData;
+    },
+    /**
      * Saves gbi_editor document to couchDB
      *
      * @memberof gbi.Layers.Couch
@@ -1322,7 +1408,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      */
     _saveGBIData: function() {
         var self = this;
-        var gbiData = {};
+        var gbiData = self._prepareGBIData();
 
         if(this.gbiRev) {
             gbiData['_rev'] = this.gbiRev;
@@ -1330,9 +1416,11 @@ $.extend(gbi.Layers.Couch.prototype, {
 
         if(this.featureStylingRule) {
             gbiData['thematical'] = $.extend(true, {}, this.featureStylingRule);
-            $.each(gbiData.thematical.filterOptions, function(idx, filter) {
-                delete filter['olFilter'];
-            });
+            if(gbiData.thematical.filterOptions) {
+                $.each(gbiData.thematical.filterOptions, function(idx, filter) {
+                    delete filter['olFilter'];
+                });
+            }
         }
 
         if(this._popupAttributes) {
@@ -1368,7 +1456,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @instance
      * @private
      */
-    _createCouchDB: function() {
+    _createCouchDB: function(withData) {
         var self = this;
         //GET to see if couchDB already exist
         OpenLayers.Request.GET({
@@ -1379,7 +1467,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                     url: self.options.url,
                     async: false,
                     success: function(response) {
-                        self._createDefaultDocuments();
+                        self._createDefaultDocuments(withData);
                     }
                 });
             },
@@ -1395,35 +1483,53 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @instance
      * @private
      */
-    _createDefaultDocuments: function() {
-        var metadata = {
-            title: this.options.name,
-            type: 'GeoJSON'
+    _createDefaultDocuments: function(withData) {
+        var self = this;
+
+        if(withData) {
+            self.defaultDocuments['style']['data'] = self._prepareStylingData();
+            self.defaultDocuments['gbi_editor']['data'] = self._prepareGBIData();
         }
-        OpenLayers.Request.PUT({
-            url: this.options.url + 'metadata',
-            async: false,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: this.format.write(metadata)
+
+        $.each(self.defaultDocuments, function(name, obj) {
+            if(!obj.created) {
+                OpenLayers.Request.PUT({
+                    url: self.options.url + name,
+                    async: false,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: self.format.write(obj.data),
+                    success: function(response) {
+                        if($.isFunction(obj.callback)) {
+                            obj.callback(self.format.read(response.responseText));
+                        }
+                        self._documentCreated(name);
+                    }
+                });
+            }
         });
-        OpenLayers.Request.PUT({
-            url: this.options.url + 'style',
-            async: false,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: this.format.write({})
+    },
+    /**
+     * Set default documents created flag and triggers gbi.layers.couch.created
+     * when all default documents ready
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @param {String} default document name
+     */
+    _documentCreated: function(name) {
+        var self = this;
+        self.defaultDocuments[name].created = true;
+        var creationFinished = true;
+        $.each(this.defaultDocuments, function(name, obj) {
+            if(!obj.created) {
+                creationFinished = false;
+            }
         });
-        OpenLayers.Request.PUT({
-            url: this.options.url + 'gbi_editor',
-            async: false,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: this.format.write({})
-        });
+        if(creationFinished) {
+            $(self).trigger('gbi.layers.couch.created');
+        }
     },
     /**
      * Removes couchDB for this layer and destroys the layer
@@ -1451,13 +1557,79 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    /**
+     * Reload layer from couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     */
     refresh: function() {
         this._loadStyle();
         this._loadGBIData();
         gbi.Layers.SaveableVector.prototype.refresh.apply(this)
     },
+    /**
+     * Returns if layer has unsaved changes
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @returns {Boolean} unsaved changes
+     */
     unsavedChanges: function() {
         return this.unsavedFeatureChanges || this.unsavedStyleChanges || this.unsavedGBIEditorChanges;
+    },
+    /**
+     * Returns a clone of this layer with a new name
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @param {String} newName
+     * @param {Boolean} [createDB=false] createDB
+     * @returns {gbi.Layers.Couch} The clone
+     */
+    clone: function(newName, createDB) {
+        var self = this;
+        var copyOptions = $.extend(true, {}, self.options, {
+            name: newName,
+            url: self.couchUrl,
+            symbolizers: self.symbolizers,
+            createDB: false,
+            loadStyle: false,
+            loadGBI: false,
+            visibility: false
+        });
+        var layerCopy = new gbi.Layers.Couch(copyOptions);
+        layerCopy.olLayer.setMap(self.olLayer.map);
+
+        layerCopy.featureStylingRule = $.extend(true, {}, self.featureStylingRule)
+        if(self._popupAttributes.length > 0) {
+            layerCopy._popupAttributes = self._popupAttributes.slice();
+        }
+        if(self._shortListAttributes.length > 0) {
+            layerCopy._shortListAttributes = self._shortListAttributes.slice();
+        }
+        if(self._fullListAttributes.length > 0) {
+            layerCopy._fullListAttributes = self._fullListAttributes.slice();
+        }
+
+        var features = [];
+        $.each(self.features, function(idx, feature) {
+            if(feature.state == OpenLayers.State.DELETE) {
+                return true;
+            }
+            newFeature = feature.clone()
+            newFeature.state = OpenLayers.State.INSERT;
+            features.push(newFeature);
+        });
+        layerCopy.addFeatures(features);
+
+        if(createDB) {
+            $(layerCopy).on('gbi.layers.couch.created', function() {
+                layerCopy.save();
+            });
+            layerCopy._createCouchDB(true);
+        }
+        return layerCopy;
     }
 });
 
