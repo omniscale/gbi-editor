@@ -150,7 +150,13 @@ gbi.Layers.WMS = function(options) {
 };
 gbi.Layers.WMS.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.WMS.prototype, {
-    CLASS_NAME: 'gbi.Layers.WMS'
+    CLASS_NAME: 'gbi.Layers.WMS',
+    clone: function() {
+        var clone_options = $.extend({}, this.options, {clone: true});
+        var clone = new gbi.Layers.WMS(clone_options);
+        clone.olLayer = this.olLayer.clone();
+        return clone;
+    }
 });
 
 /**
@@ -203,7 +209,6 @@ $.extend(gbi.Layers.WMTS.prototype, {
     clone: function() {
         var clone_options = $.extend({}, this.options, {clone: true});
         var clone = new gbi.Layers.WMTS(clone_options);
-        //XXXkai: clone in layer...!
         clone.olLayer = this.olLayer.clone();
         return clone;
     }
