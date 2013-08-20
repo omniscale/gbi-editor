@@ -28,7 +28,8 @@ gbi.Map = function (editor, options) {
             }),
             new OpenLayers.Control.PanZoomBar({autoActivate: true})
         ],
-        snapping: true
+        snapping: true,
+        imageBaseLayer: true
     };
 
     var centerPosition = options.center;
@@ -42,18 +43,10 @@ gbi.Map = function (editor, options) {
 
     this.toolbars = [];
 
-    //setup and add blank image layer as background
-    var baseLayer = new OpenLayers.Layer.Image('background',
-        OpenLayers.ImgPath+'/blank.gif',
-        this.options.maxExtent,
-        new OpenLayers.Size(500, 500), {
-            maxResolution: this.options.maxResolution,
-            displayInLayerSwitcher: false,
-            isBaseLayer: true
-        }
-    );
-    this.olMap.addLayer(baseLayer);
 
+    if(this.options.imageBaseLayer) {
+        this.addBlankImageLayer();
+    }
     if(this.options.snapping) {
         var snapping = new gbi.Controls.Snap();
         this.olMap.addControls([snapping.olControl]);
@@ -76,8 +69,9 @@ gbi.Map = function (editor, options) {
             }
         });
     });
-
-    this.center(centerPosition);
+    if(centerPosition) {
+        this.center(centerPosition);
+    }
 };
 gbi.Map.prototype = {
     CLASS_NAME: 'gbi.Map',
@@ -100,6 +94,22 @@ gbi.Map.prototype = {
         } else {
             this.olMap.zoomToMaxExtent();
         }
+    },
+    /**
+     * Adds a blank image layer to map
+     */
+    addBlankImageLayer: function() {
+        //setup and add blank image layer as background
+        var blankLayer = new OpenLayers.Layer.Image('background',
+            this.options.blankImagePath || OpenLayers.ImgPath+'/blank.gif',
+            this.options.maxExtent,
+            new OpenLayers.Size(500, 500), {
+                maxResolution: this.options.maxResolution,
+                displayInLayerSwitcher: false,
+                isBaseLayer: true
+            }
+        );
+        this.olMap.addLayer(blankLayer);
     },
     /**
      * Adds control to the map
@@ -147,5 +157,12 @@ gbi.Map.prototype = {
         $.each(controls, function(idx, control) {
             self.removeControl(control);
         });
+    },
+    /**
+     * Zoomes to map max extent
+     *
+     */
+    zoomToMaxExtent: function() {
+        this.olMap.zoomToMaxExtent();
     }
 };
