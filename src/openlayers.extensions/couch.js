@@ -55,9 +55,7 @@ OpenLayers.Format.CouchDB = OpenLayers.Class(OpenLayers.Format.GeoJSON, {
             "docs": []
         };
         if(OpenLayers.Util.isArray(obj)) {
-            var numFeatures = obj.length;
-            features = new Array(numFeatures);
-            for(var i=0; i<numFeatures; i++) {
+            for(var i=0; i<obj.length; i++) {
                 var geojson = this._prepareGeoJSON(obj[i]);
                 bulk.docs.push(geojson)
             }
@@ -214,7 +212,6 @@ OpenLayers.Protocol.CouchDB = OpenLayers.Class(OpenLayers.Protocol.HTTP, {
         this.handleResponse(response, options);
         var format = new OpenLayers.Format.JSON();
         var responseJSON = format.read(response.priv.responseText);
-
         //only deletes handle more than one feature at a time
         if(response.reqFeatures.length == 1) {
             var feature = response.reqFeatures[0];

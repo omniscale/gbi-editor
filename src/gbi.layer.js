@@ -150,7 +150,13 @@ gbi.Layers.WMS = function(options) {
 };
 gbi.Layers.WMS.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.WMS.prototype, {
-    CLASS_NAME: 'gbi.Layers.WMS'
+    CLASS_NAME: 'gbi.Layers.WMS',
+    clone: function() {
+        var clone_options = $.extend({}, this.options, {clone: true});
+        var clone = new gbi.Layers.WMS(clone_options);
+        clone.olLayer = this.olLayer.clone();
+        return clone;
+    }
 });
 
 /**
@@ -203,7 +209,6 @@ $.extend(gbi.Layers.WMTS.prototype, {
     clone: function() {
         var clone_options = $.extend({}, this.options, {clone: true});
         var clone = new gbi.Layers.WMTS(clone_options);
-        //XXXkai: clone in layer...!
         clone.olLayer = this.olLayer.clone();
         return clone;
     }
@@ -1162,7 +1167,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
 gbi.Layers.Couch = function(options) {
     var self = this;
     var defaults = {
-        readExt: '_all_docs?include_docs=true',
+        readExt: '_design/features/_view/features?&include_docs=true',
         bulkExt: '_bulk_docs?include_docs=true',
         createDB: true,
         loadStyle: true,
@@ -1228,6 +1233,30 @@ gbi.Layers.Couch = function(options) {
             }
         }
     };
+
+    this.views = {
+        'features': {
+            'data':  {
+                'language': 'javascript',
+                'views': {
+                    'features': {
+                        'map': 'function(doc) {if (doc.type == "Feature") {emit(doc.type, doc.drawType); } }'
+                    }
+                }
+            }
+        },
+        'savepoints': {
+            'data':  {
+                'language': 'javascript',
+                'views': {
+                    'savepoints': {
+                        'map': 'function(doc) {if (doc.type == "savepoint") {emit(doc.title, doc._rev); } }'
+                    }
+                }
+            }
+        }
+    }
+
 
     if(this.options.createDB) {
         this._createCouchDB();
@@ -1392,7 +1421,6 @@ $.extend(gbi.Layers.Couch.prototype, {
         var gbiData = {};
 
         if(this.gbiRev) {
-            console.log('have gbiRev', this.gbiRev)
             gbiData['_rev'] = this.gbiRev;
         }
 
@@ -1486,6 +1514,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                     async: false,
                     success: function(response) {
                         self._createDefaultDocuments(withData);
+                        self._createViews();
                     }
                 });
             },
@@ -1528,6 +1557,28 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    /**
+     * Create the views for the couch layer
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
+    _createViews: function() {
+        var self = this;
+
+        $.each(self.views, function(name, obj) {
+            OpenLayers.Request.PUT({
+                url: self.options.url + '/_design/'+name,
+                async: false,
+                headers: {
+                        'Content-Type': 'application/json'
+                },
+                data: self.format.write(obj.data)
+            });
+        });
+    },
+
     /**
      * Set default documents created flag and triggers gbi.layers.couch.created
      * when all default documents ready
@@ -1648,7 +1699,132 @@ $.extend(gbi.Layers.Couch.prototype, {
             layerCopy._createCouchDB(true);
         }
         return layerCopy;
+    },
+    /**
+     * create a save point in the database and returns the statustext
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @returns responseText
+     */
+    setSavepoint: function() {
+        var self = this;
+        var couchFormat = new OpenLayers.Format.CouchDB();
+
+        var complete_data = [];
+        for(var i=0; i<self.features.length; i++) {
+            var geojson = couchFormat._prepareGeoJSON(this.features[i]);
+            complete_data[i] = {
+                '_id' : self.features[i].fid,
+                'doc': geojson
+            }
+        }
+
+        var now = new Date();
+        var datetime = now.format("yyyy-mm-dd-hh-mm-ss");
+        var complete_data = {
+            'rows' : complete_data,
+            'title': datetime,
+            'type': 'savepoint'
+        }
+
+        var request = OpenLayers.Request.PUT({
+            url: self.options.url + '/savepoint_'+ datetime,
+            async: false,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: self.format.write(complete_data)
+        });
+
+        if (request) {
+            return self.format.read(request.responseText);
+        } else {
+            return {"error": "request not possible"}
+        }
+    },
+    /**
+     * load the geometries from the savepoint and add it to the layer
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @param {String} id
+     * @returns responseText
+     */
+    loadSavepoint: function(id) {
+        var self = this;
+        var couchFormat = new OpenLayers.Format.CouchDB();
+
+        var request = OpenLayers.Request.GET({
+            url: self.options.url + '/' + id,
+            async: false,
+            headers: {
+                'contentType': 'application/json'
+            },
+            success: function(response) {
+                var featuresAdded = couchFormat.read(response.responseText);
+                self.olLayer.removeAllFeatures();
+                self.addFeatures(featuresAdded);
+                self.olLayer.events.triggerEvent("featuresadded", {features: featuresAdded});
+
+            }
+        });
+
+        if (request) {
+            return self.format.read(request.responseText);
+        } else {
+            return {"error": "request not possible"}
+        }
+    },
+    /**
+     * delete the savepoint
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @param {String} id
+     * @returns responseText
+     */
+    deleteSavepoint: function(id, rev) {
+        var self = this;
+        var request = OpenLayers.Request.DELETE({
+            url: self.options.url + '/' + id,
+            async: false,
+            headers: {
+                'contentType': 'application/json'
+            },
+            params: {'rev': rev }
+        });
+
+        if (request) {
+            return self.format.read(request.responseText);
+        } else {
+            return {"error": "request not possible"}
+        }
+    },
+    /**
+     * load the all savepoints from the couchdb and returns the repsonsetext as json
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @returns responseText (json)
+     */
+    getSavepoints: function() {
+        var self = this;
+        var request = OpenLayers.Request.GET({
+            url: self.options.url + '/_design/savepoints/_view/savepoints',
+            async: false,
+            headers: {
+                'contentType': 'application/json'
+            }
+        });
+
+        if (request) {
+            return self.format.read(request.responseText);
+        } else {
+            return {"error": "request not possible"}
+        }
     }
+
 });
 
 /**

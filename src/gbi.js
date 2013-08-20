@@ -16,6 +16,7 @@ function require(jspath) {
     document.write('<script type="text/javascript" src="'+ l + jspath+'"><\/script>');
 }
 require("ecma.extensions.js");
+require("dateformat.js");
 require("openlayers.extensions/couch.js");
 require("openlayers.extensions/delete.js");
 require("openlayers.extensions/merge.js");
