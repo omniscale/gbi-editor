@@ -69,8 +69,9 @@ gbi.Map = function (editor, options) {
             }
         });
     });
-
-    this.center(centerPosition);
+    if(centerPosition) {
+        this.center(centerPosition);
+    }
 };
 gbi.Map.prototype = {
     CLASS_NAME: 'gbi.Map',
