@@ -1720,6 +1720,16 @@ $.extend(gbi.Layers.WFST.prototype, {
         this.olLayer.refresh({force: true});
     },
     /**
+     * Removes all filter from layer
+     *
+     * @memberof gbi.Layers.WFST
+     * @instance
+     */
+    removeFilter: function() {
+        this.olLayer.filter = null;
+        this.olLayer.refresh({force: true});
+    },
+    /**
      * Returns attributes defined in schema
      *
      * @memberof gbi.Layers.WFST
