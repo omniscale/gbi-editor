@@ -904,22 +904,33 @@ $.extend(gbi.Layers.Vector.prototype, {
  */
 gbi.Layers.GeoJSON = function(options) {
     var defaults = {};
+    var geoJSONExtension = {};
 
-    var geoJSONExtension = {
-        protocol: new OpenLayers.Protocol.HTTP({
-            url: options.url,
-            format: new OpenLayers.Format.GeoJSON()
-        }),
-        strategies: [
-            new OpenLayers.Strategy.Fixed()
-        ]
-    };
+    this.format = new OpenLayers.Format.GeoJSON();
 
+    var featureCollection = options.featureCollection || false;
+    if(!featureCollection) {
+        geoJSONExtension = {
+            protocol: new OpenLayers.Protocol.HTTP({
+                url: options.url,
+                format: this.format
+            }),
+            strategies: [
+                new OpenLayers.Strategy.Fixed()
+            ]
+        };
+    }
     gbi.Layers.Vector.call(this, $.extend({}, defaults, options, geoJSONExtension));
+    if(featureCollection) {
+        this.addFeatureCollection(featureCollection);
+    }
 };
 gbi.Layers.GeoJSON.prototype = new gbi.Layers.Vector();
 $.extend(gbi.Layers.GeoJSON.prototype, {
-    CLASS_NAME: 'gbi.Layers.GeoJSON'
+    CLASS_NAME: 'gbi.Layers.GeoJSON',
+    addFeatureCollection: function(featureCollection) {
+        this.addFeatures(this.format.read(featureCollection));
+    }
 });
 
 /**
