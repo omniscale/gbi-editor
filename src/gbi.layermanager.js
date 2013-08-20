@@ -118,6 +118,15 @@ gbi.LayerManager.prototype = {
         return this._layers[id];
     },
     /**
+     * Get layer by it's name
+     *
+     * @param {String} name
+     * @returns {gbi.Layers.Layer}
+     */
+    layerByName: function(name) {
+        return this.olMap.getLayersByName(name)[0].gbiLayer;
+    },
+    /**
      * Activates a layer
      *
      * @param {gbi.Layers.Layer}
