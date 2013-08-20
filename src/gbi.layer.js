@@ -1710,7 +1710,7 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
 
         var now = new Date();
-        var datetime = now.format("yyyy-mm-dd-hh-mm-ss");
+        var datetime = now.format("yyyy-mm-dd-hh-MM-ss");
         var complete_data = {
             'rows' : complete_data,
             'title': datetime,
