@@ -1410,7 +1410,6 @@ $.extend(gbi.Layers.Couch.prototype, {
         var gbiData = {};
 
         if(this.gbiRev) {
-            console.log('have gbiRev', this.gbiRev)
             gbiData['_rev'] = this.gbiRev;
         }
 
