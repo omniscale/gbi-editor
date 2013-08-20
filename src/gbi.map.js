@@ -157,5 +157,12 @@ gbi.Map.prototype = {
         $.each(controls, function(idx, control) {
             self.removeControl(control);
         });
+    },
+    /**
+     * Zoomes to map max extent
+     *
+     */
+    zoomToMaxExtent: function() {
+        this.olMap.zoomToMaxExtent();
     }
 };

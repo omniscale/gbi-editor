@@ -88,5 +88,8 @@ gbi.Editor.prototype = {
     setLanguage: function(language) {
         this.language = language;
         OpenLayers.Lang.setCode(language);
+    },
+    zoomToMaxExtent: function() {
+        this.map.zoomToMaxExtent();
     }
 };
