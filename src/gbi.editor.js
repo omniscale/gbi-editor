@@ -25,7 +25,7 @@ gbi.Editor = function(options) {
                 } else {
                     OpenLayers.Element.addClass(img, "olImageLoadError");
                     this.events.triggerEvent("loaderror");
-                    img.src = OpenLayers.ImgPath+"/blank.gif";
+                    img.src = self.options.blankImagePath || OpenLayers.ImgPath+"/blank.gif";
                     this.onImageLoad();
                 }
             }
