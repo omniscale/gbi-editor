@@ -35,6 +35,9 @@ gbi.LayerManager.prototype = {
         layer.id = layer.olLayer.gbiId = id;
         this._layers[id] = layer;
         this.olMap.addLayer(layer.olLayer);
+        if(layer.isBaseLayer) {
+            this.olMap.setBaseLayer(layer.olLayer);
+        }
         if(layer.isVector) {
             this.vectorLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.vectorlayer.add', layer);
