@@ -1061,7 +1061,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
         if(this.callbacks.changes) {
             var self = this;
             $.each(this.callbacks.changes, function(idx, callback) {
-                callback.call(self, self.unsavedChanges);
+                callback.call(self, self.unsavedChanges());
             });
         }
     },
