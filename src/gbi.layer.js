@@ -1762,11 +1762,21 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'contentType': 'application/json'
             },
             success: function(response) {
-                var featuresAdded = couchFormat.read(response.responseText);
-                self.olLayer.removeAllFeatures();
-                self.addFeatures(featuresAdded);
-                self.olLayer.events.triggerEvent("featuresadded", {features: featuresAdded});
+                for(var i=0; i < self.features.length; i++) {
+                    self.features[i].state = OpenLayers.State.DELETE;
+                    self.features[i].renderIntent = "select";
+                    if (self.features[i].style) {
+                        delete self.features[i].style;
+                    }
+                    self.olLayer.drawFeature(self.features[i]);
+                }
 
+                var featuresAdded = couchFormat.read(response.responseText);
+                for(var i=0; i < featuresAdded.length; i++) {
+                    featuresAdded[i].state = OpenLayers.State.INSERT;
+                    delete featuresAdded[i]._rev
+                };
+                self.addFeatures(featuresAdded);
             }
         });
 
