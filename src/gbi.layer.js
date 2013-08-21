@@ -290,6 +290,8 @@ gbi.Layers.Vector = function(options) {
     this.isActive = false;
     this.isEditable = this.options.editable;
 
+    this.jsonSchema = this.options.jsonSchema || false;
+
     this._shortListAttributes = [];
     this._fullListAttributes = [];
     this._popupAttributes = [];
@@ -304,6 +306,12 @@ gbi.Layers.Vector = function(options) {
 
     this.featureStylingRuleActive = false;
     this.featureStylingRule = false;
+
+    if(this.options.jsonSchemaUrl && ! this.jsonSchema) {
+        $.get(this.options.jsonSchemaUrl, null, function(response) {
+            self.jsonSchema = response;
+        }, 'json');
+    }
 
     //show popup when selectControl click
     if(this.options.clickPopup) {
@@ -896,6 +904,31 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
         }
         return container.html();
+    },
+    /**
+     * Validates attributes of each feature of this layer agains jsonSchema
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @returns {Object[]} when errors found
+     * @returns {Boolean} true when valid
+     */
+    validateFeatureAttributes: function() {
+        var self = this;
+        if(!self.jsonSchema) {
+            return
+        }
+        var errors = []
+        $.each(self.features, function(idx, feature) {
+            result = Validator.validate(feature.attributes, self.jsonSchema);
+            if(!result.valid) {
+                errors.push({
+                    feature: feature,
+                    errors: result.errors
+                })
+            }
+        });
+        return errors.length == 0 ? true : errors;
     }
 });
 
@@ -1824,7 +1857,6 @@ $.extend(gbi.Layers.Couch.prototype, {
             return {"error": "request not possible"}
         }
     }
-
 });
 
 /**
@@ -1867,6 +1899,8 @@ gbi.Layers.WFST = function(options) {
             new OpenLayers.Strategy.BBOX()
         ]
     };
+    delete options.jsonSchema;
+    delete options.jsonSchemaUrl;
     gbi.Layers.SaveableVector.call(this, $.extend({}, defaults, options, wfsExtension));
 };
 gbi.Layers.WFST.prototype = new gbi.Layers.SaveableVector();
