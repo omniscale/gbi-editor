@@ -5,7 +5,11 @@ var attributeEditorLabel = {
     'add': OpenLayers.i18n('Add'),
     'formTitle': OpenLayers.i18n('Add attribute'),
     'addAttributesNotPossible': OpenLayers.i18n('No new attributes posible'),
-    'sameKeyDifferentValue': OpenLayers.i18n('Different values for same attribute')
+    'sameKeyDifferentValue': OpenLayers.i18n('Different values for same attribute'),
+    'featuresWithInvalidAttributes': OpenLayers.i18n('Features with non valid attributes present'),
+    'invalidFeaturesLeft': OpenLayers.i18n('features with invalid attributes left'),
+    'next': OpenLayers.i18n('Next'),
+    'prev': OpenLayers.i18n('Previous')
 }
 
 gbi.widgets = gbi.widgets || {};
@@ -21,6 +25,8 @@ gbi.widgets.AttributeEditor = function(editor, options) {
     this.element = $('#' + this.options.element);
     this.selectedFeatures = [];
     this.featureChanges = {};
+    this.invalidFeatures = [];
+    this.selectedInvalidFeature = false;
     this.changed = false;
     this.labelValue = undefined;
     this.renderAttributes = false;
@@ -28,11 +34,28 @@ gbi.widgets.AttributeEditor = function(editor, options) {
 
     $.alpaca.registerView(gbi.widgets.AttributeEditor.alpacaView)
 
+    var activeLayer = this.layerManager.active();
+    var listenOn = activeLayer instanceof gbi.Layers.Couch ? 'gbi.layer.couch.loadFeaturesEnd' : 'gbi.layer.saveableVector.loadFeaturesEnd';
+    if(!activeLayer.loaded) {
+        $(activeLayer).on(listenOn, function() {
+            self.invalidFeatures = $.isFunction(activeLayer.validateFeatureAttributes) ? activeLayer.validateFeatureAttributes() : [];
+            activeLayer.unregisterEvent('loaded', null, this);
+            self.render();
+        });
+    } else {
+        self.invalidFeatures = $.isFunction(activeLayer.validateFeatureAttributes) ? activeLayer.validateFeatureAttributes() : [];
+    }
+
     this.registerEvents();
 
     $(gbi).on('gbi.layermanager.layer.add', function(event, layer) {
        self.registerEvents();
     });
+    $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
+        self.invalidFeatures = $.isFunction(layer.validateFeatureAttributes) ? layer.validateFeatureAttributes() : [];
+    });
+
+    self.render();
 };
 
 gbi.widgets.AttributeEditor.prototype = {
@@ -62,16 +85,89 @@ gbi.widgets.AttributeEditor.prototype = {
         var self = this;
         var activeLayer = this.layerManager.active();
         var attributes = this.renderAttributes || activeLayer.featuresAttributes();
+
+        this.element.empty();
+
+        if(self.invalidFeatures.length > 0) {
+            self.renderInvalidFeatures(activeLayer);
+        }
+
+        if(self.selectedFeatures.length > 0) {
+            self.renderInputMask(attributes, activeLayer);
+        }
+
+        //bind events
+        $.each(attributes, function(idx, key) {
+            $('#'+key).change(function() {
+                var newVal = $('#'+key).val();
+                self.edit(key, newVal);
+            });
+            $('#_'+key+'_remove').click(function() {
+                self.remove(key);
+                return false;
+            });
+            $('#_'+key+'_label').click(function() {
+                self.label(key);
+                return false;
+            });
+        });
+        $('#addKeyValue').click(function() {
+            var key = $('#_newKey').val();
+            var val = $('#_newValue').val();
+            if (key && val) {
+                self.add(key, val);
+                self._applyAttributes();
+            }
+            return false;
+        });
+    },
+    renderInvalidFeatures: function(activeLayer) {
+        var self = this;
+        this.element.append(tmpl(
+            gbi.widgets.AttributeEditor.invalidFeaturesTemplate, {
+                features: self.invalidFeatures
+            }
+        ));
+
+        if(!self.selectedInvalidFeature || self.invalidFeatures.indexOf(self.selectedInvalidFeature) == 0) {
+            $('#prev_invalid_feature').attr('disabled', 'disabled');
+        } else {
+            $('#prev_invalid_feature').removeAttr('disabled');
+        }
+
+        if(self.invalidFeatures.indexOf(self.selectedInvalidFeature) >= self.invalidFeatures.length - 1) {
+            $('#next_invalid_feature').attr('disabled', 'disabled');
+        } else {
+            $('#next_invalid_feature').removeAttr('disabled');
+        }
+
+        $('#prev_invalid_feature').click(function() {
+            var idx = self.invalidFeatures.indexOf(self.selectedInvalidFeature) - 1;
+            self.showInvalidFeature(idx, activeLayer);
+        });
+
+        $('#next_invalid_feature').click(function() {
+            var idx = self.invalidFeatures.indexOf(self.selectedInvalidFeature) + 1;
+            self.showInvalidFeature(idx, activeLayer);
+        });
+    },
+    showInvalidFeature: function(idx, activeLayer) {
+        var self = this;
+        self.selectedInvalidFeature = self.invalidFeatures[idx];
+        activeLayer.selectFeature(self.selectedInvalidFeature.feature, true);
+        activeLayer.showFeature(self.selectedInvalidFeature.feature);
+    },
+    renderInputMask: function(attributes, activeLayer) {
+        var self = this;
         var selectedFeatureAttributes = {};
         var editable = true;
+
         $.each(self.selectedFeatures, function(idx, feature) {
             if(feature.layer != activeLayer.olLayer) {
                 editable = false;
             }
         });
 
-
-        this.element.empty();
         if(self.jsonSchema) {
             var options = {"fields": {}}
             $.each(self.jsonSchema.properties, function(name, prop) {
@@ -97,7 +193,7 @@ gbi.widgets.AttributeEditor.prototype = {
                 "options": options,
                 view: "VIEW_BOOTSTRAP_EDIT_CUSTOM"
             });
-        } else if(this.selectedFeatures.length > 0) {
+        } else {
             $.each(this.selectedFeatures, function(idx, feature) {
                 $.each(attributes, function(idx, key) {
                     var equal = true;
@@ -121,35 +217,6 @@ gbi.widgets.AttributeEditor.prototype = {
                 }
             ));
         }
-        //bind events
-        $.each(attributes, function(idx, key) {
-            $('#_'+key).change(function() {
-                var newVal = $('#_'+key).val();
-                self.edit(key, newVal);
-            });
-            $('#_'+key+'_remove').click(function() {
-                if($(this).hasClass('_alpaca')) {
-                    self.edit(key, '')
-                } else {
-                    self.remove(key);
-                }
-                return false;
-            });
-            $('#_'+key+'_label').click(function() {
-                self.label(key);
-                return false;
-            });
-        });
-        $('#addKeyValue').click(function() {
-            var key = $('#_newKey').val();
-            var val = $('#_newValue').val();
-            if (key && val) {
-                self.add(key, val);
-                self._applyAttributes();
-            }
-            return false;
-        });
-
     },
     add: function(key, value) {
         var self = this;
@@ -204,6 +271,7 @@ gbi.widgets.AttributeEditor.prototype = {
             this.labelValue = key;
         }
         this.layerManager.active().setStyle(symbolizers, true)
+        return false;
     },
     setAttributes: function(attributes) {
         this.renderAttributes = attributes;
@@ -254,7 +322,7 @@ gbi.widgets.AttributeEditor.alpacaView = {
             <button id='_${id}_label' title='label' class='btn btn-small add-label-button'>\
                 <i class='icon-eye-open'></i>\
             </button>\
-            <button id='_${id}_remove' title='remove' class='btn btn-small _alpaca'>\
+            <button id='_${id}_remove' title='remove' class='btn btn-small'>\
                 <i class='icon-trash'></i>\
             </button>\
         </div>"
@@ -262,54 +330,63 @@ gbi.widgets.AttributeEditor.alpacaView = {
 }
 
 gbi.widgets.AttributeEditor.template = '\
-<% if(attributes.length == 0) { %>\
-    <span>'+attributeEditorLabel.noAttributes+'.</span>\
-<% } else { %>\
-    <% for(var key in attributes) { %>\
-        <form id="view_attributes" class="form-inline">\
-            <label class="key-label" for="_<%=attributes[key]%>"><%=attributes[key]%></label>\
-            <% if(selectedFeatureAttributes[attributes[key]]) { %>\
-                <% if(selectedFeatureAttributes[attributes[key]]["equal"]) {%>\
-                    <input class="input-medium" type="text" id="_<%=attributes[key]%>" value="<%=selectedFeatureAttributes[attributes[key]]["value"]%>" \
-                <% } else {%>\
-                    <input class="input-medium" type="text" id="_<%=attributes[key]%>" placeholder="'+attributeEditorLabel.sameKeyDifferentValue+'" \
+    <% if(attributes.length == 0) { %>\
+        <span>'+attributeEditorLabel.noAttributes+'.</span>\
+    <% } else { %>\
+        <% for(var key in attributes) { %>\
+            <form id="view_attributes" class="form-inline">\
+                <label class="key-label" for="_<%=attributes[key]%>"><%=attributes[key]%></label>\
+                <% if(selectedFeatureAttributes[attributes[key]]) { %>\
+                    <% if(selectedFeatureAttributes[attributes[key]]["equal"]) {%>\
+                        <input class="input-medium" type="text" id="<%=attributes[key]%>" value="<%=selectedFeatureAttributes[attributes[key]]["value"]%>" \
+                    <% } else {%>\
+                        <input class="input-medium" type="text" id="<%=attributes[key]%>" placeholder="'+attributeEditorLabel.sameKeyDifferentValue+'" \
+                    <% } %>\
+                <% } else { %>\
+                    <input class="input-medium" type="text" id="<%=attributes[key]%>"\
                 <% } %>\
-            <% } else { %>\
-                <input class="input-medium" type="text" id="_<%=attributes[key]%>"\
-            <% } %>\
-            <% if(!editable) { %>\
-                disabled=disabled \
-            <% } %>\
-            />\
-            <% if(editable) { %>\
-            <button id="_<%=attributes[key]%>_label" title="label" class="btn btn-small add-label-button"> \
-                <i class="icon-eye-open"></i>\
-            </button>\
-            <button id="_<%=attributes[key]%>_remove" title="remove" class="btn btn-small"> \
-                <i class="icon-remove"></i>\
-            </button> \
-            <% } %>\
-        </form>\
+                <% if(!editable) { %>\
+                    disabled=disabled \
+                <% } %>\
+                />\
+                <% if(editable) { %>\
+                <button id="_<%=attributes[key]%>_label" title="label" class="btn btn-small add-label-button"> \
+                    <i class="icon-eye-open"></i>\
+                </button>\
+                <button id="_<%=attributes[key]%>_remove" title="remove" class="btn btn-small"> \
+                    <i class="icon-remove"></i>\
+                </button> \
+                <% } %>\
+            </form>\
+        <% } %>\
     <% } %>\
-<% } %>\
-<% if(editable && allowNewAttributes) { %>\
-    <h4>'+attributeEditorLabel.formTitle+'</h4>\
-    <form class="form-horizontal"> \
-    	 <div class="control-group"> \
-    		<label class="control-label" for="_newKey">'+attributeEditorLabel.key+'</label> \
-    		<div class="controls">\
-    			<input type="text" id="_newKey" class="input-medium">\
-    		</div>\
-    	</div>\
-    	 <div class="control-group"> \
-    		<label class="control-label" for="_newValue">'+attributeEditorLabel.val+'</label> \
-    		<div class="controls">\
-    			<input type="text" id="_newValue" class="input-medium">\
-    		</div>\
-    	</div>\
-        <button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
-    </form>\
-<% } else { %>\
-    <span>'+attributeEditorLabel.addAttributesNotPossible+'.</span>\
-<% } %>\
+    <% if(editable && allowNewAttributes) { %>\
+        <h4>'+attributeEditorLabel.formTitle+'</h4>\
+        <form class="form-horizontal"> \
+        	 <div class="control-group"> \
+        		<label class="control-label" for="_newKey">'+attributeEditorLabel.key+'</label> \
+        		<div class="controls">\
+        			<input type="text" id="_newKey" class="input-medium">\
+        		</div>\
+        	</div>\
+        	 <div class="control-group"> \
+        		<label class="control-label" for="_newValue">'+attributeEditorLabel.val+'</label> \
+        		<div class="controls">\
+        			<input type="text" id="_newValue" class="input-medium">\
+        		</div>\
+        	</div>\
+            <button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
+        </form>\
+    <% } else { %>\
+        <span>'+attributeEditorLabel.addAttributesNotPossible+'.</span>\
+    <% } %>\
+';
+
+gbi.widgets.AttributeEditor.invalidFeaturesTemplate = '\
+    <div>\
+        <h4>' + attributeEditorLabel.featuresWithInvalidAttributes + '</h4>\
+        <p><%=features.length%> ' + attributeEditorLabel.invalidFeaturesLeft + '</p>\
+        <button class="btn btn-small" id="prev_invalid_feature">' + attributeEditorLabel.prev + '</button>\
+        <button class="btn btn-small" id="next_invalid_feature">' + attributeEditorLabel.next + '</button>\
+    </div>\
 ';
