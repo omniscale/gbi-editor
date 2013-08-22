@@ -663,10 +663,8 @@ $.extend(gbi.Layers.Vector.prototype, {
             }
             if(self.jsonSchema && attribute in self.jsonSchema.properties) {
                 if(self.jsonSchema.properties[attribute].type == 'number') {
-                    try {
+                    if($.isNumeric(value)) {
                         value = parseFloat(value)
-                    } catch(err) {
-                        return false;
                     }
                 }
             }
