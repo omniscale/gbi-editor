@@ -4,7 +4,8 @@
     "properties": {
         "foo": {
             "type": "string",
-            "title": "Foo Text"
+            "title": "Foo Text",
+            "required": true
         },
         "bar": {
             "type": "number",
