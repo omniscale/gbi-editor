@@ -125,29 +125,33 @@ gbi.widgets.AttributeEditor.prototype = {
             }
         ));
 
-        if(!self.selectedInvalidFeature || self.invalidFeatures.indexOf(self.selectedInvalidFeature) == 0) {
-            $('#prev_invalid_feature').attr('disabled', 'disabled');
-        } else if(self.selectedInvalidFeature && self.invalidFeatures.length == 1) {
+        var id = -1;
+        if(self.selectedInvalidFeature) {
+            $.each(self.invalidFeatures, function(idx, obj) {
+                if(obj.feature.id == self.selectedInvalidFeature.feature.id) {
+                    id = idx;
+                    return false;
+                }
+            });
+        }
+        if(!self.selectedInvalidFeature || id == 0 || self.invalidFeatures.length == 1) {
             $('#prev_invalid_feature').attr('disabled', 'disabled');
         }  else {
             $('#prev_invalid_feature').removeAttr('disabled');
         }
-
-        if(self.invalidFeatures.indexOf(self.selectedInvalidFeature) >= self.invalidFeatures.length - 1) {
-            $('#next_invalid_feature').attr('disabled', 'disabled');
-        } else if(self.selectedInvalidFeature && self.invalidFeatures.length == 1) {
+        if(self.selectedInvalidFeature && (id >= self.invalidFeatures.length - 1 || self.invalidFeatures.length == 1)) {
             $('#next_invalid_feature').attr('disabled', 'disabled');
         } else {
             $('#next_invalid_feature').removeAttr('disabled');
         }
 
         $('#prev_invalid_feature').click(function() {
-            var idx = self.invalidFeatures.indexOf(self.selectedInvalidFeature) - 1;
+            var idx = id - 1;
             self.showInvalidFeature(idx, activeLayer);
         });
 
         $('#next_invalid_feature').click(function() {
-            var idx = self.invalidFeatures.indexOf(self.selectedInvalidFeature) + 1;
+            var idx = id + 1;
             self.showInvalidFeature(idx, activeLayer);
         });
     },
@@ -306,6 +310,9 @@ gbi.widgets.AttributeEditor.prototype = {
                 // remove not selected features
                 if($.inArray(feature, self.selectedFeatures) == -1) {
                     delete self.featureChanges[featureId];
+                }
+                if(self.selectedInvalidFeature && feature.id == self.selectedInvalidFeature.feature.id && activeLayer.validateFeatureAttributes(feature)) {
+                    self.selectedInvalidFeature = false;
                 }
             }
         });
