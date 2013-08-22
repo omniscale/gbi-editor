@@ -85,6 +85,8 @@ gbi.widgets.AttributeEditor.prototype = {
 
         if(self.invalidFeatures.length > 0) {
             self.renderInvalidFeatures(activeLayer);
+        } else {
+            self.selectedInvalidFeature = false;
         }
 
         if(self.selectedFeatures.length > 0) {
@@ -126,11 +128,15 @@ gbi.widgets.AttributeEditor.prototype = {
 
         if(!self.selectedInvalidFeature || self.invalidFeatures.indexOf(self.selectedInvalidFeature) == 0) {
             $('#prev_invalid_feature').attr('disabled', 'disabled');
-        } else {
+        } else if(self.selectedInvalidFeature && self.invalidFeatures.length == 1) {
+            $('#prev_invalid_feature').attr('disabled', 'disabled');
+        }  else {
             $('#prev_invalid_feature').removeAttr('disabled');
         }
 
         if(self.invalidFeatures.indexOf(self.selectedInvalidFeature) >= self.invalidFeatures.length - 1) {
+            $('#next_invalid_feature').attr('disabled', 'disabled');
+        } else if(self.selectedInvalidFeature && self.invalidFeatures.length == 1) {
             $('#next_invalid_feature').attr('disabled', 'disabled');
         } else {
             $('#next_invalid_feature').removeAttr('disabled');
