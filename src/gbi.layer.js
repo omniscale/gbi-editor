@@ -1037,9 +1037,10 @@ gbi.Layers.SaveableVector = function(options) {
         options.strategies.push(this.saveStrategy);
     }
 
+    gbi.Layers.Vector.call(this, options);
+
     this.loaded = false;
     this.unsavedFeatureChanges = false;
-    gbi.Layers.Vector.call(this, options);
 
     this.olLayer.events.register('loadend', '', function(response) {
         self.unsavedFeatureChanges = false;
