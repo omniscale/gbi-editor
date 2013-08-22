@@ -10,11 +10,11 @@
         <script type="text/javascript" src="../lib/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="../lib/jsts-0.13.2/javascript.util.js"></script>
         <script type="text/javascript" src="../lib/jsts-0.13.2/jsts.js"></script>
+        <script type="text/javascript" src="../lib/alpaca-full.js"></script>
          <script type="text/javascript" src="../lib/micro.templating.js"></script>
          <script type="text/javascript" src="../src/gbi.js"></script>
          <script type="text/javascript" src="../src/gbi.widgets/attributeeditor.js"></script>
         <script type="text/javascript">
-
             OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
 
             $(document).ready(function() {
@@ -33,6 +33,7 @@
                 var couchLayer = new gbi.Layers.Couch({
                     name: 'testlayer',
                     url: 'http://localhost:5984/',
+                    jsonSchemaUrl: './schema.js',
                     callbacks: {
                         changes: function(unsavedChanges) {
                             if(unsavedChanges)
@@ -75,7 +76,7 @@
                     <p>Also you need a running couchDB.</p>
                 </div>
             </div>
-            <div class="span2">
+            <div class="span3">
                 <div id="attributeeditor"></div>
             </div>
         </div>
