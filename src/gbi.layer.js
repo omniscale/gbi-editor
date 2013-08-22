@@ -547,6 +547,24 @@ $.extend(gbi.Layers.Vector.prototype, {
         return result;
     },
     /**
+     * Get a list of attributes defined in jsonSchema
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @returns {String[]} List of attributes
+     */
+    schemaAttributes: function() {
+        var self = this;
+        if(!self.jsonSchema) {
+            return false;
+        }
+        var attributes = [];
+        $.each(self.jsonSchema.properties, function(key, value) {
+            attributes.push(key);
+        });
+        return attributes;
+    },
+    /**
      * Get a list of values of specified attribute
      *
      * @memberof gbi.Layers.Vector
@@ -944,7 +962,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @returns {Object[]} when errors found
      * @returns {Boolean} true when valid
      */
-    validateFeatureAttributes: function() {
+    validateFeaturesAttributes: function() {
         var self = this;
         if(!self.jsonSchema) {
             return
@@ -960,6 +978,16 @@ $.extend(gbi.Layers.Vector.prototype, {
             }
         });
         return errors.length == 0 ? true : errors;
+    },
+    /**
+     * Validates attributes of given feature against jsonSchema
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @return {Boolean} valid
+     */
+    validateFeatureAttributes: function(feature) {
+        return Validator.validate(feature.attributes, self.jsonSchema).valid;
     }
 });
 
