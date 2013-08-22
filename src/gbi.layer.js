@@ -731,6 +731,28 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
     },
     /**
+     * Selects a single feature in this layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature to select
+     * @param {Boolean} unselect Unselect other features befor select given feature
+     */
+    selectFeature: function(feature, unselect) {
+        var self = this;
+        if($.inArray(feature, self.features) != -1) {
+            var selectCtrl = new OpenLayers.Control.SelectFeature();
+            if(unselect) {
+                self.unSelectAllFeatures();
+            }
+            selectCtrl.select(feature);
+            selectCtrl.destroy();
+            if(self.popup) {
+                self._removePopup(self.popup);
+            }
+        }
+    },
+    /**
      * Center map on given feature
      *
      * @memberof gbi.Layers.Vector
