@@ -9,7 +9,9 @@ var attributeEditorLabel = {
     'featuresWithInvalidAttributes': OpenLayers.i18n('Features with non valid attributes present'),
     'invalidFeaturesLeft': OpenLayers.i18n('features with invalid attributes left'),
     'next': OpenLayers.i18n('Next'),
-    'prev': OpenLayers.i18n('Previous')
+    'prev': OpenLayers.i18n('Previous'),
+    'additionalProperties': OpenLayers.i18n('Additional attributes'),
+    'schemaViolatingAttribute': OpenLayers.i18n('This attribute is not defined in given schema. Remove it!')
 }
 
 gbi.widgets = gbi.widgets || {};
@@ -18,6 +20,8 @@ gbi.widgets.AttributeEditor = function(editor, options) {
     var self = this;
     var defaults = {
         element: 'attributeeditor',
+        alpacaSchemaElement: 'alpaca_schema',
+        alpacaNonSchemaElement: 'alpaca_non_schema',
         allowNewAttributes: true
     };
     this.layerManager = editor.layerManager;
@@ -32,7 +36,8 @@ gbi.widgets.AttributeEditor = function(editor, options) {
     this.renderAttributes = false;
     this.jsonSchema = this.options.jsonSchema || false;
 
-    $.alpaca.registerView(gbi.widgets.AttributeEditor.alpacaView)
+    $.alpaca.registerView(gbi.widgets.AttributeEditor.alpacaViews.edit)
+    $.alpaca.registerView(gbi.widgets.AttributeEditor.alpacaViews.display)
 
     var activeLayer = this.layerManager.active();
     var listenOn = activeLayer instanceof gbi.Layers.Couch ? 'gbi.layer.couch.loadFeaturesEnd' : 'gbi.layer.saveableVector.loadFeaturesEnd';
@@ -82,7 +87,7 @@ gbi.widgets.AttributeEditor.prototype = {
         var attributes = self.jsonSchema ? activeLayer.schemaAttributes() : this.renderAttributes || activeLayer.featuresAttributes();
         this.element.empty();
 
-        if(self.invalidFeatures.length > 0) {
+        if(self.invalidFeatures && self.invalidFeatures.length > 0) {
             self.renderInvalidFeatures(activeLayer);
         } else {
             self.selectedInvalidFeature = false;
@@ -92,8 +97,26 @@ gbi.widgets.AttributeEditor.prototype = {
             self.renderInputMask(attributes, activeLayer);
         }
 
+        //prepare list of all possible rendered attributes
+        var renderedAttributes = [];
+        if(self.jsonSchema) {
+            renderedAttributes = activeLayer.schemaAttributes();
+        }
+        if(this.renderAttributes) {
+            $.each(this.renderAttributes, function(idx, attribute) {
+                if($.inArray(attribute, renderedAttributes) == -1) {
+                    renderedAttributes.push(attribute);
+                }
+            });
+        }
+        $.each(activeLayer.featuresAttributes(), function(idx, attribute) {
+            if($.inArray(attribute, renderedAttributes) == -1) {
+                renderedAttributes.push(attribute);
+            }
+        });
+
         //bind events
-        $.each(attributes, function(idx, key) {
+        $.each(renderedAttributes, function(idx, key) {
             $('#'+key).change(function() {
                 var newVal = $('#'+key).val();
                 self.edit(key, newVal);
@@ -173,30 +196,71 @@ gbi.widgets.AttributeEditor.prototype = {
         });
 
         if(self.jsonSchema) {
-            var options = {"fields": {}}
+            var schemaOptions = {"fields": {}};
+            var nonSchemaOptions = {"fields": {}};
+
             $.each(self.jsonSchema.properties, function(name, prop) {
-                options.fields[name] = {'id': name};
-            })
+                schemaOptions.fields[name] = {'id': name};
+            });
+
+            var nonSchema = {
+                "title": attributeEditorLabel.additionalProperties,
+                "type": "object",
+                "properties": {}
+            }
+
             var data = {};
             $.each(this.selectedFeatures, function(idx, feature) {
                 $.each(feature.attributes, function(key, value) {
+                    //fill options for non schema
+                    if(!(key in schemaOptions.fields) && !(key in nonSchemaOptions.fields)) {
+                        nonSchemaOptions.fields[key] = {
+                            'id': key,
+                            'readonly': self.jsonSchema.additionalProperties === false
+                        };
+                    }
+
+                    //check for different values for same attribute
                     if(key in data && data[key] != value) {
-                        data[key] = "";
-                        if(key in options.fields) {
-                            options.fields[key]['placeholder'] = attributeEditorLabel.sameKeyDifferentValue;
+                        data[key] = undefined;
+                        if(key in schemaOptions.fields) {
+                            schemaOptions.fields[key]['placeholder'] = attributeEditorLabel.sameKeyDifferentValue;
+                        } else {
+                            nonSchemaOptions.fields[key]['placeholder'] = attributeEditorLabel.sameKeyDifferentValue;
                         }
                     } else {
                         data[key] = value;
                     }
+                    //add key to nonSchema if not in jsonSchema and not already in nonSchema
+                    if(!(key in self.jsonSchema.properties) && !(key in nonSchema.properties)) {
+                        nonSchema.properties[key] = {
+                            "type": "any",
+                            "title": key
+                        }
+                    }
                 })
             });
 
-            $.alpaca(self.options.element, {
+            this.element.append(tmpl(gbi.widgets.AttributeEditor.alpacaTemplate));
+
+            $.alpaca(self.options.alpacaSchemaElement, {
                 "schema": self.jsonSchema,
                 "data": data,
-                "options": options,
-                view: "VIEW_BOOTSTRAP_EDIT_CUSTOM"
+                "options": schemaOptions,
+                view: "VIEW_GBI_EDIT"
             });
+
+            var nonSchemaView = self.jsonSchema.additionalProperties === false ? "VIEW_GBI_DISPLAY" : "VIEW_GBI_EDIT";
+            $.alpaca(self.options.alpacaNonSchemaElement, {
+                "schema": nonSchema,
+                "data": data,
+                "options": nonSchemaOptions,
+                view: nonSchemaView
+            });
+
+            if(self.jsonSchema.additionalProperties !== false) {
+                this.element.append(tmpl(gbi.widgets.AttributeEditor.newAttributeTemplate));
+            }
         } else {
             $.each(this.selectedFeatures, function(idx, feature) {
                 $.each(attributes, function(idx, key) {
@@ -216,10 +280,12 @@ gbi.widgets.AttributeEditor.prototype = {
                 gbi.widgets.AttributeEditor.template, {
                     attributes: attributes,
                     selectedFeatureAttributes: selectedFeatureAttributes,
-                    editable: editable,
-                    allowNewAttributes: this.options.allowNewAttributes
+                    editable: editable
                 }
             ));
+            if(editable && this.options.allowNewAttributes) {
+                this.element.append(tmpl(gbi.widgets.AttributeEditor.newAttributeTemplate));
+            }
         }
     },
     add: function(key, value) {
@@ -319,22 +385,42 @@ gbi.widgets.AttributeEditor.prototype = {
     },
 };
 
-gbi.widgets.AttributeEditor.alpacaView = {
-    "id": "VIEW_BOOTSTRAP_EDIT_CUSTOM",
-    "parent": "VIEW_BOOTSTRAP_EDIT",
-    "templates": {
-        "controlFieldContainer": "\
-        <div class='foo'>\
-            {{html this.html}}\
-            <button id='_${id}_label' title='label' class='btn btn-small add-label-button'>\
-                <i class='icon-eye-open'></i>\
-            </button>\
-            <button id='_${id}_remove' title='remove' class='btn btn-small'>\
-                <i class='icon-trash'></i>\
-            </button>\
-        </div>"
+gbi.widgets.AttributeEditor.alpacaViews = {
+    "edit": {
+        "id": "VIEW_GBI_EDIT",
+        "parent": "VIEW_BOOTSTRAP_EDIT",
+        "templates": {
+            "controlFieldContainer": "\
+            <div>\
+                {{html this.html}}\
+                <button id='_${id}_label' title='label' class='btn btn-small add-label-button'>\
+                    <i class='icon-eye-open'></i>\
+                </button>\
+                <button id='_${id}_remove' title='remove' class='btn btn-small'>\
+                    <i class='icon-trash'></i>\
+                </button>\
+            </div>"
+        }
+    },
+    "display": {
+        "id": "VIEW_GBI_DISPLAY",
+        "parent": "VIEW_GBI_EDIT",
+        "templates": {
+            "fieldSetItemContainer": '<div class="alpaca-inline-item-container control-group error"></div>',
+            "controlField": "\
+                <div>\
+                    {{html Alpaca.fieldTemplate(this,'controlFieldLabel')}}\
+                    {{wrap(null, {}) Alpaca.fieldTemplate(this,'controlFieldContainer',true)}}\
+                        {{html Alpaca.fieldTemplate(this,'controlFieldHelper')}}\
+                    {{/wrap}}\
+                    <span class='icon-exclamation-sign'></span>\
+                    <span class='help-inline'>" + attributeEditorLabel.schemaViolatingAttribute + "</span>\
+                </div>\
+            "
+        }
     }
-}
+};
+gbi.widgets.AttributeEditor.alpacaViewAdditionalEdit
 
 gbi.widgets.AttributeEditor.template = '\
     <% if(attributes.length == 0) { %>\
@@ -356,10 +442,10 @@ gbi.widgets.AttributeEditor.template = '\
                     disabled=disabled \
                 <% } %>\
                 />\
-                <% if(editable) { %>\
                 <button id="_<%=attributes[key]%>_label" title="label" class="btn btn-small add-label-button"> \
                     <i class="icon-eye-open"></i>\
                 </button>\
+                <% if(editable) { %>\
                 <button id="_<%=attributes[key]%>_remove" title="remove" class="btn btn-small"> \
                     <i class="icon-remove"></i>\
                 </button> \
@@ -367,26 +453,30 @@ gbi.widgets.AttributeEditor.template = '\
             </form>\
         <% } %>\
     <% } %>\
-    <% if(editable && allowNewAttributes) { %>\
-        <h4>'+attributeEditorLabel.formTitle+'</h4>\
-        <form class="form-horizontal"> \
-        	 <div class="control-group"> \
-        		<label class="control-label" for="_newKey">'+attributeEditorLabel.key+'</label> \
-        		<div class="controls">\
-        			<input type="text" id="_newKey" class="input-medium">\
-        		</div>\
-        	</div>\
-        	 <div class="control-group"> \
-        		<label class="control-label" for="_newValue">'+attributeEditorLabel.val+'</label> \
-        		<div class="controls">\
-        			<input type="text" id="_newValue" class="input-medium">\
-        		</div>\
-        	</div>\
-            <button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
-        </form>\
-    <% } else { %>\
-        <span>'+attributeEditorLabel.addAttributesNotPossible+'.</span>\
-    <% } %>\
+';
+
+gbi.widgets.AttributeEditor.newAttributeTemplate = '\
+    <h4>'+attributeEditorLabel.formTitle+'</h4>\
+    <form class="form-horizontal"> \
+         <div class="control-group"> \
+            <label class="control-label" for="_newKey">'+attributeEditorLabel.key+'</label> \
+            <div class="controls">\
+                <input type="text" id="_newKey" class="input-medium">\
+            </div>\
+        </div>\
+         <div class="control-group"> \
+            <label class="control-label" for="_newValue">'+attributeEditorLabel.val+'</label> \
+            <div class="controls">\
+                <input type="text" id="_newValue" class="input-medium">\
+            </div>\
+        </div>\
+        <button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
+    </form>\
+';
+
+gbi.widgets.AttributeEditor.alpacaTemplate = '\
+    <div id="alpaca_schema"></div>\
+    <div id="alpaca_non_schema"></div>\
 ';
 
 gbi.widgets.AttributeEditor.invalidFeaturesTemplate = '\
