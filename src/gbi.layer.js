@@ -1167,7 +1167,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
 gbi.Layers.Couch = function(options) {
     var self = this;
     var defaults = {
-        readExt: '_design/features/_view/features?&include_docs=true',
+        readExt: '_design/features/_view/all?&include_docs=true',
         bulkExt: '_bulk_docs?include_docs=true',
         createDB: true,
         loadStyle: true,
@@ -1239,7 +1239,7 @@ gbi.Layers.Couch = function(options) {
             'data':  {
                 'language': 'javascript',
                 'views': {
-                    'features': {
+                    'all': {
                         'map': 'function(doc) {if (doc.type == "Feature") {emit(doc.type, doc.drawType); } }'
                     }
                 }
@@ -1249,7 +1249,7 @@ gbi.Layers.Couch = function(options) {
             'data':  {
                 'language': 'javascript',
                 'views': {
-                    'savepoints': {
+                    'all': {
                         'map': 'function(doc) {if (doc.type == "savepoint") {emit(doc.title, doc._rev); } }'
                     }
                 }
@@ -1821,7 +1821,7 @@ $.extend(gbi.Layers.Couch.prototype, {
     getSavepoints: function() {
         var self = this;
         var request = OpenLayers.Request.GET({
-            url: self.options.url + '/_design/savepoints/_view/savepoints',
+            url: self.options.url + '/_design/savepoints/_view/all',
             async: false,
             headers: {
                 'contentType': 'application/json'
