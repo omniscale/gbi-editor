@@ -1232,7 +1232,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
 gbi.Layers.Couch = function(options) {
     var self = this;
     var defaults = {
-        readExt: '_design/features/_view/features?&include_docs=true',
+        readExt: '_design/features/_view/all?&include_docs=true',
         bulkExt: '_bulk_docs?include_docs=true',
         createDB: true,
         loadStyle: true,
@@ -1304,7 +1304,7 @@ gbi.Layers.Couch = function(options) {
             'data':  {
                 'language': 'javascript',
                 'views': {
-                    'features': {
+                    'all': {
                         'map': 'function(doc) {if (doc.type == "Feature") {emit(doc.type, doc.drawType); } }'
                     }
                 }
@@ -1314,7 +1314,7 @@ gbi.Layers.Couch = function(options) {
             'data':  {
                 'language': 'javascript',
                 'views': {
-                    'savepoints': {
+                    'all': {
                         'map': 'function(doc) {if (doc.type == "savepoint") {emit(doc.title, doc._rev); } }'
                     }
                 }
@@ -1827,11 +1827,21 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'contentType': 'application/json'
             },
             success: function(response) {
-                var featuresAdded = couchFormat.read(response.responseText);
-                self.olLayer.removeAllFeatures();
-                self.addFeatures(featuresAdded);
-                self.olLayer.events.triggerEvent("featuresadded", {features: featuresAdded});
+                for(var i=0; i < self.features.length; i++) {
+                    self.features[i].state = OpenLayers.State.DELETE;
+                    self.features[i].renderIntent = "select";
+                    if (self.features[i].style) {
+                        delete self.features[i].style;
+                    }
+                    self.olLayer.drawFeature(self.features[i]);
+                }
 
+                var featuresAdded = couchFormat.read(response.responseText);
+                for(var i=0; i < featuresAdded.length; i++) {
+                    featuresAdded[i].state = OpenLayers.State.INSERT;
+                    delete featuresAdded[i]._rev
+                };
+                self.addFeatures(featuresAdded);
             }
         });
 
@@ -1876,7 +1886,7 @@ $.extend(gbi.Layers.Couch.prototype, {
     getSavepoints: function() {
         var self = this;
         var request = OpenLayers.Request.GET({
-            url: self.options.url + '/_design/savepoints/_view/savepoints',
+            url: self.options.url + '/_design/savepoints/_view/all',
             async: false,
             headers: {
                 'contentType': 'application/json'
