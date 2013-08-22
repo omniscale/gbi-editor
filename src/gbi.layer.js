@@ -289,6 +289,7 @@ gbi.Layers.Vector = function(options) {
     this.isBackground = false;
     this.isActive = false;
     this.isEditable = this.options.editable;
+    this.loaded = true;
 
     this.jsonSchema = this.options.jsonSchema || false;
 
