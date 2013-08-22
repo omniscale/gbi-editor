@@ -655,12 +655,22 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @returns {Boolean} success
      */
     changeFeatureAttribute: function(feature, attribute, value) {
+        var self = this;
         if(feature.attributes[attribute] != value) {
-            if(this._fullListAttributes.length > 0 && $.inArray(attribute, this._fullListAttributes) == -1) {
-                this._fullListAttributes.push(attribute);
+            if(self._fullListAttributes.length > 0 && $.inArray(attribute, self._fullListAttributes) == -1) {
+                self._fullListAttributes.push(attribute);
+            }
+            if(self.jsonSchema && attribute in self.jsonSchema.properties) {
+                if(self.jsonSchema.properties[attribute].type == 'number') {
+                    try {
+                        value = parseFloat(value)
+                    } catch(err) {
+                        return false;
+                    }
+                }
             }
             feature.attributes[attribute] = value;
-            $(this).trigger('gbi.layer.vector.featureAttributeChanged', feature);
+            $(self).trigger('gbi.layer.vector.featureAttributeChanged', feature);
             return true;
         }
         return false;
