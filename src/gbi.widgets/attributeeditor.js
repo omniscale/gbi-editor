@@ -24,6 +24,9 @@ gbi.widgets.AttributeEditor = function(editor, options) {
     this.changed = false;
     this.labelValue = undefined;
     this.renderAttributes = false;
+    this.jsonSchema = this.options.jsonSchema || false;
+
+    $.alpaca.registerView(gbi.widgets.AttributeEditor.alpacaView)
 
     this.registerEvents();
 
@@ -42,6 +45,7 @@ gbi.widgets.AttributeEditor.prototype = {
                 if(!(f.feature.id in self.featureChanges)) {
                     self.featureChanges[f.feature.id] = {'added': {}, 'edited': {}, 'removed': []};
                 }
+                self.jsonSchema = layer.jsonSchema || this.options.jsonSchema || false;
                 self.selectedFeatures.push(f.feature);
                 self.render();
             });
@@ -64,24 +68,50 @@ gbi.widgets.AttributeEditor.prototype = {
             if(feature.layer != activeLayer.olLayer) {
                 editable = false;
             }
-        })
-        $.each(this.selectedFeatures, function(idx, feature) {
-            $.each(attributes, function(idx, key) {
-                var equal = true;
-                var value = feature.attributes[key];
-                if(key in selectedFeatureAttributes) {
-                    equal = selectedFeatureAttributes[key].value == value;
-                    if(!equal) {
-                        selectedFeatureAttributes[key] = {'equal': false};
-                    }
-                } else {
-                    selectedFeatureAttributes[key] = {'equal': equal, 'value': value};
-                }
-            });
         });
 
+
         this.element.empty();
-        if(this.selectedFeatures.length > 0) {
+        if(self.jsonSchema) {
+            var options = {"fields": {}}
+            $.each(self.jsonSchema.properties, function(name, prop) {
+                options.fields[name] = {'id': name};
+            })
+            var data = {};
+            $.each(this.selectedFeatures, function(idx, feature) {
+                $.each(feature.attributes, function(key, value) {
+                    if(key in data && data[key] != value) {
+                        data[key] = "";
+                        if(key in options.fields) {
+                            options.fields[key]['placeholder'] = attributeEditorLabel.sameKeyDifferentValue;
+                        }
+                    } else {
+                        data[key] = value;
+                    }
+                })
+            });
+
+            $.alpaca(self.options.element, {
+                "schema": self.jsonSchema,
+                "data": data,
+                "options": options,
+                view: "VIEW_BOOTSTRAP_EDIT_CUSTOM"
+            });
+        } else if(this.selectedFeatures.length > 0) {
+            $.each(this.selectedFeatures, function(idx, feature) {
+                $.each(attributes, function(idx, key) {
+                    var equal = true;
+                    var value = feature.attributes[key];
+                    if(key in selectedFeatureAttributes) {
+                        equal = selectedFeatureAttributes[key].value == value;
+                        if(!equal) {
+                            selectedFeatureAttributes[key] = {'equal': false};
+                        }
+                    } else {
+                        selectedFeatureAttributes[key] = {'equal': equal, 'value': value};
+                    }
+                });
+            });
             this.element.append(tmpl(
                 gbi.widgets.AttributeEditor.template, {
                     attributes: attributes,
@@ -90,32 +120,36 @@ gbi.widgets.AttributeEditor.prototype = {
                     allowNewAttributes: this.options.allowNewAttributes
                 }
             ));
-
-            //bind events
-            $.each(attributes, function(idx, key) {
-                $('#_'+key).change(function() {
-                    var newVal = $('#_'+key).val();
-                    self.edit(key, newVal);
-                });
-                $('#_'+key+'_remove').click(function() {
-                    self.remove(key);
-                    return false;
-                });
-                $('#_'+key+'_label').click(function() {
-                    self.label(key);
-                    return false;
-                });
+        }
+        //bind events
+        $.each(attributes, function(idx, key) {
+            $('#_'+key).change(function() {
+                var newVal = $('#_'+key).val();
+                self.edit(key, newVal);
             });
-            $('#addKeyValue').click(function() {
-                var key = $('#_newKey').val();
-                var val = $('#_newValue').val();
-                if (key && val) {
-                    self.add(key, val);
-                    self._applyAttributes();
+            $('#_'+key+'_remove').click(function() {
+                if($(this).hasClass('_alpaca')) {
+                    self.edit(key, '')
+                } else {
+                    self.remove(key);
                 }
                 return false;
             });
-        }
+            $('#_'+key+'_label').click(function() {
+                self.label(key);
+                return false;
+            });
+        });
+        $('#addKeyValue').click(function() {
+            var key = $('#_newKey').val();
+            var val = $('#_newValue').val();
+            if (key && val) {
+                self.add(key, val);
+                self._applyAttributes();
+            }
+            return false;
+        });
+
     },
     add: function(key, value) {
         var self = this;
@@ -175,6 +209,10 @@ gbi.widgets.AttributeEditor.prototype = {
         this.renderAttributes = attributes;
         this.render();
     },
+    setJsonSchema: function(schema) {
+        this.jsonSchema = schema;
+        this.render();
+    },
     _applyAttributes: function() {
         var self = this;
         var activeLayer = this.layerManager.active();
@@ -205,6 +243,23 @@ gbi.widgets.AttributeEditor.prototype = {
         });
     },
 };
+
+gbi.widgets.AttributeEditor.alpacaView = {
+    "id": "VIEW_BOOTSTRAP_EDIT_CUSTOM",
+    "parent": "VIEW_BOOTSTRAP_EDIT",
+    "templates": {
+        "controlFieldContainer": "\
+        <div class='foo'>\
+            {{html this.html}}\
+            <button id='_${id}_label' title='label' class='btn btn-small add-label-button'>\
+                <i class='icon-eye-open'></i>\
+            </button>\
+            <button id='_${id}_remove' title='remove' class='btn btn-small _alpaca'>\
+                <i class='icon-trash'></i>\
+            </button>\
+        </div>"
+    }
+}
 
 gbi.widgets.AttributeEditor.template = '\
 <% if(attributes.length == 0) { %>\
