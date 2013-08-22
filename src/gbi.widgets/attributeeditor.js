@@ -39,7 +39,7 @@ gbi.widgets.AttributeEditor = function(editor, options) {
     if(!activeLayer.loaded) {
         $(activeLayer).on(listenOn, function() {
             self.render();
-            $(activeLayer).un(listenOn, this);
+            $(activeLayer).off(listenOn, this);
         });
     }
 
