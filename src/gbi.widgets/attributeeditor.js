@@ -38,21 +38,15 @@ gbi.widgets.AttributeEditor = function(editor, options) {
     var listenOn = activeLayer instanceof gbi.Layers.Couch ? 'gbi.layer.couch.loadFeaturesEnd' : 'gbi.layer.saveableVector.loadFeaturesEnd';
     if(!activeLayer.loaded) {
         $(activeLayer).on(listenOn, function() {
-            self.invalidFeatures = $.isFunction(activeLayer.validateFeatureAttributes) ? activeLayer.validateFeatureAttributes() : [];
-            activeLayer.unregisterEvent('loaded', null, this);
             self.render();
+            $(activeLayer).un(listenOn, this);
         });
-    } else {
-        self.invalidFeatures = $.isFunction(activeLayer.validateFeatureAttributes) ? activeLayer.validateFeatureAttributes() : [];
     }
 
     this.registerEvents();
 
     $(gbi).on('gbi.layermanager.layer.add', function(event, layer) {
        self.registerEvents();
-    });
-    $(gbi).on('gbi.layermanager.layer.active', function(event, layer) {
-        self.invalidFeatures = $.isFunction(layer.validateFeatureAttributes) ? layer.validateFeatureAttributes() : [];
     });
 
     self.render();
@@ -84,6 +78,7 @@ gbi.widgets.AttributeEditor.prototype = {
     render: function() {
         var self = this;
         var activeLayer = this.layerManager.active();
+        self.invalidFeatures = $.isFunction(activeLayer.validateFeatureAttributes) ? activeLayer.validateFeatureAttributes() : [];
         var attributes = this.renderAttributes || activeLayer.featuresAttributes();
 
         this.element.empty();
