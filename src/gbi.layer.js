@@ -1363,6 +1363,9 @@ gbi.Layers.Couch = function(options) {
         $(this).on('gbi.layer.vector.gbi.layer.vector.popupAttributesChanged', function() {
             self.unsavedMetaChanges = true;
         });
+        $(this).on('gbi.layer.vector.schemaLoaded', function() {
+            self.unsavedMetaChanges = true;
+        })
         $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
@@ -1418,12 +1421,21 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
         return lists.popupAttributes || lists.shortListAttributes || lists.fullListAttributes ? lists : undefined;
     },
+    _prepareJsonSchemaData: function() {
+        if(this.jsonSchema) {
+            return {
+                "url": this.options.jsonSchemaUrl,
+                "schema": this.jsonSchema
+            }
+        }
+    },
     _saveMetaDocument: function() {
         var self = this;
 
         self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
         self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
         self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
+        self.metadataDocument.appOptions['jsonSchema'] = self._prepareJsonSchemaData();
 
         OpenLayers.Request.PUT({
             url: self.options.url + 'metadata',
@@ -1472,6 +1484,10 @@ $.extend(gbi.Layers.Couch.prototype, {
                         if(self.metadataDocument.fullListAttributes != undefined) {
                             self.fullListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes);
                         }
+                    }
+                    if(self.metadataDocument.appOptions.jsonSchema != undefined) {
+                        self.options.jsonSchemaUrl = self.metadataDocument.appOptions.jsonSchema.url;
+                        self.jsonSchema = self.metadataDocument.appOptions.jsonSchema.schema;
                     }
                 }
 
