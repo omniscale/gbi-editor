@@ -1446,31 +1446,27 @@ $.extend(gbi.Layers.Couch.prototype, {
                 'contentType': 'application/json'
             },
             success: function(response) {
-                var metadata = self.format.read(response.responseText);
-
-                if(metadata._rev != undefined) {
-                    self.metaRev = metadata._rev;
-                }
-                if(metadata.appOptions != undefined) {
-                    if(metadata.appOptions.olDefaultStyle != undefined) {
-                        self.setStyle(metadata.appOptions.olDefaultStyle);
+                self.metadataDocument = self.format.read(response.responseText);
+                if(self.metadataDocument.appOptions != undefined) {
+                    if(self.metadataDocument.appOptions.olDefaultStyle != undefined) {
+                        self.setStyle(self.metadataDocument.appOptions.olDefaultStyle);
                     }
-                    if(metadata.appOptions.gbiThematicalMap != undefined) {
+                    if(self.metadataDocument.appOptions.gbiThematicalMap != undefined) {
                         self.addAttributeFilter(
-                            metadata.appOptions.gbiThematicalMap.filterType,
-                            metadata.appOptions.gbiThematicalMap.filterAattribute,
-                            metadata.appOptions.gbiThematicalMap.filters
+                            self.metadataDocument.appOptions.gbiThematicalMap.filterType,
+                            self.metadataDocument.appOptions.gbiThematicalMap.filterAttribute,
+                            self.metadataDocument.appOptions.gbiThematicalMap.filters
                         );
                     }
-                    if(metadata.appOptions.gbiAttributeLists != undefined) {
-                        if(metadata.appOptions.gbiAttributeLists.popupAttributes != undefined) {
-                            self.appOptions.gbiAttributeLists.popupAttributes(metadata.popupAttributes);
+                    if(self.metadataDocument.appOptions.gbiAttributeLists != undefined) {
+                        if(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes != undefined) {
+                            self.popupAttributes(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes);
                         }
-                        if(metadata.appOptions.gbiAttributeLists.shortListAttributes != undefined) {
-                            self.appOptions.gbiAttributeLists.shortListAttributes(metadata.shortListAttributes);
+                        if(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes != undefined) {
+                            self.shortListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes);
                         }
-                        if(metadata.fullListAttributes != undefined) {
-                            self.appOptions.gbiAttributeLists.fullListAttributes(metadata.fullListAttributes);
+                        if(self.metadataDocument.fullListAttributes != undefined) {
+                            self.fullListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes);
                         }
                     }
                 }
