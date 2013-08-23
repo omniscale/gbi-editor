@@ -997,8 +997,8 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
     },
     removeJsonSchema: function() {
-        self.jsonSchema = false;
-        self.options.jsonSchemaUrl = false;
+        this.jsonSchema = false;
+        this.options.jsonSchemaUrl = false;
     }
 });
 
