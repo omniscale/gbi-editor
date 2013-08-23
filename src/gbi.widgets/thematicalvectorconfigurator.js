@@ -150,7 +150,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             self.activeLayer.listAttributes(listAttributes);
             self.activeLayer.popupAttributes(popupAttributes);
             if(self.activeLayer instanceof gbi.Layers.Couch) {
-                self.activeLayer._saveGBIData();
+                self.activeLayer._saveMetaDocument();
             }
         })
 
@@ -322,7 +322,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         }
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), filterOptions);
         if(this.activeLayer instanceof gbi.Layers.Couch) {
-            this.activeLayer._saveGBIData();
+            this.activeLayer._saveMetaDocument();
         }
     },
     _registerLayerEvents: function(layer) {

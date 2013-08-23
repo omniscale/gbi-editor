@@ -117,7 +117,7 @@ gbi.widgets.StyleEditor.prototype = {
         if(Object.keys(symbolizers).length > 0) {
             this.stylingLayer.setStyle(symbolizers);
             if(this.stylingLayer instanceof gbi.Layers.Couch) {
-                this.stylingLayer._saveStyle();
+                this.stylingLayer._saveMetaDocument();
             }
         }
     },
