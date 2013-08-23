@@ -290,6 +290,7 @@ gbi.Layers.Vector = function(options) {
     this.isActive = false;
     this.isEditable = this.options.editable;
     this.loaded = true;
+    this.customStyle = false;
 
     this.jsonSchema = this.options.jsonSchema || false;
 
@@ -300,7 +301,7 @@ gbi.Layers.Vector = function(options) {
     this.features = this.olLayer.features;
     if(!this.options.styleMap) {
         this.symbolizers = $.extend(true, {}, default_symbolizers, this.options.symbolizers);
-        this.setStyle(this.symbolizers);
+        this._setStyle(this.symbolizers);
     } else {
         this.symbolizers = this.options.styleMap.styles['default'].rules[0].symbolizer;
     }
@@ -373,6 +374,12 @@ $.extend(gbi.Layers.Vector.prototype, {
     refresh: function() {
         this.olLayer.refresh();
     },
+    setStyle: function(symbolizers, temporary) {
+        if(!temporary) {
+            this.customStyle = true;
+        }
+        this._setStyle(symbolizers, temporary);
+    },
     /**
      * Sets the style of this layer
      *
@@ -380,7 +387,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
      */
-    setStyle: function(symbolizers, temporary) {
+    _setStyle: function(symbolizers, temporary) {
         var applySymbolizers;
         if(temporary) {
             applySymbolizers = $.extend(true, {}, this.symbolizers, symbolizers)
@@ -1277,8 +1284,6 @@ gbi.Layers.Couch = function(options) {
     };
     options = $.extend({}, defaults, options);
 
-    this.haveCustomStyle = false;
-
     this.format = new OpenLayers.Format.JSON();
 
     var nameLowerCase = options.name.toLowerCase();
@@ -1372,7 +1377,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @returns {Object} styleData
      */
     _prepareStylingData: function() {
-        return $.extend(true, {}, this.symbolizers);
+        return this.customStyle ? $.extend(true, {}, this.symbolizers) : {};
     },
     /**
      * Prepares gbi_editor document data for insert into couch
