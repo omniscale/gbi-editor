@@ -992,6 +992,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         $.getJSON(url)
             .done(function(response) {
                 self.jsonSchema = response;
+                self.options.jsonSchemaUrl = url;
                 $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
             });
     }
