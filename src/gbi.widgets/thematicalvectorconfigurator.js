@@ -344,22 +344,10 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), filterOptions);
     },
     setListPopupAttributes: function(element) {
-        var self = this;
-        var fullListAttributes = [];
-        var shortListAttributes = [];
-        var popupAttributes = [];
-        $.each(element.find('.list-attribute'), function(idx, checkbox) {
-            fullListAttributes.push(checkbox.value);
-            if($(checkbox).is(':checked')) {
-                shortListAttributes.push(checkbox.value);
-            }
-        });
-        $.each(element.find('.popup-attribute:checked'), function(idx, checkbox) {
-            popupAttributes.push(checkbox.value);
-        });
-        self.activeLayer.fullListAttributes(fullListAttributes);
-        self.activeLayer.shortListAttributes(shortListAttributes);
-        self.activeLayer.popupAttributes(popupAttributes);
+        if(this.activeLayer instanceof gbi.Layers.Couch) {
+            this.activeLayer._saveMetaDocument();
+        }
+
     },
     _registerLayerEvents: function(layer) {
         var self = this;
