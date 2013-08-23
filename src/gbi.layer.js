@@ -1380,7 +1380,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @returns {Object} styleData
      */
     _prepareStylingData: function() {
-        return this.customStyle ? $.extend(true, {}, this.symbolizers) : {};
+        return this.customStyle ? $.extend(true, {}, this.symbolizers) : undefined;
     },
     /**
      * Prepares gbi_editor document data for insert into couch
@@ -1394,10 +1394,6 @@ $.extend(gbi.Layers.Couch.prototype, {
         var self = this;
         var thematicalData = {};
 
-        // if(this.gbiRev) {
-        //     thematicalData['_rev'] = this.gbiRev;
-        // }
-
         if(this.featureStylingRule) {
             thematicalData = $.extend(true, {}, this.featureStylingRule);
             if(thematicalData.filters) {
@@ -1405,22 +1401,22 @@ $.extend(gbi.Layers.Couch.prototype, {
                     delete filter['olFilter'];
                 });
             }
+            return thematicalData;
         }
-        return thematicalData;
     },
     _prepareAttributeListsData: function() {
         var lists = {};
-        if(this._popupAttributes) {
+        if(this._popupAttributes.length > 0) {
             lists['popupAttributes'] = this._popupAttributes;
         }
 
-        if(this._shortListAttributes) {
+        if(this._shortListAttributes.length > 0) {
             lists['shortListAttributes'] = this._shortListAttributes
         }
-        if(this._fullListAttributes) {
+        if(this._fullListAttributes.length > 0) {
             lists['fullListAttributes'] = this._fullListAttributes
         }
-        return lists;
+        return lists.popupAttributes || lists.shortListAttributes || lists.fullListAttributes ? lists : undefined;
     },
     _saveMetaDocument: function() {
         var self = this;
