@@ -420,7 +420,6 @@ gbi.widgets.AttributeEditor.alpacaViews = {
         }
     }
 };
-gbi.widgets.AttributeEditor.alpacaViewAdditionalEdit
 
 gbi.widgets.AttributeEditor.template = '\
     <% if(attributes.length == 0) { %>\
