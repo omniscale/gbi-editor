@@ -9,6 +9,9 @@ var thematicalVectorLegendLabel = {
     'noLayer': OpenLayers.i18n('No layer selected'),
     'createThematicalMap': OpenLayers.i18n('Create thematical map')
 };
+var thematicalVectorLegendTitles = {
+    'showFeatureList': OpenLayers.i18n('Show filtered features in list')
+}
 
 gbi.widgets = gbi.widgets || {};
 
@@ -85,13 +88,13 @@ gbi.widgets.ThematicalVectorLegend.prototype = {
                     attribute: self.legend.attribute,
                     type: thematicalVectorLegendLabel[self.legend.type],
                     entries: entries,
-                    featureList: self.options.featureList instanceof gbi.widgets.FeatureAttributeList
+                    featureList: self.options.featureList instanceof gbi.widgets.ThematicalVectorAttributeList
                 }
             ));
 
             self.updateAreas(element);
 
-            if(self.options.featureList instanceof gbi.widgets.FeatureAttributeList) {
+            if(self.options.featureList instanceof gbi.widgets.ThematicalVectorAttributeList) {
                 // bind events
                 $.each(entries, function(idx, entry) {
                     $('#_' + entry.id + '_list_view').click(function() {
@@ -160,7 +163,7 @@ gbi.widgets.ThematicalVectorLegend.template = '\
                     <td class="text-center" id="_<%=entries[key].id%>_area"></td>\
                     <% if(featureList) { %>\
                         <td class="text-center">\
-                            <button id="_<%=entries[key].id%>_list_view" class="btn btn-small">\
+                            <button id="_<%=entries[key].id%>_list_view" class="btn btn-small" title="' + thematicalVectorLegendTitles.showFeatureList + '">\
                                 <i class="icon-list"></i>\
                             </button>\
                         </td>\
@@ -193,38 +196,12 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         var element = $('#' + this.options.element);
         gbi.widgets.ThematicalVectorLegend.prototype.render.call(this);
         if(self.legend && self.legend.type == 'exact') {
-            element.append(tmpl(
-                gbi.widgets.ThematicalVectorLegendChangeAttributes.template
-            ));
-
             element.find('.gbi_widget_legend_color').click(function() {
                 var _this = $(this);
                 var id = _this.attr('id').split('_')[1]
                 self._removeSelectControl(element);
                 self._addSelectControl(element, id, self.legend.attribute, _this.children().first().text())
             });
-
-            if(self.activeLayer instanceof gbi.Layers.SaveableVector) {
-                self.activeLayer.registerCallback('changes', function() {
-                    element.find('#applyChanges').first().removeAttr('disabled');
-                    element.find('#discardChanges').first().removeAttr('disabled');
-                })
-                self.activeLayer.registerCallback('success', function() {
-                    element.find('#applyChanges').first().attr('disabled', 'disabled');
-                    element.find('#discardChanges').first().attr('disabled', 'disabled');
-                })
-                element.find('#applyChanges').first().click(function() {
-                    self.activeLayer.save();
-                    self._removeSelectControl(element);
-                    self.render();
-                });
-                element.find('#discardChanges').first().click(function() {
-                    self.activeLayer.olLayer.refresh();
-                    self._removeSelectControl(element);
-                    element.find('#applyChanges').first().attr('disabled', 'disabled');
-                    element.find('#discardChanges').first().attr('disabled', 'disabled');
-                });
-            }
         }
     },
     _addSelectControl: function(element, id, attribute, value) {
@@ -253,8 +230,3 @@ $.extend(gbi.widgets.ThematicalVectorLegendChangeAttributes.prototype, {
         this.self.updateAreas($('#' + this.self.options.element));
     }
 });
-
-gbi.widgets.ThematicalVectorLegendChangeAttributes.template = '\
-    <button id="applyChanges" class="btn btn-small btn-success" disabled="disabled">' + thematicalVectorLegendChangeAttributesLabel.applyChanges + '</button>\
-    <button id="discardChanges" class="btn btn-small" disabled="disabled">' + thematicalVectorLegendChangeAttributesLabel.discardChanges + '</button>\
-';

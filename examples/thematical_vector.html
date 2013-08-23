@@ -19,12 +19,11 @@
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvector.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorconfigurator.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegend.js"></script>
-        <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegendchangeattributes.js"></script>
-        <script type="text/javascript" src="../src/gbi.widgets/featureattributelist.js"></script>
-        <script type="text/javascript" src="../src/gbi.widgets/featureattributelistconfigurator.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorlegend.js"></script>
+        <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorattributelist.js"></script>
         <script type="text/javascript">
 
-            OpenLayers.ProxyHost = "http://localhost:8081/cgi-bin/proxy.cgi?url=";
+            OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
 
             $(document).ready(function() {
                 var editor = new gbi.Editor({
@@ -53,10 +52,6 @@
                 editor.addLayer(couchLayer);
 
                 var thematicalVector = new gbi.widgets.ThematicalVector(editor);
-                // var thematicalVectorLegend = new gbi.widgets.ThematicalVectorLegendChangeAttributes(editor)
-                // featureAttributeList = new gbi.widgets.FeatureAttributeList(editor, {featurePopup: 'hover'});
-                // featureAttributesListConfigurator = new gbi.widgets.FeatureAttributesListConfigurator(editor);
-
 
             });
         </script>

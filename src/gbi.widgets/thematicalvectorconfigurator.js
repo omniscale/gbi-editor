@@ -21,7 +21,14 @@ var thematicalVectorConfiguratorLabel = {
     'noLayer': OpenLayers.i18n('No layer selected'),
     'noAttributes': OpenLayers.i18n('Layer have no attributes'),
     'mapSettings': OpenLayers.i18n('Map Settings'),
-    'listSettings': OpenLayers.i18n('List Settings')
+    'listSettings': OpenLayers.i18n('List Settings'),
+    'maxListAttributesArrived': OpenLayers.i18n('Maximum of selectable shortlist attributes arrived'),
+    'maxPopupAttributesArrived': OpenLayers.i18n('Maximum of selectable popup attributes arrived')
+};
+var ThematicalVectorConfiguratorTitles = {
+    'showExact': OpenLayers.i18n('Create thematical map using exact values'),
+    'rangeExact': OpenLayers.i18n('Create thematical map using ranges'),
+    'addInput': OpenLayers.i18n('Add input field')
 };
 
 gbi.widgets = gbi.widgets || {};
@@ -34,6 +41,7 @@ gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
     var defaults = {
         element: 'thematicalvectorconfigurator',
         mode: 'exact',
+        restrictSelectableAttributes: 10,
         initOnly: false
     }
     this.options = $.extend({}, defaults, options);
@@ -47,7 +55,10 @@ gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
         self.activeLayer = layer;
         if(self.activeLayer) {
             self._registerLayerEvents(self.activeLayer);
-            self.attributes = self.activeLayer.featuresAttributes() || [];
+            self.attributes = self.activeLayer.fullListAttributes() || [];
+            if(self.attributes.length == 0) {
+                self.attributes = self.activeLayer.featuresAttributes() || [];
+            }
         } else {
             self.attributes = [];
         }
@@ -55,7 +66,10 @@ gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
     });
     if(this.activeLayer) {
         this._registerLayerEvents(this.activeLayer);
-        this.attributes = this.activeLayer.featuresAttributes() || [];
+        this.attributes = this.activeLayer.fullListAttributes() || [];
+        if(this.attributes.length == 0) {
+            this.attributes = this.activeLayer.featuresAttributes() || [];
+        }
     } else {
         this.attributes = [];
     }
@@ -97,6 +111,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             $.each($('.exactInputControl select'), function(idx, element) {
                 element = $(element);
                 self.fillExactInputSelect(element, element.val());
+                self.execute();
             });
         });
 
@@ -105,19 +120,23 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         });
 
         $('#executeFilter').click(function() {
-            self.execute();
+            if(self.activeLayer instanceof gbi.Layers.Couch) {
+                self.activeLayer._saveMetaDocument();
+            }
         });
 
-        var listAttributes = self.activeLayer ? self.activeLayer.listAttributes() : [];
+        var shortListAttributes = self.activeLayer ? self.activeLayer.shortListAttributes() : [];
         var popupAttributes = self.activeLayer ? self.activeLayer.popupAttributes() : [];
 
-        if(listAttributes) {
+        if(shortListAttributes) {
             element.find('.list-attribute').each(function(idx, elm) {
                 elm = $(elm);
                 elm.change(function() {
-                    self._restrictAttributes(element, elm, '.list-attribute', 5)
-                })
-                if($.inArray(elm.val(), listAttributes) != -1) {
+                    if(self._restrictAttributes(element, elm, '.list-attribute')) {
+                        self.setListPopupAttributes(element);
+                    }
+                });
+                if($.inArray(elm.val(), shortListAttributes) != -1) {
                     elm.attr('checked', 'checked');
                 }
 
@@ -128,7 +147,9 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             element.find('.popup-attribute').each(function(idx, elm) {
                 elm = $(elm);
                 elm.change(function() {
-                    self._restrictAttributes(element, elm, '.popup-attribute', 5)
+                    if(self._restrictAttributes(element, elm, '.popup-attribute')) {
+                        self.setListPopupAttributes(element);
+                    }
                 });
                 if($.inArray(elm.val(), popupAttributes) != -1) {
                     elm.attr('checked', 'checked');
@@ -136,39 +157,32 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             })
         }
 
-        element.find('#sortable').sortable();
-
         $('#setListAttributes').click(function() {
-            var listAttributes = [];
-            var popupAttributes = [];
-            $.each(element.find('.list-attribute:checked'), function(idx, checkbox) {
-                listAttributes.push(checkbox.value);
-            });
-            $.each(element.find('.popup-attribute:checked'), function(idx, checkbox) {
-                popupAttributes.push(checkbox.value);
-            });
-            self.activeLayer.listAttributes(listAttributes);
-            self.activeLayer.popupAttributes(popupAttributes);
             if(self.activeLayer instanceof gbi.Layers.Couch) {
                 self.activeLayer._saveMetaDocument();
             }
-        })
+        });
+
+        element.find('#sortable').sortable({
+            stop: function() {
+                self.setListPopupAttributes(element);
+            }
+        });
 
         if(this.activeLayer && this.activeLayer.featureStylingRule) {
-            element.find('#attribute').val(this.activeLayer.featureStylingRule.attribute);
-            element.find('#rule-active').attr('checked', this.activeLayer.featureStylingRule.active)
-            this.mode = this.activeLayer.featureStylingRule.type;
+            element.find('#attribute').val(this.activeLayer.featureStylingRule.filterAttribute);
+            this.mode = this.activeLayer.featureStylingRule.filterType;
             switch(this.mode) {
                 case 'exact':
                     this.toggleExact();
-                    $.each(this.activeLayer.featureStylingRule.filterOptions, function(idx, filterOption) {
+                    $.each(this.activeLayer.featureStylingRule.filters, function(idx, filterOption) {
                         self.addInput('exact', filterOption);
                     });
                     this.addInput('range');
                     break;
                 case 'range':
                     this.toggleRange()
-                    $.each(this.activeLayer.featureStylingRule.filterOptions, function(idx, filterOption) {
+                    $.each(this.activeLayer.featureStylingRule.filters, function(idx, filterOption) {
                         self.addInput('range', filterOption);
                     });
                     this.addInput('exact');
@@ -228,6 +242,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
                 if(filterOption) {
                     select.val(filterOption.value);
                 }
+                select.change(function() {self.execute()})
                 tds.push(select);
                 break;
             case 'range':
@@ -243,6 +258,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
                 if(filterOption) {
                     minInput.val(filterOption.min || '');
                 }
+                minInput.keyup(function() {self.execute()})
                 tds.push(minInput);
 
                 var maxInput = $(gbi.widgets.ThematicalVectorConfigurator.inputTemplate);
@@ -251,6 +267,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
                 if(filterOption) {
                     maxInput.val(filterOption.max || '');
                 }
+                maxInput.keyup(function() {self.execute()})
                 tds.push(maxInput)
         }
         var colorValue = filterOption ? filterOption.symbolizer.fillColor : gbi.widgets.ThematicalVectorConfigurator.defaultColors[idx];
@@ -267,6 +284,7 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             if(elements.length == 1) {
                 elements.first().removeClass('hide');
             }
+            self.execute();
         });
         tds.push(remove)
 
@@ -278,7 +296,10 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         });
         $('.' + mode + 'InputControl tbody').append(tr);
         color.minicolors({
-            'value': colorValue
+            'value': colorValue,
+            change: function() {
+                    self.execute();
+                }
         });
     },
     execute: function() {
@@ -321,29 +342,52 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
                 break;
         }
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), filterOptions);
-        if(this.activeLayer instanceof gbi.Layers.Couch) {
-            this.activeLayer._saveMetaDocument();
-        }
+    },
+    setListPopupAttributes: function(element) {
+        var self = this;
+        var fullListAttributes = [];
+        var shortListAttributes = [];
+        var popupAttributes = [];
+        $.each(element.find('.list-attribute'), function(idx, checkbox) {
+            fullListAttributes.push(checkbox.value);
+            if($(checkbox).is(':checked')) {
+                shortListAttributes.push(checkbox.value);
+            }
+        });
+        $.each(element.find('.popup-attribute:checked'), function(idx, checkbox) {
+            popupAttributes.push(checkbox.value);
+        });
+        self.activeLayer.fullListAttributes(fullListAttributes);
+        self.activeLayer.shortListAttributes(shortListAttributes);
+        self.activeLayer.popupAttributes(popupAttributes);
     },
     _registerLayerEvents: function(layer) {
         var self = this;
         if(self.activeLayer instanceof gbi.Layers.SaveableVector && !self.activeLayer.loaded) {
             $(layer).on('gbi.layer.couch.loadFeaturesEnd', function() {
-                self.attributes = layer.featuresAttributes();
+                self.attributes = self.activeLayer.fullListAttributes() || [];
+                if(self.attributes.length == 0) {
+                    self.attributes = self.activeLayer.featuresAttributes() || [];
+                }
                 self.render();
             });
         }
         $(layer).on('gbi.layer.vector.featureAttributeChanged', function() {
-            self.attributes = layer.featuresAttributes();
+            self.attributes = self.activeLayer.fullListAttributes() || [];
+            if(self.attributes.length == 0) {
+                self.attributes = self.activeLayer.featuresAttributes() || [];
+            }
             self.render();
         });
     },
     _restrictAttributes: function(element, elm, selector, max) {
         var self = this;
         var count = element.find(selector + ':checked').length;
-        if(count > max) {
+        if(count > self.options.restrictSelectableAttributes) {
             elm.removeAttr('checked');
-            console.log('Only ' + max + ' or less attributes can be selected')
+            $(selector + '-error').show().fadeOut(3000);
+        } else {
+            return true;
         }
     }
 };
@@ -379,11 +423,13 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
          data-toggle="buttons-radio">\
         <button id="toggleExact"\
                 type="button"\
+                title="' + ThematicalVectorConfiguratorTitles.showExact + '"\
                 class="btn btn-small active">\
             ' + thematicalVectorConfiguratorLabel.exact + '\
         </button>\
         <button id="toggleRange"\
                 type="button"\
+                title="' + ThematicalVectorConfiguratorTitles.showRange + '"\
                 class="btn btn-small">\
             ' + thematicalVectorConfiguratorLabel.range + '\
         </button>\
@@ -422,9 +468,11 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
         </table>\
     </div>\
     <button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorConfiguratorLabel.execute + '</button>\
-    <button class="btn btn-small pull-right" id="addInput">' + thematicalVectorConfiguratorLabel.addInputField + '</button>\
+    <button class="btn btn-small" id="addInput" title="' + ThematicalVectorConfiguratorTitles.addInput + '">' + thematicalVectorConfiguratorLabel.addInputField + '</button>\
     <hr>\
     <h4>' + thematicalVectorConfiguratorLabel.listSettings + '</h4>\
+    <div class="alert alert-error list-attribute-error" style="display: none">' + thematicalVectorConfiguratorLabel.maxListAttributesArrived + '</div>\
+    <div class="alert alert-error popup-attribute-error" style="display: none">' + thematicalVectorConfiguratorLabel.maxPopupAttributesArrived + '</div>\
     <% if(attributes.length == 0) { %>\
         <div>' + thematicalVectorConfiguratorLabel.noAttributes + '</div>\
     <% } else { %>\
