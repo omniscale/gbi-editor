@@ -989,10 +989,11 @@ $.extend(gbi.Layers.Vector.prototype, {
     },
     addSchemaFromUrl: function(url) {
         var self = this;
-        $.getJSON(url, function(response) {
-            self.jsonSchema = response;
-            $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
-        });
+        $.getJSON(url)
+            .done(function(response) {
+                self.jsonSchema = response;
+                $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
+            });
     }
 });
 
