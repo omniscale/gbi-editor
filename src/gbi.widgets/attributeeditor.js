@@ -87,6 +87,16 @@ gbi.widgets.AttributeEditor.prototype = {
         var attributes = self.jsonSchema ? activeLayer.schemaAttributes() : this.renderAttributes || activeLayer.featuresAttributes();
         this.element.empty();
 
+        if(!self.jsonSchema) {
+            this.element.append(tmpl(gbi.widgets.AttributeEditor.addSchemaTemplate));
+            $('#add_json_schema_url').click(function() {
+                $(activeLayer).on('gbi.layer.vector.schemaLoaded', function(event, schema) {
+                    self.setJsonSchema(schema);
+                });
+                var schemaURL = $('#json_schema_url').val();
+                activeLayer.addSchemaFromUrl(schemaURL);
+            })
+        }
         if(self.invalidFeatures && self.invalidFeatures.length > 0) {
             self.renderInvalidFeatures(activeLayer);
         } else {
@@ -471,6 +481,15 @@ gbi.widgets.AttributeEditor.newAttributeTemplate = '\
         </div>\
         <button id="addKeyValue" class="btn btn-small">'+attributeEditorLabel.add+'</button>\
     </form>\
+';
+
+gbi.widgets.AttributeEditor.addSchemaTemplate = '\
+    <div>\
+        <div class="input-append">\
+            <input id="json_schema_url" name="json_schema_url" type="text" />\
+            <button class="btn" id="add_json_schema_url" type="button">'+attributeEditorLabel.addJsonSchemaUrl+'</button>\
+        </div>\
+    </div>\
 ';
 
 gbi.widgets.AttributeEditor.alpacaTemplate = '\
