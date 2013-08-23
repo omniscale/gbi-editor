@@ -160,12 +160,7 @@ gbi.widgets.AttributeEditor.prototype = {
 
         var id = -1;
         if(self.selectedInvalidFeature) {
-            $.each(self.invalidFeatures, function(idx, obj) {
-                if(obj.feature.id == self.selectedInvalidFeature.feature.id) {
-                    id = idx;
-                    return false;
-                }
-            });
+            id = self._isInvalidFeature(self.selectedInvalidFeature.feature);
         }
         if(!self.selectedInvalidFeature || id == 0 || self.invalidFeatures.length == 1) {
             $('#prev_invalid_feature').attr('disabled', 'disabled');
@@ -393,6 +388,17 @@ gbi.widgets.AttributeEditor.prototype = {
             }
         });
     },
+    _isInvalidFeature: function(feature) {
+        var self = this;
+        var id = -1
+        $.each(self.invalidFeatures, function(idx, obj) {
+            if(obj.feature.id == feature.id) {
+                id = idx;
+                return false;
+            }
+        });
+        return id;
+    }
 };
 
 gbi.widgets.AttributeEditor.alpacaViews = {
