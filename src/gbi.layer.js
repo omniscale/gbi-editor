@@ -1001,6 +1001,9 @@ $.extend(gbi.Layers.Vector.prototype, {
                 self.jsonSchema = response;
                 self.options.jsonSchemaUrl = url;
                 $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
+            })
+            .fail(function() {
+                $(self).trigger('gbi.layer.vector.loadSchemaFail');
             });
     },
     removeJsonSchema: function() {
