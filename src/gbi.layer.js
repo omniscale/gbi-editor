@@ -995,6 +995,10 @@ $.extend(gbi.Layers.Vector.prototype, {
                 self.options.jsonSchemaUrl = url;
                 $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
             });
+    },
+    removeJsonSchema: function() {
+        self.jsonSchema = false;
+        self.options.jsonSchemaUrl = false;
     }
 });
 
