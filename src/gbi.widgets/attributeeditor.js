@@ -11,7 +11,8 @@ var attributeEditorLabel = {
     'next': OpenLayers.i18n('Next'),
     'prev': OpenLayers.i18n('Previous'),
     'additionalProperties': OpenLayers.i18n('Additional attributes'),
-    'schemaViolatingAttribute': OpenLayers.i18n('This attribute is not defined in given schema. Remove it!')
+    'schemaViolatingAttribute': OpenLayers.i18n('This attribute is not defined in given schema. Remove it!'),
+    'addJsonSchemaUrl': OpenLayers.i18n('Add JSONSchema URL')
 }
 
 gbi.widgets = gbi.widgets || {};
