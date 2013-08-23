@@ -308,10 +308,8 @@ gbi.Layers.Vector = function(options) {
     this.featureStylingRuleActive = false;
     this.featureStylingRule = false;
 
-    if(this.options.jsonSchemaUrl && ! this.jsonSchema) {
-        $.get(this.options.jsonSchemaUrl, null, function(response) {
-            self.jsonSchema = response;
-        }, 'json');
+    if(this.options.jsonSchemaUrl && !this.jsonSchema) {
+        this.addSchemaFromUrl(this.options.jsonSchemaUrl);
     }
 
     //show popup when selectControl click
@@ -988,6 +986,13 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     validateFeatureAttributes: function(feature) {
         return Validator.validate(feature.attributes, self.jsonSchema).valid;
+    },
+    addSchemaFromUrl: function(url) {
+        var self = this;
+        $.get(url, null, function(response) {
+            self.jsonSchema = response;
+            $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
+        }, 'json');
     }
 });
 
