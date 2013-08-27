@@ -291,7 +291,7 @@ gbi.Layers.Vector = function(options) {
     this.isEditable = this.options.editable;
     this.loaded = true;
     this.customStyle = false;
-
+    this.default_symbolizers = default_symbolizers;
     this.jsonSchema = this.options.jsonSchema || false;
 
     this._shortListAttributes = [];
@@ -431,6 +431,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     _applyFilterOptions: function() {
         var self = this;
         var rules = [];
+
         for(var i = self.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
             if(self.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
                 self.olLayer.styleMap.styles.default.rules.splice(i, 1);
@@ -527,7 +528,6 @@ $.extend(gbi.Layers.Vector.prototype, {
         } : false;
 
         this.featureStylingRule = newFeatureStylingRule;
-
         this._applyFilterOptions();
         $(this).trigger('gbi.layer.vector.ruleChanged', false);
         this.olLayer.redraw();
@@ -619,6 +619,8 @@ $.extend(gbi.Layers.Vector.prototype, {
                     'features': []
                 };
             });
+
+
             $.each(this.olLayer.features, function(id, feature) {
                 for(var i = self.featureStylingRule.filters.length - 1; i >= 0; i--) {
                     var filterOption = self.featureStylingRule.filters[i];
@@ -1453,6 +1455,66 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    _useMetaData: function(self, triggerEvent) {
+        var self = self;
+        if(self.metadataDocument.appOptions != undefined) {
+            // load ol styling or set default styling if not in metadata
+            if(self.metadataDocument.appOptions.olDefaultStyle != undefined) {
+                self.setStyle(self.metadataDocument.appOptions.olDefaultStyle);
+            } else {
+                self.setStyle(self.default_symbolizers);
+                self.customStyle = false;
+            }
+
+            if(self.metadataDocument.appOptions.gbiThematicalMap != undefined) {
+                self.addAttributeFilter(
+                    self.metadataDocument.appOptions.gbiThematicalMap.filterType,
+                    self.metadataDocument.appOptions.gbiThematicalMap.filterAttribute,
+                    self.metadataDocument.appOptions.gbiThematicalMap.filters
+                );
+            } else {
+                self.featureStylingRule = false;
+                self.deactivateFeatureStylingRule();
+            }
+
+
+            if(self.metadataDocument.appOptions.gbiAttributeLists != undefined) {
+                if(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes != undefined) {
+                    self.popupAttributes(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes);
+                } else {
+                    self.popupAttributes([]);
+                }
+
+                if(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes != undefined) {
+                    self.shortListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes);
+                } else {
+                    self.shortListAttributes([]);
+                }
+
+                if(self.metadataDocument.fullListAttributes != undefined) {
+                    self.fullListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes);
+                } else {
+                    self.fullListAttributes([]);
+                }
+            } else {
+                self.popupAttributes([]);
+                self.shortListAttributes([]);
+                self.fullListAttributes([]);
+            }
+
+
+            if(self.metadataDocument.appOptions.jsonSchema != undefined) {
+                self.options.jsonSchemaUrl = self.metadataDocument.appOptions.jsonSchema.url;
+                self.jsonSchema = self.metadataDocument.appOptions.jsonSchema.schema;
+            }
+        }
+
+        if (triggerEvent) {
+            $(this).trigger('gbi.layer.vector.loadMetaData')
+        }
+        self.unsavedMetaChanges = false;
+    },
+
     _loadMetaDocument: function() {
         var self = this;
         var request = OpenLayers.Request.GET({
@@ -1463,35 +1525,7 @@ $.extend(gbi.Layers.Couch.prototype, {
             },
             success: function(response) {
                 self.metadataDocument = self.format.read(response.responseText);
-                if(self.metadataDocument.appOptions != undefined) {
-                    if(self.metadataDocument.appOptions.olDefaultStyle != undefined) {
-                        self.setStyle(self.metadataDocument.appOptions.olDefaultStyle);
-                    }
-                    if(self.metadataDocument.appOptions.gbiThematicalMap != undefined) {
-                        self.addAttributeFilter(
-                            self.metadataDocument.appOptions.gbiThematicalMap.filterType,
-                            self.metadataDocument.appOptions.gbiThematicalMap.filterAttribute,
-                            self.metadataDocument.appOptions.gbiThematicalMap.filters
-                        );
-                    }
-                    if(self.metadataDocument.appOptions.gbiAttributeLists != undefined) {
-                        if(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes != undefined) {
-                            self.popupAttributes(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes);
-                        }
-                        if(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes != undefined) {
-                            self.shortListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes);
-                        }
-                        if(self.metadataDocument.fullListAttributes != undefined) {
-                            self.fullListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes);
-                        }
-                    }
-                    if(self.metadataDocument.appOptions.jsonSchema != undefined) {
-                        self.options.jsonSchemaUrl = self.metadataDocument.appOptions.jsonSchema.url;
-                        self.jsonSchema = self.metadataDocument.appOptions.jsonSchema.schema;
-                    }
-                }
-
-                self.unsavedMetaChanges = false;
+                self._useMetaData(self)
             }
         });
     },
@@ -1698,8 +1732,16 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         }
 
+        // add metadata so savepoint
+        self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
+        self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
+        self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
+        self.metadataDocument.appOptions['jsonSchema'] = self._prepareJsonSchemaData();
+        complete_data.push(self.metadataDocument)
+
         var now = new Date();
         var datetime = now.format("yyyy-mm-dd-hh-MM-ss");
+
         var complete_data = {
             'rows' : complete_data,
             'title': datetime,
@@ -1748,7 +1790,27 @@ $.extend(gbi.Layers.Couch.prototype, {
                     }
                     self.olLayer.drawFeature(self.features[i]);
                 }
+                // load metadata document
+                var jsonFormat = new OpenLayers.Format.JSON();
+                var doc = jsonFormat.read(response.responseText);
+                var metadataDocument;
+                for(var i=0; i < doc.rows.length; i++) {
+                    if (doc.rows[i]._id == 'metadata') {
+                        metadataDocument = doc.rows[i]
+                    }
+                }
 
+                var rev;
+                if (self.metadataDocument._rev) {
+                    rev = self.metadataDocument._rev
+                }
+                self.metadataDocument = metadataDocument
+                if (rev) {
+                    self.metadataDocument._rev = rev;
+                }
+                self._useMetaData(self, tiggerEvent=true)
+
+                // add features
                 var featuresAdded = couchFormat.read(response.responseText);
                 for(var i=0; i < featuresAdded.length; i++) {
                     featuresAdded[i].state = OpenLayers.State.INSERT;
@@ -1756,6 +1818,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                 };
                 self.addFeatures(featuresAdded);
             }
+
         });
 
         if (request) {

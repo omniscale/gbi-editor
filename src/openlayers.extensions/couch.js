@@ -28,7 +28,7 @@ OpenLayers.Format.CouchDB = OpenLayers.Class(OpenLayers.Format.GeoJSON, {
         } else if(obj.rows) {
             for(var i = 0; i < obj.rows.length; i++) {
                 var geojson = obj.rows[i].doc;
-                if(geojson.type && geojson.geometry) {
+                if(geojson && geojson.type && geojson.geometry) {
                     var feature = OpenLayers.Format.GeoJSON.prototype.read.apply(this, [geojson, geojson.type, filter]);
                     feature.fid = geojson._id;
                     feature._rev = geojson._rev;
