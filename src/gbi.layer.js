@@ -1930,7 +1930,7 @@ $.extend(gbi.Layers.WFST.prototype, {
      * @memberof gbi.Layers.WFST
      * @instance
      * @param {String} property
-     * @param {String} value
+     * @param {String, Array} value
      */
     filter: function(property, value, type) {
         var filterType;
@@ -1940,10 +1940,21 @@ $.extend(gbi.Layers.WFST.prototype, {
                 filterType = OpenLayers.Filter.Comparison.LIKE;
                 break;
         }
-        this.olLayer.filter = new OpenLayers.Filter.Comparison({
-            type: filterType,
-            property: property,
-            value: value
+        if (!isArray(value)) {
+            value = [value]
+        }
+        filters = []
+        for (var i=0; i<value.length; i++)  {
+            var search_value = value[i];
+            filters.push(new OpenLayers.Filter.Comparison({
+                type: filterType,
+                property: property,
+                value: search_value
+            }))
+        }
+        this.olLayer.filter = new OpenLayers.Filter.Logical({
+            type: OpenLayers.Filter.Logical.OR,
+            filters: filters
         });
         this.olLayer.refresh({force: true});
     },

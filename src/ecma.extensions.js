@@ -45,3 +45,7 @@ if (!('forEach' in Array.prototype)) {
                 action.call(that, this[i], i, this);
     };
 }
+
+function isArray(obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
+}
