@@ -1755,7 +1755,7 @@ $.extend(gbi.Layers.Couch.prototype, {
         complete_data.push(self.metadataDocument)
 
         var now = new Date();
-        var datetime = now.format("yyyy-mm-dd-hh-MM-ss");
+        var datetime = now.format("yyyy-mm-dd HH-MM-ss");
 
         var complete_data = {
             'rows' : complete_data,
