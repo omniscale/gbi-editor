@@ -1434,10 +1434,7 @@ $.extend(gbi.Layers.Couch.prototype, {
     },
     _saveMetaDocument: function() {
         var self = this;
-        self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
-        self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
-        self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
-        self.metadataDocument.appOptions['jsonSchema'] = self._prepareJsonSchemaData();
+        self._createMetadataDocument(self);
 
         OpenLayers.Request.PUT({
             url: self.options.url + 'metadata',
@@ -1529,7 +1526,15 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
-
+    _createMetadataDocument: function(self) {
+        if (self.metadataDocument.appOptions == undefined) {
+            self.metadataDocument['appOptions'] = {}
+        }
+        self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
+        self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
+        self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
+        self.metadataDocument.appOptions['jsonSchema'] = self._prepareJsonSchemaData();
+    },
     /**
      * Creates default documents needed in couchDB for couch layer
      *
@@ -1541,10 +1546,9 @@ $.extend(gbi.Layers.Couch.prototype, {
         var self = this;
 
         if(withData) {
-            self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
-            self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
-            self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
+            self._createMetadataDocument();
         }
+        console.log("create", self.metadataDocument)
 
         OpenLayers.Request.PUT({
             url: self.options.url + 'metadata',
@@ -1747,10 +1751,7 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
 
         // add metadata so savepoint
-        self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
-        self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
-        self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
-        self.metadataDocument.appOptions['jsonSchema'] = self._prepareJsonSchemaData();
+        self._createMetadataDocument(self);
         complete_data.push(self.metadataDocument)
 
         var now = new Date();
