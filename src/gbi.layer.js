@@ -1294,7 +1294,8 @@ gbi.Layers.Couch = function(options) {
     var nameLowerCase = options.name.toLowerCase();
 
     this.couchUrl = options.url;
-    options.url += nameLowerCase.replace(/[^a-z0-9]*/g, '') + '/';
+    // options.url += nameLowerCase.replace(/[^a-z0-9]*/g, '') + '/';
+    options.url += nameLowerCase + '/';
 
     var couchExtension = {
         protocol: new OpenLayers.Protocol.CouchDB({
