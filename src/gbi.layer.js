@@ -1433,7 +1433,6 @@ $.extend(gbi.Layers.Couch.prototype, {
     },
     _saveMetaDocument: function() {
         var self = this;
-
         self.metadataDocument.appOptions['olDefaultStyle'] = self._prepareStylingData();
         self.metadataDocument.appOptions['gbiThematicalMap'] = self._prepareThematicalData();
         self.metadataDocument.appOptions['gbiAttributeLists'] = self._prepareAttributeListsData();
@@ -1625,6 +1624,7 @@ $.extend(gbi.Layers.Couch.prototype, {
             url: this.options.url,
             async: false,
             failure: function(response) {
+                // create new couchdb
                 OpenLayers.Request.PUT({
                     url: self.options.url,
                     async: false,
@@ -1635,7 +1635,20 @@ $.extend(gbi.Layers.Couch.prototype, {
                 });
             },
             success: function(response) {
-                self.couchExists = true;
+                var jsonFormat = new OpenLayers.Format.JSON();
+                var doc = jsonFormat.read(response.responseText);
+                if (doc.error = 'not_found') {
+                    OpenLayers.Request.PUT({
+                        url: self.options.url,
+                        async: false,
+                        success: function(response) {
+                            self._createMetaDocument(withData);
+                            self._createViews();
+                        }
+                    });
+                } else {
+                    self.couchExists = true;
+                }
             }
         });
     },
