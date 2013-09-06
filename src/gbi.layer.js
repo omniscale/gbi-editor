@@ -1290,12 +1290,15 @@ gbi.Layers.Couch = function(options) {
     options = $.extend({}, defaults, options);
 
     this.format = new OpenLayers.Format.JSON();
-
-    var nameLowerCase = options.name.toLowerCase();
-
     this.couchUrl = options.url;
-    // options.url += nameLowerCase.replace(/[^a-z0-9]*/g, '') + '/';
-    options.url += nameLowerCase + '/';
+
+    if (!options.name) {
+        options.name = options.title;
+    }
+
+    var couch_name = options.name.toLowerCase();
+    couch_name = couch_name.replace(/[^a-z0-9_]*/g, '');
+    options.url += couch_name + '/';
 
     var couchExtension = {
         protocol: new OpenLayers.Protocol.CouchDB({
@@ -1315,7 +1318,8 @@ gbi.Layers.Couch = function(options) {
     gbi.Layers.SaveableVector.call(this, $.extend(true, {}, defaults, options, couchExtension));
 
     this.metadataDocument = {
-        title: self.options.name,
+        name: couch_name,
+        title: self.options.title,
         type: 'GeoJSON',
         appOptions: {}
     };
