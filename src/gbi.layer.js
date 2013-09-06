@@ -1548,7 +1548,6 @@ $.extend(gbi.Layers.Couch.prototype, {
         if(withData) {
             self._createMetadataDocument();
         }
-        console.log("create", self.metadataDocument)
 
         OpenLayers.Request.PUT({
             url: self.options.url + 'metadata',
