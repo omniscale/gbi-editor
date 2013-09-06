@@ -71,6 +71,8 @@ gbi.Map = function (editor, options) {
     });
     if(centerPosition) {
         this.center(centerPosition);
+    } else {
+        this.zoomToMaxExtent();
     }
 };
 gbi.Map.prototype = {
