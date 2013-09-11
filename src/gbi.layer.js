@@ -1530,7 +1530,9 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
-    _createMetadataDocument: function(self) {
+    _createMetadataDocument: function() {
+        var self = this;
+
         if (self.metadataDocument.appOptions == undefined) {
             self.metadataDocument['appOptions'] = {}
         }
