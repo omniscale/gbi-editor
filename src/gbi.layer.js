@@ -1691,10 +1691,11 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @param {Boolean} [createDB=false] createDB
      * @returns {gbi.Layers.Couch} The clone
      */
-    clone: function(newName, createDB) {
+    clone: function(newName, createDB, newTitle) {
         var self = this;
         var copyOptions = $.extend(true, {}, self.options, {
             name: newName,
+            title: newTitle || newName,
             url: self.couchUrl,
             symbolizers: self.symbolizers,
             createDB: false,
