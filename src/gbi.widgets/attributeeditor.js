@@ -23,7 +23,9 @@ gbi.widgets.AttributeEditor = function(editor, options) {
         element: 'attributeeditor',
         alpacaSchemaElement: 'alpaca_schema',
         alpacaNonSchemaElement: 'alpaca_non_schema',
-        allowNewAttributes: true
+        allowNewAttributes: true,
+        editable: true,
+        allowSchemaLoad: true
     };
     this.layerManager = editor.layerManager;
     this.options = $.extend({}, defaults, options);
@@ -97,7 +99,7 @@ gbi.widgets.AttributeEditor.prototype = {
         var attributes = self.jsonSchema ? activeLayer.schemaAttributes() : this.renderAttributes || activeLayer.featuresAttributes();
         this.element.empty();
 
-        if(!self.jsonSchema) {
+        if(self.options.allowSchemaLoad && !self.jsonSchema) {
             this.element.append(tmpl(gbi.widgets.AttributeEditor.addSchemaTemplate));
             $('#add_json_schema_url').click(function() {
                 $(activeLayer).on('gbi.layer.vector.schemaLoaded', function(event, schema) {
@@ -202,7 +204,7 @@ gbi.widgets.AttributeEditor.prototype = {
     renderInputMask: function(attributes, activeLayer) {
         var self = this;
         var selectedFeatureAttributes = {};
-        var editable = true;
+        var editable = self.options.editable;
 
         $.each(self.selectedFeatures, function(idx, feature) {
             if(feature.layer != activeLayer.olLayer) {
