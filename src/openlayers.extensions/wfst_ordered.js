@@ -13,7 +13,13 @@ OpenLayers.Protocol.WFS.v1_1_0_ordered = OpenLayers.Class(OpenLayers.Protocol.WF
 
     attribute_order: false,
 
+    events: null,
+
     initialize: function(options) {
+        this.events = new OpenLayers.Events(this);
+        if(options.eventListeners instanceof Object) {
+            this.events.on(options.eventListeners);
+        }
         this.get_attribute_order(options.schema)
         this.formatOptions = OpenLayers.Util.extend({
             attribute_order: this.attribute_order
@@ -43,12 +49,16 @@ OpenLayers.Protocol.WFS.v1_1_0_ordered = OpenLayers.Class(OpenLayers.Protocol.WF
         if(properties) {
             var attribute_order = [];
             var attribute_types = {};
+            var attribute_requireds = {};
             for(var idx in properties) {
                 attribute_order.push(properties[idx].name);
                 attribute_types[properties[idx].name] = properties[idx].type;
+                attribute_requireds[properties[idx].name] = !properties[idx].nillable;
             }
             this.attribute_order = attribute_order;
             this.attribute_types = attribute_types;
+            this.attribute_requireds = attribute_requireds;
+            this.events.triggerEvent("schema.loaded", {attribute_order: attribute_order, attribute_types: attribute_types, attribute_requireds: attribute_requireds});
         }
 
     },
