@@ -292,7 +292,7 @@ gbi.Layers.Vector = function(options) {
     this.loaded = true;
     this.customStyle = false;
     this.default_symbolizers = default_symbolizers;
-    this.jsonSchema = this.options.jsonSchema || false;
+    this.jsonSchema = this.jsonSchema || this.options.jsonSchema || false;
 
     this._shortListAttributes = [];
     this._fullListAttributes = [];
@@ -1912,6 +1912,7 @@ $.extend(gbi.Layers.Couch.prototype, {
  * @param {String} [options.srsName=EPSG:3857] EPSG code of WFS source
  */
 gbi.Layers.WFST = function(options) {
+    var self = this;
     var defaults = {
         featureNS: '',
         featureType: '',
@@ -1921,26 +1922,32 @@ gbi.Layers.WFST = function(options) {
         typename: '',
         srsName: 'EPSG:3857'
     };
-    options = $.extend({}, defaults, options);
+    this.options = $.extend({}, defaults, options);
+    this._protocol = new OpenLayers.Protocol.WFS({
+        version: '1.1.0_ordered',
+        url: this.options.url,
+        srsName: this.options.srsName,
+        featureNS: this.options.featureNS,
+        featureType: this.options.featureType,
+        geometryName: this.options.geometryName,
+        schema: this.options.url + 'service=wfs&request=DescribeFeatureType&version='+this.options.version+'&typename='+this.options.typename+':'+this.options.featureType,
+        maxFeatures: this.options.maxFeatures,
+        typename: this.options.typename + ':' + this.options.featureType,
+        eventListeners: {
+            "schema.loaded": function(attributes) {
+                self.jsonSchema = self._jsonSchema(attributes);
+            }
+        }
+    });
     var wfsExtension = {
-        protocol: new OpenLayers.Protocol.WFS({
-            version: '1.1.0_ordered',
-            url: options.url,
-            srsName: options.srsName,
-            featureNS: options.featureNS,
-            featureType: options.featureType,
-            geometryName: options.geometryName,
-            schema: options.url + 'service=wfs&request=DescribeFeatureType&version='+options.version+'&typename='+options.typename+':'+options.featureType,
-            maxFeatures: options.maxFeatures,
-            typename: options.typename + ':' + options.featureType
-        }),
+        protocol: this._protocol,
         strategies: [
             new OpenLayers.Strategy.BBOX()
         ]
     };
-    delete options.jsonSchema;
-    delete options.jsonSchemaUrl;
-    gbi.Layers.SaveableVector.call(this, $.extend({}, defaults, options, wfsExtension));
+    delete this.options.jsonSchema;
+    delete this.options.jsonSchemaUrl;
+    gbi.Layers.SaveableVector.call(this, $.extend({}, defaults, this.options, wfsExtension));
 };
 gbi.Layers.WFST.prototype = new gbi.Layers.SaveableVector();
 $.extend(gbi.Layers.WFST.prototype, {
@@ -1997,10 +2004,46 @@ $.extend(gbi.Layers.WFST.prototype, {
      * @returns {String[]} attributes
      */
     attributes: function() {
-        var attributes = this.olLayer.protocol.attribute_order.slice();;
+        var self = this;
+        if(!self._protocol.attribute_order) {
+            return [];
+        }
+        var attributes = self._protocol.attribute_order.slice();;
         // remove geometry column
-        delete attributes[attributes.indexOf(this.options.geometryName)];
+        delete attributes[attributes.indexOf(self.options.geometryName)];
         return attributes;
+    },
+    _jsonSchema: function(_attributes) {
+        var self = this;
+        var attributes = _attributes.attribute_order;
+        var attributeTypes = _attributes.attribute_types;
+        var attributeRequireds = _attributes.attribute_requireds;
+        var schema = {
+            "title": self.options.name + '_schema',
+            "type": "object",
+            "properties": {}
+        }
+        $.each(attributes, function(idx, attribute) {
+            var type;
+            switch(attributeTypes[attribute]) {
+                case 'string':
+                    type = 'string';
+                    break;
+                case 'double':
+                    type = 'number';
+                    break;
+                default:
+                    type = false
+            }
+            if(type) {
+                schema.properties[attribute] = {
+                    "type": type,
+                    "title": attribute,
+                    "required": attributeRequireds[attribute]
+                }
+            }
+        });
+        return schema;
     },
     /**
      * Returns type of given attribute
