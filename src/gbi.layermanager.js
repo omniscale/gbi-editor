@@ -52,7 +52,7 @@ gbi.LayerManager.prototype = {
             $(gbi).trigger('gbi.layermanager.rasterlayer.add', layer);
         }
         this.position(layer, this.minMaxPosition(layer)['max']);
-        $(gbi).trigger('gbi.layermanager.layer.add');
+        $(gbi).trigger('gbi.layermanager.layer.add', layer);
 
     },
     /**
