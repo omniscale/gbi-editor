@@ -19,6 +19,9 @@ gbi.Layers.Layer = function(options) {
         gbiLayer: this
     }
     this.options = $.extend({}, defaults, options);
+    if(!this.options.title) {
+        this.options.title = this.options.name;
+    }
     this.isRaster = true;
     this.isBackground = this.options.background || false;
 };
