@@ -1379,40 +1379,41 @@ gbi.Layers.Couch = function(options) {
                                     "Content-Type": "application/atom+xml;type=feed;charset=utf-8"\
                                 }\
                             });\
-                            send(\'<?xml version="1.0" encoding="utf-8"?><feed xml:base="\'+baseUrl+\'" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">\');\
+                            send(\'<?xml version="1.0" encoding="utf-8"?>\');\
+                            send(\'<feed xml:base="\'+baseUrl+\'" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">\');\
                             send(\'<title type="text">\'+path[path.length-1]+\'</title>\');\
-                            send(\'<id>\'+baseUrl+\'</id>\');\
+                            send("<id>"+baseUrl+"</id>");\
                             send(\'<link rel="self" title="odata" href="odata" />\');\
-                            send(\'<updated>\'+now+\'</updated>\');\
+                            send("<updated>"+now+"</updated>");\
                             var row;\
                             while(row = getRow()) {\
                                 if(row.key != "metadata") {\
-                                    send(\'<entry>\');\
-                                    send(\'<id>\'+baseUrl+\'</id>\');\
+                                    send("<entry>");\
+                                    send("<id>"+baseUrl+"</id>");\
                                     send(\'<title type="text">\'+row.key+\'</title>\');\
-                                    send(\'<author><name /></author>\');\
-                                    send(\'<updated>\'+now+\'</updated>\');\
+                                    send("<author><name /></author>");\
+                                    send("<updated>"+now+"</updated>");\
                                     send(\'<content type="application/xml">\');\
-                                    send(\'<m:properties>\');\
+                                    send("<m:properties>");\
                                     for(var prop in row.value) {\
                                         if(row.value.hasOwnProperty(prop)){\
                                             if(typeof(row.value[prop]) === "number") {\
-                                                send(\'<d:\'+prop+\' m:type="Edm.Double">\'+row.value[prop]+\'</d:\'+prop+\'>\');\
+                                                send("<d:"+prop+\' m:type="Edm.Double">\'+row.value[prop]+"</d:"+prop+">");\
                                             } else if (!isNaN(Date.parse(row.value[prop]))) {\
                                                 var d = Date.parse(row.value[prop]);\
                                                 var date = new Date(d).toUTCString();\
-                                                send(\'<d:\'+prop+\' m:type="Edm.DateTime">\'+date+\'</d:\'+prop+\'>\');\
+                                                send("<d:"+prop+\' m:type="Edm.DateTime">\'+date+"</d:"+prop+">");\
                                             } else {\
-                                                send(\'<d:\'+prop+\' m:type="Edm.String">\'+row.value[prop]+\'</d:\'+prop+\'>\');\
+                                                send("<d:"+prop+\' m:type="Edm.String">\'+row.value[prop]+"</d:"+prop+">");\
                                             }\
                                         }\
                                     }\
-                                    send(\'</m:properties>\');\
-                                    send(\'</content>\');\
-                                    send(\'</entry>\');\
+                                    send("</m:properties>");\
+                                    send("</content>");\
+                                    send("</entry>");\
                                 }\
                             }\
-                            send(\'</feed>\');\
+                            send("</feed>");\
                         }'
                 },
                 'shows': {
@@ -1423,22 +1424,23 @@ gbi.Layers.Couch = function(options) {
                             var pathurl = "";\
                             for(var b in path){\
                                 if (b < 3) {\
-                                    pathurl = pathurl+\'/\'+path[b];\
+                                    pathurl = pathurl+"/"+path[b];\
                                 }\
                             }\
                             var baseUrl = "http://"+host+pathurl+"/_list/odata_convert/";\
-                            var returnBody = \'<service xmlns:atom="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app" xmlns="http://www.w3.org/2007/app" xml:base="\'+baseUrl+\'"><workspace><atom:title>\'+path[path.length-1]+\'</atom:title>\';\
+                            var returnBody = \'<service xmlns:atom="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app" xmlns="http://www.w3.org/2007/app" xml:base="\'+baseUrl+\'">\';\
+                            returnBody += \'<workspace><atom:title>\'+path[path.length-1]+\'</atom:title>\';\
                             if(doc){\
                                 if (doc.views){\
                                     for(var prop in doc.views) {\
                                         if(doc.views.hasOwnProperty(prop)){\
                                             returnBody = returnBody+\'<collection href="\'+prop+\'">\';\
-                                            returnBody = returnBody+\'<atom:title>\'+prop+\'</atom:title></collection>\';\
+                                            returnBody = returnBody+"<atom:title>"+prop+"</atom:title></collection>";\
                                         }\
                                     }\
                                 }\
                             }\
-                            returnBody = returnBody+\'</workspace></service>\';\
+                            returnBody = returnBody+"</workspace></service>";\
                             return {\
                                 headers : {\
                                     "Content-Type" : "application/xml"\
