@@ -1302,6 +1302,7 @@ gbi.Layers.Couch = function(options) {
     var couch_name = options.name.toLowerCase();
     couch_name = couch_name.replace(/[^a-z0-9_]*/g, '');
     options.url += couch_name + '/';
+    this.odataUrl = options.url + '_design/odata/_show/odata_service/_design/odata';
 
     var couchExtension = {
         protocol: new OpenLayers.Protocol.CouchDB({
