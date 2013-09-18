@@ -1303,6 +1303,7 @@ gbi.Layers.Couch = function(options) {
     couch_name = couch_name.replace(/[^a-z0-9_]*/g, '');
     options.url += couch_name + '/';
     this.odataUrl = options.url + '_design/odata/_show/odata_service/_design/odata';
+    this.fixedStrategy = new OpenLayers.Strategy.Fixed();
 
     var couchExtension = {
         protocol: new OpenLayers.Protocol.CouchDB({
@@ -1312,7 +1313,7 @@ gbi.Layers.Couch = function(options) {
             format: new OpenLayers.Format.CouchDB()
         }),
         strategies: [
-            new OpenLayers.Strategy.Fixed()
+            this.fixedStrategy
         ]
     };
 
@@ -1777,6 +1778,9 @@ $.extend(gbi.Layers.Couch.prototype, {
     refresh: function() {
         this._loadMetaDocument();
         gbi.Layers.SaveableVector.prototype.refresh.apply(this)
+    },
+    loadFeatures: function() {
+        this.fixedStrategy.load()
     },
     /**
      * Returns if layer has unsaved changes
