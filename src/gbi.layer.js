@@ -1563,8 +1563,8 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
-    _useMetaData: function(self, triggerEvent) {
-        var self = self;
+    _useMetaData: function(triggerEvent) {
+        var self = this;
         if(self.metadataDocument.appOptions != undefined) {
             // load ol styling or set default styling if not in metadata
             if(self.metadataDocument.appOptions.olDefaultStyle != undefined) {
@@ -1585,7 +1585,6 @@ $.extend(gbi.Layers.Couch.prototype, {
                 self.deactivateFeatureStylingRule();
             }
 
-
             if(self.metadataDocument.appOptions.gbiAttributeLists != undefined) {
                 if(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes != undefined) {
                     self.popupAttributes(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes);
@@ -1599,7 +1598,7 @@ $.extend(gbi.Layers.Couch.prototype, {
                     self.shortListAttributes([]);
                 }
 
-                if(self.metadataDocument.fullListAttributes != undefined) {
+                if(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes != undefined) {
                     self.fullListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes);
                 } else {
                     self.fullListAttributes([]);
@@ -1633,7 +1632,7 @@ $.extend(gbi.Layers.Couch.prototype, {
             },
             success: function(response) {
                 self.metadataDocument = self.format.read(response.responseText);
-                self._useMetaData(self)
+                self._useMetaData()
             }
         });
     },
