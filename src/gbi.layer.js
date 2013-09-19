@@ -1100,7 +1100,7 @@ gbi.Layers.SaveableVector = function(options) {
         self.unsavedFeatureChanges = false;
         if(response && response.object && response.object.features.length == 0) {
             self.loaded = true;
-            $(this).trigger('gbi.layer.saveableVector.loadFeaturesEnd');
+            $(self).trigger('gbi.layer.saveableVector.loadFeaturesEnd');
         }
         self.olLayer.events.register('featureadded', self, self._trackStatus);
         self.olLayer.events.register('featureremoved', self, self._trackStatus);
