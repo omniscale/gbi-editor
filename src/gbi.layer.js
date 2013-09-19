@@ -2071,6 +2071,7 @@ $.extend(gbi.Layers.WFST.prototype, {
      * @param {String, Array} value
      */
     filter: function(property, value, type) {
+        var self = this;
         var filterType;
         switch(type) {
             case 'like':
@@ -2093,6 +2094,9 @@ $.extend(gbi.Layers.WFST.prototype, {
         this.olLayer.filter = new OpenLayers.Filter.Logical({
             type: OpenLayers.Filter.Logical.OR,
             filters: filters
+        });
+        $(this).one('gbi.layer.saveableVector.loadFeaturesEnd', function() {
+            $(self).trigger('gbi.layer.WFST.filter_applied');
         });
         this.olLayer.refresh({force: true});
     },
