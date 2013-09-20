@@ -997,6 +997,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @return {Boolean} valid
      */
     validateFeatureAttributes: function(feature) {
+        var self = this;
         return Validator.validate(feature.attributes, self.jsonSchema).valid;
     },
     addSchemaFromUrl: function(url) {
@@ -1012,8 +1013,10 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
     },
     removeJsonSchema: function() {
-        this.jsonSchema = false;
-        this.options.jsonSchemaUrl = false;
+        var self = this;
+        self.jsonSchema = false;
+        self.options.jsonSchemaUrl = false;
+        $(self).trigger('gbi.layer.vector.schemaRemoved');
     }
 });
 
