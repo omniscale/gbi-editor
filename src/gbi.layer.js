@@ -1468,8 +1468,8 @@ gbi.Layers.Couch = function(options) {
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
         self.features = self.olLayer.features;
-            $(this).on('gbi.layer.vector.featureAttributeChanged', function() {
-        self.unsavedFeatureChanges = true;
+        $(this).on('gbi.layer.vector.featureAttributeChanged', function() {
+            self.unsavedFeatureChanges = true;
         });
         $(this).on('gbi.layer.vector.gbi.layer.vector.styleChanged', function() {
             self.unsavedMetaChanges = true;
@@ -1485,7 +1485,7 @@ gbi.Layers.Couch = function(options) {
         });
         $(this).on('gbi.layer.vector.schemaLoaded', function() {
             self.unsavedMetaChanges = true;
-        })
+        });
         $(this).trigger('gbi.layer.couch.loadFeaturesEnd');
     });
 
