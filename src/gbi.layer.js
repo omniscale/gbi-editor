@@ -2075,7 +2075,7 @@ $.extend(gbi.Layers.WFST.prototype, {
      * @param {String} property
      * @param {String, Array} value
      */
-    filter: function(property, value, type) {
+    filter: function(property, value, type, setVisible) {
         var self = this;
         var filterType;
         switch(type) {
@@ -2096,14 +2096,18 @@ $.extend(gbi.Layers.WFST.prototype, {
                 value: search_value
             }))
         }
-        this.olLayer.filter = new OpenLayers.Filter.Logical({
+        self.olLayer.filter = new OpenLayers.Filter.Logical({
             type: OpenLayers.Filter.Logical.OR,
             filters: filters
         });
-        $(this).one('gbi.layer.saveableVector.loadFeaturesEnd', function() {
+        $(self).one('gbi.layer.saveableVector.loadFeaturesEnd', function(event) {
             $(self).trigger('gbi.layer.WFST.filter_applied');
         });
-        this.olLayer.refresh({force: true});
+        if(self.visible()) {
+            self.olLayer.refresh({force: true});
+        } else if(setVisible) {
+            self.visible(true)
+        }
     },
     /**
      * Removes all filter from layer
