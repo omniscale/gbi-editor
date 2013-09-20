@@ -1101,16 +1101,18 @@ gbi.Layers.SaveableVector = function(options) {
 
     this.olLayer.events.register('loadend', '', function(response) {
         self.unsavedFeatureChanges = false;
+
         if(response && response.object && response.object.features.length == 0) {
             self.loaded = true;
-            $(self).trigger('gbi.layer.saveableVector.loadFeaturesEnd');
         }
+
         self.olLayer.events.register('featureadded', self, self._trackStatus);
         self.olLayer.events.register('featureremoved', self, self._trackStatus);
         self.olLayer.events.register('afterfeaturemodified', self, self._trackStatus);
 
-
         self.features = self.olLayer.features;
+
+        $(self).trigger('gbi.layer.saveableVector.loadFeaturesEnd');
     });
 
     $(this).on('gbi.layer.vector.featureAttributeChanged', function(event, feature) {
