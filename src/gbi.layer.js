@@ -2095,7 +2095,7 @@ $.extend(gbi.Layers.WFS.prototype, {
             filters: filters
         });
         $(self).one('gbi.layer.saveableVector.loadFeaturesEnd', function(event) {
-            $(self).trigger('gbi.layer.WFST.filter_applied');
+            $(self).trigger('gbi.layer.WFS.filter_applied');
         });
         if(self.visible()) {
             self.olLayer.refresh({force: true});
