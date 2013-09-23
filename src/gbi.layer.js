@@ -2144,6 +2144,8 @@ gbi.Layers.WFS = function(options) {
     }
     self.options = $.extend({}, defaults, options);
 
+    self.loadEndEvent = 'gbi.layer.WFS.loadFeaturesEnd';
+
     self._protocol = new OpenLayers.Protocol.WFS({
         version: self.options.version,
         url: self.options.url,
@@ -2159,7 +2161,18 @@ gbi.Layers.WFS = function(options) {
         protocol: self._protocol,
         strategies: [new OpenLayers.Strategy.BBOX()]
     };
+
     gbi.Layers.Vector.call(this, $.extend({}, this.options, wfsExtension));
+
+    this.olLayer.events.register('loadend', '', function(response) {
+        if(response && response.object && response.object.features.length == 0) {
+            self.loaded = true;
+        }
+
+        self.features = self.olLayer.features;
+
+        $(self).trigger('gbi.layer.WFS.loadFeaturesEnd');
+    });
 };
 gbi.Layers.WFS.prototype = new gbi.Layers.Vector();
 $.extend(gbi.Layers.WFS.prototype, {
@@ -2197,7 +2210,7 @@ $.extend(gbi.Layers.WFS.prototype, {
             type: OpenLayers.Filter.Logical.OR,
             filters: filters
         });
-        $(self).one('gbi.layer.saveableVector.loadFeaturesEnd', function(event) {
+        $(self).one(self.loadEndEvent, function(event) {
             $(self).trigger('gbi.layer.WFS.filter_applied');
         });
         if(self.visible()) {
@@ -2243,6 +2256,8 @@ gbi.Layers.WFST = function(options) {
         srsName: 'EPSG:3857'
     };
     this.options = $.extend({}, defaults, options);
+
+    this.loadEndEvent = 'gbi.layer.saveableVector.loadFeaturesEnd';
 
     this._protocol = new OpenLayers.Protocol.WFS({
         version: '1.1.0_ordered',
