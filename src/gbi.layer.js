@@ -2014,10 +2014,10 @@ $.extend(gbi.Layers.Couch.prototype, {
 });
 
 /**
- * Creates a WFS-T layer
+ * Creates a WFS layer
  *
  * @constructor
- * @extends gbi.Layers.SaveableVector
+ * @extends gbi.Layers.Vector
  * @param options All OpenLayers.Layer.Vector options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Layer/Vector-js.html|OpenLayers.Layer.Vector}
  * @param {String} options.featureNS Namespace
  * @param {String} options.featureType Layername
@@ -2026,7 +2026,7 @@ $.extend(gbi.Layers.Couch.prototype, {
  * @param {String} options.typename
  * @param {String} [options.srsName=EPSG:3857] EPSG code of WFS source
  */
-gbi.Layers.WFST = function(options) {
+gbi.Layers.WFS = function(options) {
     var self = this;
     var defaults = {
         featureNS: '',
@@ -2036,41 +2036,35 @@ gbi.Layers.WFST = function(options) {
         maxFeatures: 500,
         typename: '',
         srsName: 'EPSG:3857'
-    };
-    this.options = $.extend({}, defaults, options);
-    this._protocol = new OpenLayers.Protocol.WFS({
-        version: '1.1.0_ordered',
-        url: this.options.url,
-        srsName: this.options.srsName,
-        featureNS: this.options.featureNS,
-        featureType: this.options.featureType,
-        geometryName: this.options.geometryName,
-        schema: this.options.url + 'service=wfs&request=DescribeFeatureType&version='+this.options.version+'&typename='+this.options.typename+':'+this.options.featureType,
-        maxFeatures: this.options.maxFeatures,
-        typename: this.options.typename + ':' + this.options.featureType,
-        eventListeners: {
-            "schema.loaded": function(attributes) {
-                self.jsonSchema = self._jsonSchema(attributes);
-            }
-        }
+    }
+    self.options = $.extend({}, defaults, options);
+
+    self._protocol = new OpenLayers.Protocol.WFS({
+        version: self.options.version,
+        url: self.options.url,
+        srsName: self.options.srsName,
+        featureNS: self.options.featureNS,
+        featureType: self.options.featureType,
+        geometryName: self.options.geometryName,
+        maxFeatures: self.options.maxFeatures,
+        typename: self.options.typename
     });
+
     var wfsExtension = {
-        protocol: this._protocol,
-        strategies: [
-            new OpenLayers.Strategy.BBOX()
-        ]
+        protocol: self._protocol,
+        strategies: [new OpenLayers.Strategy.BBOX()]
     };
-    delete this.options.jsonSchema;
-    delete this.options.jsonSchemaUrl;
-    gbi.Layers.SaveableVector.call(this, $.extend({}, defaults, this.options, wfsExtension));
+    gbi.Layers.Vector.call(this, $.extend({}, this.options, wfsExtension));
+
+    this.isEditable = false;
 };
-gbi.Layers.WFST.prototype = new gbi.Layers.SaveableVector();
-$.extend(gbi.Layers.WFST.prototype, {
-    CLASS_NAME: 'gbi.Layers.WFST',
+gbi.Layers.WFS.prototype = new gbi.Layers.Vector();
+$.extend(gbi.Layers.WFS.prototype, {
+    CLASS_NAME: 'gbi.Layers.WFS',
     /**
-     * Adds a filter to the WFS-T request
+     * Adds a filter to the WFS request
      *
-     * @memberof gbi.Layers.WFST
+     * @memberof gbi.Layers.WFS
      * @instance
      * @param {String} property
      * @param {String, Array} value
@@ -2112,12 +2106,88 @@ $.extend(gbi.Layers.WFST.prototype, {
     /**
      * Removes all filter from layer
      *
-     * @memberof gbi.Layers.WFST
+     * @memberof gbi.Layers.WFS
      * @instance
      */
     removeFilter: function() {
         this.olLayer.filter = null;
         this.olLayer.refresh({force: true});
+    }
+});
+
+/**
+ * Creates a WFS-T layer
+ *
+ * @constructor
+ * @extends gbi.Layers.SaveableVector
+ * @param options All OpenLayers.Layer.Vector options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Layer/Vector-js.html|OpenLayers.Layer.Vector}
+ * @param {String} options.featureNS Namespace
+ * @param {String} options.featureType Layername
+ * @param {String} options.geometryName Name of geometry column
+ * @param {Integer} [options.maxFeatures=500]
+ * @param {String} options.typename
+ * @param {String} [options.srsName=EPSG:3857] EPSG code of WFS source
+ */
+gbi.Layers.WFST = function(options) {
+    var self = this;
+    var defaults = {
+        featureNS: '',
+        featureType: '',
+        geometryName: '',
+        version: '1.1.0',
+        maxFeatures: 500,
+        typename: '',
+        srsName: 'EPSG:3857'
+    };
+    this.options = $.extend({}, defaults, options);
+
+    this._protocol = new OpenLayers.Protocol.WFS({
+        version: '1.1.0_ordered',
+        url: this.options.url,
+        srsName: this.options.srsName,
+        featureNS: this.options.featureNS,
+        featureType: this.options.featureType,
+        geometryName: this.options.geometryName,
+        schema: this.options.url + 'service=wfs&request=DescribeFeatureType&version='+this.options.version+'&typename='+this.options.typename+':'+this.options.featureType,
+        maxFeatures: this.options.maxFeatures,
+        typename: this.options.typename + ':' + this.options.featureType,
+        eventListeners: {
+            "schema.loaded": function(attributes) {
+                self.jsonSchema = self._jsonSchema(attributes);
+            }
+        }
+    });
+    delete this.options.jsonSchema;
+    delete this.options.jsonSchemaUrl;
+    var wfsExtension = {
+        protocol: self._protocol,
+        strategies: [new OpenLayers.Strategy.BBOX()]
+    };
+
+    gbi.Layers.SaveableVector.call(this, $.extend({}, this.options, wfsExtension));
+};
+gbi.Layers.WFST.prototype = new gbi.Layers.SaveableVector();
+$.extend(gbi.Layers.WFST.prototype, {
+    CLASS_NAME: 'gbi.Layers.WFST',
+    /**
+     * Uses filter function of gbi.Layers.WFS
+     *
+     * @memberof gbi.Layers.WFST
+     * @instance
+     * @param {String} property
+     * @param {String, Array} value
+     */
+    filter: function(property, value, type, setVisible)  {
+        gbi.Layers.WFS.prototype.filter.call(this, property, value, type, setVisible);
+    },
+    /**
+     * Uses removeFilter function of gbi.Layers.WFS
+     *
+     * @memberof gbi.Layers.WFST
+     * @instance
+     */
+    removeFilter: function() {
+        gbi.Layers.WFS.prototype.removeFilter.call(this);
     },
     /**
      * Returns attributes defined in schema
