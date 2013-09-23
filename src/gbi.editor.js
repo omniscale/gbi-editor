@@ -43,6 +43,8 @@ gbi.Editor.prototype = {
     /**
      * Add a layer
      *
+     * @memberof gbi.Editor
+     * @instance
      * @param {Layer} layer Layer to add
      */
     addLayer: function(layer) {
@@ -51,6 +53,8 @@ gbi.Editor.prototype = {
     /**
      * Add a lot of layers
      *
+     * @memberof gbi.Editor
+     * @instance
      * @param {Layer[]} layers Layers to add
      */
     addLayers: function(layers) {
@@ -59,6 +63,8 @@ gbi.Editor.prototype = {
     /**
      * Add a control
      *
+     * @memberof gbi.Editor
+     * @instance
      * @param {Control|ToolbarItem} control Control to add
      */
     addControl: function(control) {
@@ -67,6 +73,8 @@ gbi.Editor.prototype = {
     /**
      * Add a lot of controls
      *
+     * @memberof gbi.Editor
+     * @instance
      * @param {Control[]|ToolbarItem[]} controls Controls to add
      */
     addControls: function(controls) {
@@ -75,6 +83,8 @@ gbi.Editor.prototype = {
     /**
      * Removes a layer
      *
+     * @memberof gbi.Editor
+     * @instance
      * @param {Layer} layer Layer to remove
      */
     removeLayer: function(layer) {
@@ -83,12 +93,20 @@ gbi.Editor.prototype = {
     /**
      * Sets the language
      *
+     * @memberof gbi.Editor
+     * @instance
      * @param {String} language Language to use
      */
     setLanguage: function(language) {
         this.language = language;
         OpenLayers.Lang.setCode(language);
     },
+    /**
+     * Zoom to map max extent
+     *
+     * @memberof gbi.Editor
+     * @instance
+     */
     zoomToMaxExtent: function() {
         this.map.zoomToMaxExtent();
     }
