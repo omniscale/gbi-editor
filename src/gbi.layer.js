@@ -154,6 +154,12 @@ gbi.Layers.WMS = function(options) {
 gbi.Layers.WMS.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.WMS.prototype, {
     CLASS_NAME: 'gbi.Layers.WMS',
+    /**
+     * Creates a clone of this layer
+     *
+     * @memberof gbi.Layers.WMS
+     * @instance
+     */
     clone: function() {
         var clone_options = $.extend({}, this.options, {clone: true});
         var clone = new gbi.Layers.WMS(clone_options);
@@ -374,9 +380,23 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
         gbi.Layers.Layer.prototype.destroy.call(this);
     },
+    /**
+     * Refresh content
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     refresh: function() {
         this.olLayer.refresh();
     },
+    /**
+     * Apply style
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
+     * @param {Boolean} temporary Don't save the style if layer is saveable
+     */
     setStyle: function(symbolizers, temporary) {
         if(!temporary) {
             this.customStyle = true;
@@ -388,6 +408,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      *
      * @memberof gbi.Layers.Vector
      * @instance
+     * @private
      * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
      */
     _setStyle: function(symbolizers, temporary) {
@@ -414,11 +435,23 @@ $.extend(gbi.Layers.Vector.prototype, {
         $(this).trigger('gbi.layer.vector.styleChanged')
         this.olLayer.redraw();
     },
+    /**
+     * Activates styled features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     activateFeatureStylingRule: function() {
         this.featureStylingRuleActive = true;
         this._applyFilterOptions();
         this.olLayer.redraw();
     },
+    /**
+     * Deactivates styled features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     deactivateFeatureStylingRule: function() {
         this.featureStylingRuleActive = false;
         this._applyFilterOptions();
@@ -1000,6 +1033,13 @@ $.extend(gbi.Layers.Vector.prototype, {
         var self = this;
         return Validator.validate(feature.attributes, self.jsonSchema).valid;
     },
+    /**
+     * Load jsonSchema from given url
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {String} url Schema location
+     */
     addSchemaFromUrl: function(url) {
         var self = this;
         $.getJSON(url)
@@ -1012,6 +1052,12 @@ $.extend(gbi.Layers.Vector.prototype, {
                 $(self).trigger('gbi.layer.vector.loadSchemaFail');
             });
     },
+    /**
+     * Remve jsonSchema from layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     removeJsonSchema: function() {
         var self = this;
         self.jsonSchema = false;
@@ -1054,6 +1100,13 @@ gbi.Layers.GeoJSON = function(options) {
 gbi.Layers.GeoJSON.prototype = new gbi.Layers.Vector();
 $.extend(gbi.Layers.GeoJSON.prototype, {
     CLASS_NAME: 'gbi.Layers.GeoJSON',
+    /**
+     * Add features from featurecollection to layer
+     *
+     * @memberof gbi.Layers.GeoJSON
+     * @instance
+     * @param {FeatureCollection} featureCollection
+     */
     addFeatureCollection: function(featureCollection) {
         this.addFeatures(this.format.read(featureCollection));
     }
@@ -1506,12 +1559,12 @@ $.extend(gbi.Layers.Couch.prototype, {
         return this.customStyle ? $.extend(true, {}, this.symbolizers) : undefined;
     },
     /**
-     * Prepares gbi_editor document data for insert into couch
+     * Prepares thematical data document data for insert into couch
      *
      * @memberof gbi.Layers.Couch
      * @instance
      * @private
-     * @returns {Object} gbiData
+     * @returns {Object} thematicalData
      */
     _prepareThematicalData: function() {
         var self = this;
@@ -1527,6 +1580,14 @@ $.extend(gbi.Layers.Couch.prototype, {
             return thematicalData;
         }
     },
+    /**
+     * Prepares attribute lists for insert into couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @returns {Object} lists
+     */
     _prepareAttributeListsData: function() {
         var lists = {};
         if(this._popupAttributes.length > 0) {
@@ -1541,6 +1602,14 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
         return lists.popupAttributes || lists.shortListAttributes || lists.fullListAttributes ? lists : undefined;
     },
+    /**
+     * Prepares jsonSchema for insert into couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @returns {Object} jsonSchema data
+     */
     _prepareJsonSchemaData: function() {
         if(this.jsonSchema) {
             return {
@@ -1549,6 +1618,13 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         }
     },
+    /**
+     * Stores metadata document into couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
     _saveMetaDocument: function() {
         var self = this;
         self._createMetadataDocument(self);
@@ -1569,6 +1645,14 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    /**
+     * Process loaded metadata from couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     * @param {Boolean} triggerEvent
+     */
     _useMetaData: function(triggerEvent) {
         var self = this;
         if(self.metadataDocument.appOptions != undefined) {
@@ -1627,7 +1711,13 @@ $.extend(gbi.Layers.Couch.prototype, {
         }
         self.unsavedMetaChanges = false;
     },
-
+    /**
+     * Loads metadata document from couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
     _loadMetaDocument: function() {
         var self = this;
         var request = OpenLayers.Request.GET({
@@ -1642,6 +1732,13 @@ $.extend(gbi.Layers.Couch.prototype, {
             }
         });
     },
+    /**
+     * Create metadata document for inserting into couch
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     * @private
+     */
     _createMetadataDocument: function() {
         var self = this;
 
@@ -1659,6 +1756,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @memberof gbi.Layers.Couch
      * @instance
      * @private
+     * @param {Boolean} withData
      */
     _createMetaDocument: function(withData) {
         var self = this;
@@ -1784,6 +1882,12 @@ $.extend(gbi.Layers.Couch.prototype, {
         this._loadMetaDocument();
         gbi.Layers.SaveableVector.prototype.refresh.apply(this)
     },
+    /**
+     * Force layer to load it's features
+     *
+     * @memberof gbi.Layers.Couch
+     * @instance
+     */
     loadFeatures: function() {
         this.fixedStrategy.load()
     },
@@ -1804,6 +1908,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @instance
      * @param {String} newName
      * @param {Boolean} [createDB=false] createDB
+     * @param {String} newTitle
      * @returns {gbi.Layers.Couch} The clone
      */
     clone: function(newName, createDB, newTitle) {
@@ -2100,7 +2205,9 @@ $.extend(gbi.Layers.WFST.prototype, {
             type: OpenLayers.Filter.Logical.OR,
             filters: filters
         });
+        console.log('für dodo')
         $(self).one('gbi.layer.saveableVector.loadFeaturesEnd', function(event) {
+            console.log('filtered reload complete')
             $(self).trigger('gbi.layer.WFST.filter_applied');
         });
         if(self.visible()) {
@@ -2136,6 +2243,15 @@ $.extend(gbi.Layers.WFST.prototype, {
         delete attributes[attributes.indexOf(self.options.geometryName)];
         return attributes;
     },
+    /**
+     * Creates a jsonSchema from result of DescribeFeaturesRequest
+     *
+     * @memberof gbi.Layers.WFST
+     * @instance
+     * @private
+     * @param {Object} _attributes
+     * @returns {Object} schema Created jsonSchema
+     */
     _jsonSchema: function(_attributes) {
         var self = this;
         var attributes = _attributes.attribute_order;
