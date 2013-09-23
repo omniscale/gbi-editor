@@ -2055,8 +2055,6 @@ gbi.Layers.WFS = function(options) {
         strategies: [new OpenLayers.Strategy.BBOX()]
     };
     gbi.Layers.Vector.call(this, $.extend({}, this.options, wfsExtension));
-
-    this.isEditable = false;
 };
 gbi.Layers.WFS.prototype = new gbi.Layers.Vector();
 $.extend(gbi.Layers.WFS.prototype, {
