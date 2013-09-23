@@ -2199,10 +2199,8 @@ $.extend(gbi.Layers.WFS.prototype, {
             type: OpenLayers.Filter.Logical.OR,
             filters: filters
         });
-        console.log('für dodo')
         $(self).one('gbi.layer.saveableVector.loadFeaturesEnd', function(event) {
-            console.log('filtered reload complete')
-            $(self).trigger('gbi.layer.WFST.filter_applied');
+            $(self).trigger('gbi.layer.WFS.filter_applied');
         });
         if(self.visible()) {
             self.olLayer.refresh({force: true});
