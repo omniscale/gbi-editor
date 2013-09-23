@@ -21,7 +21,7 @@
             OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
 
             $(document).ready(function() {
-                var editor = new gbi.Editor({
+                editor = new gbi.Editor({
                     map: {
                         element: 'map',
                         center: {
@@ -33,7 +33,7 @@
                     }
                 });
                 var osmLayer = new gbi.Layers.OSM({name: 'OSM'});
-                var wfsSearchLayer = new gbi.Layers.WFST({
+                var wfsSearchLayer = new gbi.Layers.WFS({
                     name: 'SearchLayer',
                     url: 'http://ows.terrestris.de/geoserver/terrestris/wfs?',
                     featureNS: '',
@@ -114,7 +114,7 @@
                 <div id="map"></div>
                 <button id="save" disabled="disabled" class="btn btn-small">Save</button>
                 <hr>
-                <p>Load from and save to WFS-T. You can add/edit/remove features and edit their attributes.</p>
+                <p>Search in WFS.</p>
                 <div class="alert alert-info">
                     <strong>Note:</strong>
                     <p>To run this example, you need a full featured web server with CGI support.</p>
