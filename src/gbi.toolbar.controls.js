@@ -78,6 +78,7 @@ gbi.Controls.ToolbarItem.prototype = {
      *
      * @memberof gbi.Controls.ToolbarItem
      * @instance
+     * @returns {Boolean} active
      */
     active: function() {
         return this.olControl.active;
@@ -106,7 +107,7 @@ gbi.Controls.ToolbarItem.prototype = {
      * @memberof gbi.Controls.ToolbarItem
      * @instance
      * @param {String} type event name
-     * @param {Object} obj "this" in func contrext
+     * @param {Object} obj "this" in func context
      * @param {Function} func Called when event is triggered
      */
     registerEvent: function(type, obj, func) {
@@ -124,6 +125,12 @@ gbi.Controls.ToolbarItem.prototype = {
     unregisterEvent: function(type, obj, func) {
         this.olControl.events.unregister(type, obj, func);
     },
+    /**
+     * Destroys the OpenLayers control
+     *
+     * @memberof gbi.Controls.ToolbarItem
+     * @instance
+     */
     destroy: function() {
         this.olControl.destroy();
     }
@@ -226,6 +233,7 @@ $.extend(gbi.Controls.Draw.prototype, {
      * @memberof gbi.Controls.Draw
      * @instance
      * @private
+     * @returns {OpenLayers.Control.DrawFeature} control
      */
     _createControl: function() {
         var self = this;
@@ -241,6 +249,7 @@ $.extend(gbi.Controls.Draw.prototype, {
      * @memberof gbi.Controls.Draw
      * @instance
      * @private
+     * @param {Object} f
      */
     _featureAdded: function(f) {
         f.feature._drawType = this.options.drawType.toLowerCase();
@@ -257,7 +266,7 @@ $.extend(gbi.Controls.Draw.prototype, {
  * @extends gbi.Controls.ToolbarItem
  * @constructor
  * @param {gbi.Layers.VectorLayer} layer
- * @param opitons All OpenLayers.Control.ModifyFeature options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Control/ModifyFeature-js.html|OpenLayers.Control.ModifyFeature}
+ * @param {Object} opitons All OpenLayers.Control.ModifyFeature options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Control/ModifyFeature-js.html|OpenLayers.Control.ModifyFeature}
  */
 gbi.Controls.Edit = function(layer, options) {
     var defaults = {
@@ -310,6 +319,7 @@ $.extend(gbi.Controls.Edit.prototype, {
      * @memberof gbi.Controls.Edit
      * @instance
      * @private
+     * @returns {OpenLayers.Control.ModifyFeature} control
      */
     _createControl: function() {
         var self = this;
@@ -324,7 +334,7 @@ $.extend(gbi.Controls.Edit.prototype, {
      * @memberof gbi.Controls.Edit
      * @instance
      * @private
-     * @param {OpenLayers.Feature.Vector} f
+     * @param {Object} f
      */
     _beforeModified: function(f) {
         if(f.feature._drawType == gbi.Controls.Draw.TYPE_RECT) {
@@ -336,6 +346,7 @@ $.extend(gbi.Controls.Edit.prototype, {
     },
     /**
      * Extends OpenLayers.Control.ModifyFeature.activate
+     *
      * @memberof gbi.Controls.Edit
      * @instance
      * @private
@@ -363,6 +374,7 @@ $.extend(gbi.Controls.Edit.prototype, {
     },
     /**
      * Extends OpenLayers.Control.ModifyFeature.deactivate
+     *
      * @memberof gbi.Controls.Edit
      * @instance
      * @private
@@ -415,6 +427,7 @@ $.extend(gbi.Controls.Delete.prototype, {
      * @memberof gbi.Controls.Delete
      * @instance
      * @private
+     * @returns {OpenLayers.Control.DeleteFeature} control
      */
     _createControl: function() {
         return new OpenLayers.Control.DeleteFeature(this.layer.olLayer, this.options);
@@ -464,6 +477,7 @@ $.extend(gbi.Controls.Split.prototype, {
      * @memberof gbi.Controls.Split
      * @instance
      * @private
+     * @returns {OpenLayers.Control.SplitFeature} control
      */
     _createControl: function() {
         return new OpenLayers.Control.SplitFeature(this.layer.olLayer, this.options);
@@ -514,6 +528,7 @@ $.extend(gbi.Controls.Merge.prototype, {
      * @memberof gbi.Controls.Merge
      * @instance
      * @private
+     * @returns {OpenLayers.Control.MergeFeatures} control
      */
     _createControl: function() {
         return new OpenLayers.Control.MergeFeatures(this.layer.olLayer, this.options);
@@ -563,6 +578,7 @@ $.extend(gbi.Controls.Hover.prototype, {
      * @memberof gbi.Controls.Hover
      * @instance
      * @private
+     * @returns {OpenLayers.Control.SelectFeature} control
      */
     _createControl: function() {
         var olControl = new OpenLayers.Control.SelectFeature(this.layer.olLayer, this.options);
@@ -632,6 +648,7 @@ $.extend(gbi.Controls.MultiLayerControl.prototype, {
     },
     /**
      * Creates the OpenLayers.Control
+     *
      * @memberof gbi.Controls.MultiLayerControl
      * @instance
      */
@@ -812,6 +829,7 @@ $.extend(gbi.Controls.Snap.prototype, {
      * @memberof gbi.Controls.Snap
      * @instance
      * @private
+     * @returns {OpenLayers.Control.Snapping} control
      */
     _createControl: function() {
         if(this.layer) {
@@ -858,6 +876,7 @@ $.extend(gbi.Controls.Copy.prototype, {
      * @memberof gbi.Controls.Copy
      * @instance
      * @private
+     * @returns {OpenLayers.Control.CopyFeatures}
      */
     _createControl: function() {
         var self = this;
@@ -1100,6 +1119,7 @@ $.extend(gbi.Controls.Measure.prototype, {
      * @memberof gbi.Controls.Measure
      * @instance
      * @private
+     * @returns {OpenLayers.Control.Measure} control
      */
     _createControl: function() {
         var self = this;

@@ -20,6 +20,8 @@ gbi.LayerManager.prototype = {
     /**
      * Generates  continuing id
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @returns {Integer} id
      */
     nextID: function() {
@@ -28,6 +30,8 @@ gbi.LayerManager.prototype = {
     /**
      * Adds a layer
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
      */
     addLayer: function(layer) {
@@ -58,6 +62,8 @@ gbi.LayerManager.prototype = {
     /**
      * Adds a layers
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layers
      */
     addLayers: function(layers) {
@@ -69,6 +75,8 @@ gbi.LayerManager.prototype = {
     /**
      * Removes a layer
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
      */
     removeLayer: function(layer) {
@@ -95,9 +103,10 @@ gbi.LayerManager.prototype = {
     /**
      * Get all useable layers in top-down order
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @returns {gbi.Layers.Layer[]} List of layers
      */
-     //XXXkai: think about! see _layers
     layers: function() {
         var self = this;
         var result = [];
@@ -114,6 +123,8 @@ gbi.LayerManager.prototype = {
     /**
      * Get layer by it's id
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {Integer} id
      * @returns {gbi.Layers.Layer}
      */
@@ -123,6 +134,8 @@ gbi.LayerManager.prototype = {
     /**
      * Get layer by it's name
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {String} name
      * @returns {gbi.Layers.Layer}
      */
@@ -132,7 +145,10 @@ gbi.LayerManager.prototype = {
     /**
      * Activates a layer
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer}
+     * @returns {gbi.Layers.Layer} Active layer if no layer is given as parameter
      */
     active: function(layer) {
         var self = this;
@@ -149,6 +165,8 @@ gbi.LayerManager.prototype = {
     /**
      * Moves a layer up in the order of it's group (baselayer|rasterlayer|vectorlayer)
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
      * @param {Integer} delta
      * @returns {Boolean} success
@@ -166,9 +184,9 @@ gbi.LayerManager.prototype = {
     /**
      * Moves a layer on the top
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
-     * @param {Integer} delta
-     * @returns {Boolean} success
      */
     top: function(layer) {
         this.position(layer, this.minMaxPosition(layer)['max']);
@@ -176,6 +194,8 @@ gbi.LayerManager.prototype = {
     /**
      * Moves a layer down in order
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
      * @returns {Boolean} success
      */
@@ -192,6 +212,8 @@ gbi.LayerManager.prototype = {
     /**
      * Gets/sets the position of a layer in layerorder
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
      * @param {Integer} [pos]
      * @return {Integer} Position of layer in layerorder if no pos param is passed
@@ -205,9 +227,9 @@ gbi.LayerManager.prototype = {
     /**
      * Moves a layer at the bottom
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
-     * @param {Integer} delta
-     * @returns {Boolean} success
      */
     bottom: function(layer) {
         this.position(layer, this.minMaxPosition(layer)['min']);
@@ -215,6 +237,8 @@ gbi.LayerManager.prototype = {
     /**
      * Gets min/max position of a layer in the layerorder
      *
+     * @memberof gbi.LayerManager
+     * @instance
      * @param {gbi.Layers.Layer} layer
      * @returns {Object} The returned object has a min- and a max-property
      */

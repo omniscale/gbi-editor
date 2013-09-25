@@ -159,6 +159,7 @@ $.extend(gbi.Layers.WMS.prototype, {
      *
      * @memberof gbi.Layers.WMS
      * @instance
+     * @returns {gbi.Layers.WMS} Clone of this layer
      */
     clone: function() {
         var clone_options = $.extend({}, this.options, {clone: true});
@@ -213,7 +214,7 @@ $.extend(gbi.Layers.WMTS.prototype, {
      *
      * @memberof gbi.Layers.WMTS
      * @instance
-     * @returns {gbi.Layers.WMTS}
+     * @returns {gbi.Layers.WMTS} Clone of this layer
      */
     clone: function() {
         var clone_options = $.extend({}, this.options, {clone: true});
@@ -410,6 +411,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      * @private
      * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
+     * @param {Boolean} temporary Don't save the style if layer is saveable
      */
     _setStyle: function(symbolizers, temporary) {
         var applySymbolizers;
@@ -592,7 +594,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      *
      * @memberof gbi.Layers.Vector
      * @instance
-     * @returns {String[]} List of attributes
+     * @returns {String[]} List of attributes or false if no jsonSchema defined
      */
     schemaAttributes: function() {
         var self = this;
@@ -681,6 +683,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      *
      * @memberof gbi.Layers.Vector
      * @instance
+     * @param {Integer} featureId
      * @returns {OpenLayers.Feature.Vector} feature if found
      */
     featureById: function(featureId) {
@@ -693,7 +696,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      * @param {OpenLayers.Feature.Vector[]} features
      */
-    addFeatures: function(features, options) {
+    addFeatures: function(features) {
         this.olLayer.addFeatures(features);
     },
     /**
@@ -703,8 +706,8 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      * @param {OpenLayers.Feature.Vector} feature
      */
-    addFeature: function(feature, options) {
-        this.addFeatures([feature], options);
+    addFeature: function(feature) {
+        this.addFeatures([feature]);
     },
     /**
      * Change/Add an attribute of/to given feature
@@ -760,7 +763,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      *
      * @memberof gbi.Layers.Vector
      * @instance
-     * @returns {gbi.Layers.Vector}
+     * @returns {gbi.Layers.Vector} Clone if this layer
      */
     clone: function() {
         var clone_options = $.extend({}, this.options, {clone: true});
@@ -963,7 +966,7 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.olLayer.map.addPopup(this.popup);
     },
     /**
-     * Hides a popup with feature attributes
+     * Removes a popup with feature attributes
      *
      * @memberof gbi.Layers.Vector
      * @instance
@@ -1253,6 +1256,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
      * @memberof gbi.Layers.SaveableVector
      * @instance
      * @private
+     * @param {Object} response Server response
      */
     _start: function(response) {
         if(this.callbacks.start) {
@@ -1268,6 +1272,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
      * @memberof gbi.Layers.SaveableVector
      * @instance
      * @private
+     * @param {Object} response Server response
      */
     _success: function(response) {
         this.unsavedFeatureChanges = false;
@@ -1285,6 +1290,7 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
      * @memberof gbi.Layers.SaveableVector
      * @instance
      * @private
+     * @param {Object} response Server response
      */
     _fail: function(response) {
         if(this.callbacks.fail) {
@@ -1338,8 +1344,6 @@ $.extend(gbi.Layers.SaveableVector.prototype, {
  * @extends gbi.Layers.SaveableVector
  * @param opitons All OpenLayers.Layer.Vector options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Layer/Vector-js.html|OpenLayers.Layer.Vector}
  * @param {Boolean} [options.createDB=true] Creates a couchDB if not exists
- * @param {Boolean} [options.loadStyle=true] Loads layer style from couchDB if exists
- * @param {Boolean} [options.loadGBI=true] Loads layer gbi_editor from couchDB if exists
  */
 gbi.Layers.Couch = function(options) {
     var self = this;
@@ -1756,7 +1760,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @memberof gbi.Layers.Couch
      * @instance
      * @private
-     * @param {Boolean} withData
+     * @param {Boolean} withData Fill document with data
      */
     _createMetaDocument: function(withData) {
         var self = this;
@@ -1836,6 +1840,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @memberof gbi.Layers.Couch
      * @instance
      * @private
+     * @param {Boolean} withData Fill metadata document with data instead of just creating one
      */
     _createCouchDB: function(withData) {
         var self = this;
@@ -1957,11 +1962,11 @@ $.extend(gbi.Layers.Couch.prototype, {
         return layerCopy;
     },
     /**
-     * create a save point in the database and returns the statustext
+     * Create a save point in the database and returns the statustext
      *
      * @memberof gbi.Layers.Couch
      * @instance
-     * @returns responseText
+     * @returns {Object} responseText as json
      */
     setSavepoint: function() {
         var self = this;
@@ -2010,7 +2015,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @memberof gbi.Layers.Couch
      * @instance
      * @param {String} id
-     * @returns responseText
+     * @returns {Object} responseText as json
      */
     loadSavepoint: function(id) {
         var self = this;
@@ -2074,7 +2079,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @memberof gbi.Layers.Couch
      * @instance
      * @param {String} id
-     * @returns responseText
+     * @returns {Object} responseText as json
      */
     deleteSavepoint: function(id, rev) {
         var self = this;
@@ -2098,7 +2103,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      *
      * @memberof gbi.Layers.Couch
      * @instance
-     * @returns responseText (json)
+     * @returns {Object} responseText as json
      */
     getSavepoints: function() {
         var self = this;
@@ -2331,7 +2336,10 @@ $.extend(gbi.Layers.WFST.prototype, {
      * @instance
      * @private
      * @param {Object} _attributes
-     * @returns {Object} schema Created jsonSchema
+     * @param {String[]} _attributes.attribute_order
+     * @param {String[]} _attributes.attribute_types
+     * @param {Boolean[]} _attributes.attribute_requireds
+     * @returns {Object} Created jsonSchema
      */
     _jsonSchema: function(_attributes) {
         var self = this;
@@ -2370,6 +2378,7 @@ $.extend(gbi.Layers.WFST.prototype, {
      *
      * @memberof gbi.Layer.WFST
      * @instance
+     * @param {String} attribute
      * @returns {String} attribute type
      */
     attributeType: function(attribute) {
