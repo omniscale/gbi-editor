@@ -1360,7 +1360,10 @@ gbi.Layers.Couch = function(options) {
     var couch_name = options.name.toLowerCase();
     couch_name = couch_name.replace(/[^a-z0-9_]*/g, '');
     options.url += couch_name + '/';
+
+    var realHost = window.location.host.split(':')[0];
     this.odataUrl = options.url + '_design/odata/_show/odata_service/_design/odata';
+    this.odataUrl = this.odataUrl.replace(this._extractHostName(this.odataUrl), realHost);
     this.fixedStrategy = new OpenLayers.Strategy.Fixed();
 
     var couchExtension = {
@@ -1547,6 +1550,11 @@ gbi.Layers.Couch = function(options) {
 gbi.Layers.Couch.prototype = new gbi.Layers.SaveableVector();
 $.extend(gbi.Layers.Couch.prototype, {
     CLASS_NAME: 'gbi.Layers.Couch',
+    _extractHostName: function(href) {
+        var l = document.createElement("a");
+        l.href = href;
+        return l.hostname;
+    },
     /**
      * Prepare style document data for insert into couch
      *
