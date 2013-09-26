@@ -47,6 +47,13 @@ gbi.LayerManager.prototype = {
         }
         if(!layer.options.displayInLayerSwitcher) {
             self.unshownLayers[id] = layer;
+            if(layer.isVector) {
+                $(gbi).trigger('gbi.layermanager.vectorlayer.add', layer);
+            } else if (layer.isBackground) {
+                $(gbi).trigger('gbi.layermanager.backgroundlayer.add', layer);
+            } else if (layer.isRaster) {
+                $(gbi).trigger('gbi.layermanager.rasterlayer.add', layer);
+            }
         } else if(layer.isVector) {
             self.vectorLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.vectorlayer.add', layer);
