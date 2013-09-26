@@ -20,7 +20,17 @@ OpenLayers.Protocol.WFS.v1_1_0_ordered = OpenLayers.Class(OpenLayers.Protocol.WF
         if(options.eventListeners instanceof Object) {
             this.events.on(options.eventListeners);
         }
-        this.get_attribute_order(options.schema)
+
+        var schemaURL = options.url;
+        switch(schemaURL[schemaURL.length - 1]) {
+            case '?':
+            case '&':
+                break;
+            default:
+                schemaURL += (schemaURL.indexOf('?') == -1) ? '?' : '&';
+        }
+        schemaURL += 'service=wfs&request=DescribeFeatureType&version=' + this.version + '&typename=' + options.typename + ':' + options.featureType;
+        this.get_attribute_order(schemaURL)
         this.formatOptions = OpenLayers.Util.extend({
             attribute_order: this.attribute_order
         }, this.formatOptions);

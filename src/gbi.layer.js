@@ -2279,7 +2279,6 @@ gbi.Layers.WFST = function(options) {
         featureNS: this.options.featureNS,
         featureType: this.options.featureType,
         geometryName: this.options.geometryName,
-        schema: this.options.url + 'service=wfs&request=DescribeFeatureType&version='+this.options.version+'&typename='+this.options.typename+':'+this.options.featureType,
         maxFeatures: this.options.maxFeatures,
         typename: this.options.typename + ':' + this.options.featureType,
         eventListeners: {
