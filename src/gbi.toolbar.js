@@ -88,6 +88,9 @@ gbi.Toolbar.prototype = {
     CLASS_NAME: 'gbi.Toolbar',
     /**
      * Initialize the toolbar tools
+     *
+     * @memberof gbi.Toolbar
+     * @instance
      */
     initTools: function() {
         var self = this;
@@ -151,6 +154,8 @@ gbi.Toolbar.prototype = {
     /**
      * Activtes a layer
      *
+     * @memberof gbi.Toolbar
+     * @instance
      * @param {Layer} layer
      */
     activateLayer: function(layer) {
@@ -179,6 +184,8 @@ gbi.Toolbar.prototype = {
     /**
      * Adds a layer to all {MultiLayerControls} in this toolbar
      *
+     * @memberof gbi.Toolbar
+     * @instance
      * @param {Layer} layer
      */
     addLayerToControl: function(layer) {
@@ -202,6 +209,8 @@ gbi.Toolbar.prototype = {
     /**
      * Removes a layer from all {MultiLayerControls} in this toolbar
      *
+     * @memberof gbi.Toolbar
+     * @instance
      * @param {Layer} layer
      */
     removeLayerFromControl: function(layer) {
@@ -216,6 +225,8 @@ gbi.Toolbar.prototype = {
     /**
      * Add a {ToolbarItem} to this toolbar
      *
+     * @memberof gbi.Toolbar
+     * @instance
      * @param {ToolbarItem} control
      */
     addControl: function(control) {
@@ -230,6 +241,8 @@ gbi.Toolbar.prototype = {
     /**
      * Add a lot of {ToolbarItem} to this toolbar
      *
+     * @memberof gbi.Toolbar
+     * @instance
      * @param {ToolbarItem[]} controls
      */
     addControls: function(controls) {
@@ -240,6 +253,9 @@ gbi.Toolbar.prototype = {
     },
     /**
      * Deactivate all controls belong to this toolbar
+     *
+     * @memberof gbi.Toolbar
+     * @instance
      */
     deactivateAllControls: function() {
         var self = this;
@@ -252,6 +268,8 @@ gbi.Toolbar.prototype = {
     /**
      * Set the default Control of this toolbar
      *
+     * @memberof gbi.Toolbar
+     * @instance
      * @param {ToolbarItem} control
      */
     defaultControl: function(control) {

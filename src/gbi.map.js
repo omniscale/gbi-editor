@@ -80,6 +80,8 @@ gbi.Map.prototype = {
     /**
      * Set map center
      *
+     * @memberof gbi.Map
+     * @instance
      * @param {Number} options.lon
      * @param {Number}options.lat
      * @param {String} options.srs EPSG code of given coordinates
@@ -99,6 +101,9 @@ gbi.Map.prototype = {
     },
     /**
      * Adds a blank image layer to map
+     *
+     * @memberof gbi.Map
+     * @instance
      */
     addBlankImageLayer: function() {
         //setup and add blank image layer as background
@@ -116,6 +121,8 @@ gbi.Map.prototype = {
     /**
      * Adds control to the map
      *
+     * @memberof gbi.Map
+     * @instance
      * @param {Control} control Control to add
      */
     addControl: function(control) {
@@ -127,6 +134,8 @@ gbi.Map.prototype = {
     /**
      * Removes control from map
      *
+     * @memberof gbi.Map
+     * @instance
      * @param {Control} control Control to remove
      */
     removeControl: function(control) {
@@ -141,6 +150,8 @@ gbi.Map.prototype = {
     /**
      * Adds controls to the map
      *
+     * @memberof gbi.Map
+     * @instance
      * @param {Control[]} controls Controls to add
      */
     addControls: function(controls) {
@@ -152,6 +163,8 @@ gbi.Map.prototype = {
     /**
      * Removes controls from map
      *
+     * @memberof gbi.Map
+     * @instance
      * @param {Control[]} controls Controls to remove
      */
     removeControls: function(controls) {
@@ -163,6 +176,8 @@ gbi.Map.prototype = {
     /**
      * Zoomes to map max extent
      *
+     * @memberof gbi.Map
+     * @instance
      */
     zoomToMaxExtent: function() {
         this.olMap.zoomToMaxExtent();
