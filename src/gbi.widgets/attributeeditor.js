@@ -94,9 +94,12 @@ gbi.widgets.AttributeEditor.prototype = {
     },
     render: function() {
         var self = this;
+        var attributes = []
         var activeLayer = this.layerManager.active();
         self.invalidFeatures = $.isFunction(activeLayer.validateFeaturesAttributes) ? activeLayer.validateFeaturesAttributes() : [];
-        var attributes = self.jsonSchema ? activeLayer.schemaAttributes() : this.renderAttributes || activeLayer.featuresAttributes();
+        if(activeLayer) {
+            attributes = self.jsonSchema ? activeLayer.schemaAttributes() : this.renderAttributes || activeLayer.featuresAttributes();
+        }
         this.element.empty();
 
         if(self.options.allowSchemaLoad && !self.jsonSchema) {
@@ -131,11 +134,13 @@ gbi.widgets.AttributeEditor.prototype = {
                 }
             });
         }
-        $.each(activeLayer.featuresAttributes(), function(idx, attribute) {
-            if($.inArray(attribute, renderedAttributes) == -1) {
-                renderedAttributes.push(attribute);
-            }
-        });
+        if(activeLayer) {
+            $.each(activeLayer.featuresAttributes(), function(idx, attribute) {
+                if($.inArray(attribute, renderedAttributes) == -1) {
+                    renderedAttributes.push(attribute);
+                }
+            });
+        }
 
         //bind events
         $.each(renderedAttributes, function(idx, key) {
