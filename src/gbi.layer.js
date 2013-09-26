@@ -1361,9 +1361,9 @@ gbi.Layers.Couch = function(options) {
     couch_name = couch_name.replace(/[^a-z0-9_]*/g, '');
     options.url += couch_name + '/';
 
-    var realHost = window.location.host.split(':')[0];
+    var realHostName = window.location.hostname
     this.odataUrl = options.url + '_design/odata/_show/odata_service/_design/odata';
-    this.odataUrl = this.odataUrl.replace(this._extractHostName(this.odataUrl), realHost);
+    this.odataUrl = this.odataUrl.replace(this._extractHostName(this.odataUrl), realHostName);
     this.fixedStrategy = new OpenLayers.Strategy.Fixed();
 
     var couchExtension = {
