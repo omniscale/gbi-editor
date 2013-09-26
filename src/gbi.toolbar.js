@@ -43,6 +43,11 @@ gbi.Toolbar = function(editor, options) {
             self.vectorLayers[idx] = layer;
         }
     });
+    $.each(editor.layerManager.unshownLayers, function(idx, layer) {
+        if(layer.isEditable && layer.isVector) {
+            self.vectorLayers[Object.keys(self.vectorLayers).length] = layer;
+        }
+    });
     var _activeLayer = editor.layerManager.active();
     this.vectorActive = (_activeLayer && _activeLayer.isEditable) ? _activeLayer : false;
 
