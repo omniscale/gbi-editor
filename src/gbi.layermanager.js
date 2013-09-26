@@ -12,6 +12,7 @@ gbi.LayerManager = function(olMap, autoActivateAddedLayer) {
     this.backgroundLayers = {};
     this.rasterLayers = {};
     this.vectorLayers = {};
+    this.unshownLayers = {};
     this._activeLayer = false;
     this.olMap = olMap;
     this.autoActivateAddedLayer = autoActivateAddedLayer || false;
@@ -36,27 +37,35 @@ gbi.LayerManager.prototype = {
      * @param {gbi.Layers.Layer} layer
      */
     addLayer: function(layer) {
-        var id = this.nextID();
+        var self = this;
+        var id = self.nextID();
         layer.id = layer.olLayer.gbiId = id;
-        this._layers[id] = layer;
-        this.olMap.addLayer(layer.olLayer);
+        self._layers[id] = layer;
+        self.olMap.addLayer(layer.olLayer);
         if(layer.isBaseLayer) {
-            this.olMap.setBaseLayer(layer.olLayer);
+            self.olMap.setBaseLayer(layer.olLayer);
         }
-        if(layer.isVector) {
-            this.vectorLayers[id] = layer;
+        if(!layer.options.displayInLayerSwitcher) {
+            self.unshownLayers[id] = layer;
+        } else if(layer.isVector) {
+            self.vectorLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.vectorlayer.add', layer);
-            if(!this.active() && this.autoActivateAddedLayer) {
-                this.active(layer);
+            if(!self.active() && self.autoActivateAddedLayer) {
+                self.active(layer);
             }
         } else if (layer.isBackground) {
-            this.backgroundLayers[id] = layer;
+            self.backgroundLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.backgroundlayer.add', layer);
         } else if (layer.isRaster) {
-            this.rasterLayers[id] = layer;
+            self.rasterLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.rasterlayer.add', layer);
         }
-        this.position(layer, this.minMaxPosition(layer)['max']);
+        self.position(layer, self.minMaxPosition(layer)['max']);
+        if(Object.keys(self.unshownLayers).length) {
+            $.each(self.unshownLayers, function(idx, _layer) {
+                self.position(_layer, self.minMaxPosition(_layer)['max']);
+            });
+        }
         $(gbi).trigger('gbi.layermanager.layer.add', layer);
 
     },
@@ -246,15 +255,18 @@ gbi.LayerManager.prototype = {
     minMaxPosition: function(layer) {
         var min;
         var max;
-        if(layer.isBackground) {
+        if(!layer.options.displayInLayerSwitcher) {
+            min = Object.keys(this.backgroundLayers).length + Object.keys(this.rasterLayers).length + Object.keys(this.vectorLayers).length + 1;
+            max = min + Object.keys(this.unshownLayers).length - 1;
+        } else if(layer.isBackground) {
             min = 1;
             max = Object.keys(this.backgroundLayers).length;
         } else if (layer.isRaster) {
             min = Object.keys(this.backgroundLayers).length + 1;
-            max = min + Object.keys(this.rasterLayers).length -1;
+            max = min + Object.keys(this.rasterLayers).length - 1;
         } else {
             min = Object.keys(this.backgroundLayers).length + Object.keys(this.rasterLayers).length + 1;
-            max = this.olMap.layers.length;
+            max = min + Object.keys(this.vectorLayers).length - 1;
         }
         return {min: min, max: max};
     }
