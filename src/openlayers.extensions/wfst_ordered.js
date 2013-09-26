@@ -105,7 +105,7 @@ OpenLayers.Protocol.WFS.v1_1_0_ordered_get = OpenLayers.Class(OpenLayers.Protoco
             this.format.setNamespace('feature', options.additional_feature_ns);
         }
         response.priv = OpenLayers.Request.GET({
-            url: options.url + '&request=getfeature&service=wfs&version='+this.format.version+'&srsName='+options.srsName+'&typename='+options.typename,
+            url: options.url + '&request=getfeature&service=wfs&version='+this.format.version+'&srsName='+options.srsName+'&typename='+options.typename+':'+options.featureType,
             callback: this.createCallback(this.handleRead, response, options),
             params: options.params
         })

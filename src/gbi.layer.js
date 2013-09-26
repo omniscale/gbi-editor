@@ -2280,7 +2280,7 @@ gbi.Layers.WFST = function(options) {
         featureType: this.options.featureType,
         geometryName: this.options.geometryName,
         maxFeatures: this.options.maxFeatures,
-        typename: this.options.typename + ':' + this.options.featureType,
+        typename: this.options.typename,
         eventListeners: {
             "schema.loaded": function(attributes) {
                 self.jsonSchema = self._jsonSchema(attributes);
