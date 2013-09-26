@@ -6,7 +6,7 @@
  * @constructor
  * @param {OpenLayers.Map} olMap
  */
-gbi.LayerManager = function(olMap) {
+gbi.LayerManager = function(olMap, autoActivateAddedLayer) {
     this.counter = 0;
     this._layers = {};
     this.backgroundLayers = {};
@@ -14,6 +14,7 @@ gbi.LayerManager = function(olMap) {
     this.vectorLayers = {};
     this._activeLayer = false;
     this.olMap = olMap;
+    this.autoActivateAddedLayer = autoActivateAddedLayer || false;
 };
 gbi.LayerManager.prototype = {
     CLASS_NAME: 'gbi.LayerManager',
@@ -45,7 +46,7 @@ gbi.LayerManager.prototype = {
         if(layer.isVector) {
             this.vectorLayers[id] = layer;
             $(gbi).trigger('gbi.layermanager.vectorlayer.add', layer);
-            if(!this.active()) {
+            if(!this.active() && this.autoActivateAddedLayer) {
                 this.active(layer);
             }
         } else if (layer.isBackground) {

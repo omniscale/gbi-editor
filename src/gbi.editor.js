@@ -32,7 +32,7 @@ gbi.Editor = function(options) {
     }
 
     this.map = new gbi.Map(this, this.options.map);
-    this.layerManager = new gbi.LayerManager(this.map.olMap);
+    this.layerManager = new gbi.LayerManager(this.map.olMap, this.options.autoActivateAddedLayer);
 
     if(this.options.layers) {
         this.addLayers(this.options.layers);
