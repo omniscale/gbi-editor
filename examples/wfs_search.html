@@ -77,7 +77,6 @@
                     wfsSearchLayer.visible(true)
                     if (value) {
                         value = value.split("\n")
-                        console.log(value)
                         wfsSearchLayer.filter(
                             wfsSearchLayer.olLayer.searchProperty, value
                         );
