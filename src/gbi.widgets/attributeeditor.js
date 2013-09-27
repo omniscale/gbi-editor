@@ -124,7 +124,7 @@ gbi.widgets.AttributeEditor.prototype = {
 
         //prepare list of all possible rendered attributes
         var renderedAttributes = [];
-        if(self.jsonSchema) {
+        if(activeLayer && self.jsonSchema) {
             renderedAttributes = activeLayer.schemaAttributes();
         }
         if(this.renderAttributes) {
