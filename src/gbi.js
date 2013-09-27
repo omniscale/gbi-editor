@@ -25,6 +25,7 @@ require("openlayers.extensions/wfst_ordered.js");
 require("openlayers.extensions/copy.js")
 require("openlayers.extensions/string.format.js")
 require("gbi.editor.js");
+require("gbi.helper.js");
 require("gbi.layermanager.js");
 require("gbi.map.js");
 require("gbi.layer.js");
