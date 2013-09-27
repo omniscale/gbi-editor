@@ -1889,6 +1889,7 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @instance
      */
     refresh: function() {
+        this.setStyle(this.default_symbolizers);
         this._loadMetaDocument();
         gbi.Layers.SaveableVector.prototype.refresh.apply(this)
     },
