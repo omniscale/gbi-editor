@@ -196,16 +196,6 @@ gbi.widgets.ThematicalVectorAttributeList.template = '\
             ' + thematicalVectorAttributeListLabels.fullList + '\
         </button>\
     </div>\
-        <div class="btn-group pull-right">\
-        <button id="odtExport"\
-                type="button"\
-                title="' + thematicalVectorAttributeListTitles.odt + '"\
-                class="btn btn-small">'+ thematicalVectorAttributeListTitles.odt + '</button>\
-        <button id="csvExport"\
-                type="button"\
-                title="' + thematicalVectorAttributeListTitles.csv + '"\
-                class="btn btn-small">'+ thematicalVectorAttributeListTitles.csv + '</button>\
-    </div>\
     <% if(shortListAttributes.length == 0) { %>\
         <div id="shortList">' + thematicalVectorAttributeListLabels.noAttributeSelected + '</div>\
     <% } else { %>\

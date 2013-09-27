@@ -55,25 +55,12 @@ gbi.widgets.ThematicalVectorConfigurator = function(thematicalVector, options) {
         self.activeLayer = layer;
         if(self.activeLayer) {
             self._registerLayerEvents(self.activeLayer);
-            self.attributes = self.activeLayer.fullListAttributes() || [];
-            if(self.attributes.length == 0) {
-                self.attributes = self.activeLayer.featuresAttributes() || [];
-            }
-        } else {
-            self.attributes = [];
         }
         self.render();
     });
     if(this.activeLayer) {
         this._registerLayerEvents(this.activeLayer);
-        this.attributes = this.activeLayer.fullListAttributes() || [];
-        if(this.attributes.length == 0) {
-            this.attributes = this.activeLayer.featuresAttributes() || [];
-        }
-    } else {
-        this.attributes = [];
     }
-
     if(!this.options.initOnly) {
         self.render();
     }
@@ -84,6 +71,8 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         var self = this;
         var element = $('#' + this.options.element);
         element.empty();
+
+        self._updateAttributes();
 
         if(!self.activeLayer) {
             element.append($('<div class="text-center">' + thematicalVectorConfiguratorLabel.noLayer + '</div>'));
@@ -119,47 +108,35 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
             self.addInput(self.mode);
         });
 
-        $('#executeFilter').click(function() {
-            if(self.activeLayer instanceof gbi.Layers.Couch) {
-                self.activeLayer._saveMetaDocument();
-            }
-        });
-
         var shortListAttributes = self.activeLayer ? self.activeLayer.shortListAttributes() : [];
         var popupAttributes = self.activeLayer ? self.activeLayer.popupAttributes() : [];
 
-        if(shortListAttributes) {
-            element.find('.list-attribute').each(function(idx, elm) {
-                elm = $(elm);
-                elm.change(function() {
-                    if(self._restrictAttributes(element, elm, '.list-attribute')) {
-                        self.setListPopupAttributes(element);
-                    }
-                });
+
+        element.find('.list-attribute').each(function(idx, elm) {
+            elm = $(elm);
+            elm.change(function() {
+                if(self._restrictAttributes(element, elm, '.list-attribute')) {
+                    self.setListPopupAttributes(element);
+                }
+            });
+            if(shortListAttributes) {
                 if($.inArray(elm.val(), shortListAttributes) != -1) {
                     elm.attr('checked', 'checked');
                 }
+            }
+        });
 
-            })
-        }
-
-        if(popupAttributes) {
-            element.find('.popup-attribute').each(function(idx, elm) {
-                elm = $(elm);
-                elm.change(function() {
-                    if(self._restrictAttributes(element, elm, '.popup-attribute')) {
-                        self.setListPopupAttributes(element);
-                    }
-                });
+        element.find('.popup-attribute').each(function(idx, elm) {
+            elm = $(elm);
+            elm.change(function() {
+                if(self._restrictAttributes(element, elm, '.popup-attribute')) {
+                    self.setListPopupAttributes(element);
+                }
+            });
+            if(popupAttributes.length) {
                 if($.inArray(elm.val(), popupAttributes) != -1) {
                     elm.attr('checked', 'checked');
                 }
-            })
-        }
-
-        $('#setListAttributes').click(function() {
-            if(self.activeLayer instanceof gbi.Layers.Couch) {
-                self.activeLayer._saveMetaDocument();
             }
         });
 
@@ -344,10 +321,41 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         this.activeLayer.addAttributeFilter(this.mode, $('#attribute').val(), filterOptions);
     },
     setListPopupAttributes: function(element) {
+        var self = this;
+        var fullListAttributes = [];
+        var shortListAttributes = [];
+        var popupAttributes = [];
+
+        $.each(element.find('.list-attribute'), function(idx, checkbox) {
+            fullListAttributes.push(checkbox.value);
+            if($(checkbox).is(':checked')) {
+                shortListAttributes.push(checkbox.value);
+            }
+        });
+
+        $.each(element.find('.popup-attribute:checked'), function(idx, checkbox) {
+            popupAttributes.push(checkbox.value);
+        });
+
+        self.activeLayer.fullListAttributes(fullListAttributes);
+        self.activeLayer.shortListAttributes(shortListAttributes);
+
+        self.activeLayer.popupAttributes(popupAttributes);
+
         if(this.activeLayer instanceof gbi.Layers.Couch) {
             this.activeLayer._saveMetaDocument();
         }
-
+    },
+    _updateAttributes: function() {
+        var self = this;
+        if(self.activeLayer) {
+            self.attributes = self.activeLayer.fullListAttributes() || [];
+            if(self.attributes.length == 0) {
+                self.attributes = self.activeLayer.featuresAttributes() || [];
+            }
+        } else {
+            self.attributes = [];
+        }
     },
     _registerLayerEvents: function(layer) {
         var self = this;
@@ -455,7 +463,6 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
             </tbody>\
         </table>\
     </div>\
-    <button class="btn btn-small btn-success" id="executeFilter">' + thematicalVectorConfiguratorLabel.execute + '</button>\
     <button class="btn btn-small" id="addInput" title="' + ThematicalVectorConfiguratorTitles.addInput + '">' + thematicalVectorConfiguratorLabel.addInputField + '</button>\
     <hr>\
     <h4>' + thematicalVectorConfiguratorLabel.listSettings + '</h4>\
@@ -484,9 +491,6 @@ gbi.widgets.ThematicalVectorConfigurator.template = '\
                 <% } %>\
             </tbody>\
         </table>\
-        <div class="text-center">\
-            <button id="setListAttributes" class="btn btn-small">' + thematicalVectorConfiguratorLabel.apply + '</button>\
-        </div>\
     <% } %>\
 ';
 
