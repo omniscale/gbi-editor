@@ -3,7 +3,10 @@
   "features": [
     {
       "type": "Feature",
-      "properties": {},
+      "properties": {
+        "year": 2011,
+        "foo": "foobar"
+      },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
@@ -16,7 +19,7 @@
     }, {
       "type": "Feature",
       "properties": {
-        "year": "2012",
+        "year": 2012,
         "foo": "bar"
       },
       "geometry": {
@@ -33,7 +36,7 @@
     }, {
       "type": "Feature",
       "properties": {
-        "year": "2013",
+        "year": 2013,
         "foo": "bar"
       },
       "geometry": {

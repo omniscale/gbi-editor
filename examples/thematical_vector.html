@@ -23,35 +23,29 @@
         <script type="text/javascript" src="../src/gbi.widgets/thematicalvectorattributelist.js"></script>
         <script type="text/javascript">
 
-            OpenLayers.ProxyHost = "/cgi-bin/proxy.cgi?url=";
-
             $(document).ready(function() {
-                var editor = new gbi.Editor({
+                editor = new gbi.Editor({
                     language: 'de',
+                    autoActivateAddedLayer: true,
                     map: {
                         element: 'map',
                         center: {
                             lon: 8.2,
                             lat: 53.15,
                             srs: 'EPSG:4326',
-                            zoom: 12
+                            zoom: 11
                         }
                     }
                 });
 
-                var couchLayer = new gbi.Layers.Couch({
+                var vectorLayer = new gbi.Layers.GeoJSON({
                     name: 'testlayer',
-                    url: 'http://localhost:5984/',
-                    symbolizers: {
-                        'Polygon': {
-                            'label': "${foo}"
-                        }
-                    },
+                    url: './data.json',
                     hoverPopup: true
                 });
-                editor.addLayer(couchLayer);
+                editor.addLayer(vectorLayer);
 
-                var thematicalVector = new gbi.widgets.ThematicalVector(editor);
+                thematicalVector = new gbi.widgets.ThematicalVector(editor);
 
             });
         </script>
@@ -70,12 +64,6 @@
                 <br>
                 <p>In this example you can filter attribute values and change there color depending on there value.</p>
                 <p>Filtered values, the color you have choosen for and the sum of the area of all filtered geometries will be shown in a legend.</p>
-                <div class="alert alert-info">
-                    <strong>Note:</strong>
-                    <p>To run this example, you need a full featured web server with CGI support.</p>
-                    <p>The CGI script <code>[project_root]/cgi-bin/proxy.cgi</code> must be included.</p>
-                    <p>Also you need a running couchDB.</p>
-                </div>
             </div>
         </div>
     </body>

@@ -19,6 +19,7 @@
 
             $(document).ready(function() {
                 var editor = new gbi.Editor({
+                    autoActivateAddedLayer: true,
                     map: {
                         element: 'map',
                         center: {
@@ -31,7 +32,8 @@
                 });
 
                 var couchLayer = new gbi.Layers.Couch({
-                    name: 'testlayer',
+                    name: 'example_couch_layer',
+                    title: 'Example Couch Layer',
                     url: 'http://localhost:5984/',
                     jsonSchemaUrl: './schema.js',
                     callbacks: {

@@ -3,6 +3,8 @@
     <head>
         <title>Editor example</title>
         <link rel="StyleSheet" type="text/css" href="../css/bootstrap.min.css">
+        <link rel="StyleSheet" type="text/css" href="../css/alpaca.css">
+        <link rel="StyleSheet" type="text/css" href="../css/alpaca-bootstrap.css">
         <link rel='StyleSheet' type='text/css' href='../css/theme/default/style.css'>
         <link rel='StyleSheet' type='text/css' href='../css/toolbar.css'>
         <link rel='StyleSheet' type='text/css' href='../css/jquery.minicolors.css'>
@@ -15,6 +17,7 @@
         <script type="text/javascript" src="../lib/jquery.nouislider.js"></script>
         <script type="text/javascript" src="../lib/jsts-0.13.2/javascript.util.js"></script>
         <script type="text/javascript" src="../lib/jsts-0.13.2/jsts.js"></script>
+        <script type="text/javascript" src="../lib/alpaca-full.js"></script>
         <script type="text/javascript" src="../src/gbi.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/styleeditor.js"></script>
         <script type="text/javascript" src="../src/gbi.widgets/layermanager.js"></script>
@@ -92,6 +95,7 @@
 
                 var editor = new gbi.Editor({
                     language: 'de',
+                    autoActivateAddedLayer: true,
                     map: {
                         element: 'map',
                         center: {

@@ -129,7 +129,9 @@ gbi.widgets.ThematicalVectorConfigurator.prototype = {
         element.find('.popup-attribute').each(function(idx, elm) {
             elm = $(elm);
             elm.change(function() {
+                console.log('now')
                 if(self._restrictAttributes(element, elm, '.popup-attribute')) {
+                    console.log(element)
                     self.setListPopupAttributes(element);
                 }
             });
