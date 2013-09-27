@@ -434,7 +434,9 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
         }
         this._applyFilterOptions();
-        $(this).trigger('gbi.layer.vector.styleChanged')
+        if(!temporary) {
+            $(this).trigger('gbi.layer.vector.styleChanged');
+        }
         this.olLayer.redraw();
     },
     /**
