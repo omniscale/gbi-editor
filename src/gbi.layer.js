@@ -399,10 +399,11 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {Boolean} temporary Don't save the style if layer is saveable
      */
     setStyle: function(symbolizers, temporary) {
+        this._setStyle(symbolizers, temporary);
         if(!temporary) {
             this.customStyle = true;
+            $(this).trigger('gbi.layer.vector.styleChanged');
         }
-        this._setStyle(symbolizers, temporary);
     },
     /**
      * Sets the style of this layer
@@ -434,9 +435,6 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
         }
         this._applyFilterOptions();
-        if(!temporary) {
-            $(this).trigger('gbi.layer.vector.styleChanged');
-        }
         this.olLayer.redraw();
     },
     /**
@@ -561,6 +559,30 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     addAttributeFilter: function(type, attribute, filterOptions) {
         var self = this;
+        self._addAttributeFilter(type, attribute, filterOptions);
+        $(this).trigger('gbi.layer.vector.ruleChanged', false);
+        this.olLayer.redraw();
+    },
+    /**
+     * Adds property filters
+     *
+     * At the moment, two types of filters are supported.
+     * 1. 'exact'
+     *    Filter value must match exactly.
+     * 2. 'range'
+     *    If min in filterOptions, all values >= min will be matched
+     *    If max in filterOptions, all values < max will be matched
+     *    If min and max in filterOptions, all min <= value < max will be matched
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @private
+     * @param {String} type
+     * @param {String} attribute
+     * @param {Object[]} filterOptions Contains the parameters for each filter
+     */
+    _addAttributeFilter: function(type, attribute, filterOptions) {
+        var self = this;
         var newFeatureStylingRule = $.isArray(filterOptions) && filterOptions.length > 0 ? {
             filterType: type,
             filterAttribute: attribute,
@@ -569,8 +591,6 @@ $.extend(gbi.Layers.Vector.prototype, {
 
         this.featureStylingRule = newFeatureStylingRule;
         this._applyFilterOptions();
-        $(this).trigger('gbi.layer.vector.ruleChanged', false);
-        this.olLayer.redraw();
     },
     /**
      * Get a list of attributes of all features of this layer
@@ -1667,14 +1687,15 @@ $.extend(gbi.Layers.Couch.prototype, {
         if(self.metadataDocument.appOptions != undefined) {
             // load ol styling or set default styling if not in metadata
             if(self.metadataDocument.appOptions.olDefaultStyle != undefined) {
-                self.setStyle(self.metadataDocument.appOptions.olDefaultStyle);
+                self._setStyle(self.metadataDocument.appOptions.olDefaultStyle);
+                self.customStyle = true;
             } else {
-                self.setStyle(self.default_symbolizers);
+                self._setStyle(self.default_symbolizers);
                 self.customStyle = false;
             }
 
             if(self.metadataDocument.appOptions.gbiThematicalMap != undefined) {
-                self.addAttributeFilter(
+                self._addAttributeFilter(
                     self.metadataDocument.appOptions.gbiThematicalMap.filterType,
                     self.metadataDocument.appOptions.gbiThematicalMap.filterAttribute,
                     self.metadataDocument.appOptions.gbiThematicalMap.filters
@@ -1686,26 +1707,26 @@ $.extend(gbi.Layers.Couch.prototype, {
 
             if(self.metadataDocument.appOptions.gbiAttributeLists != undefined) {
                 if(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes != undefined) {
-                    self.popupAttributes(self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes);
+                    self._popupAttributes = self.metadataDocument.appOptions.gbiAttributeLists.popupAttributes;
                 } else {
-                    self.popupAttributes([]);
+                    self._popupAttributes = [];
                 }
 
                 if(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes != undefined) {
-                    self.shortListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes);
+                    self._shortListAttributes = self.metadataDocument.appOptions.gbiAttributeLists.shortListAttributes;
                 } else {
-                    self.shortListAttributes([]);
+                    self._shortListAttributes = [];
                 }
 
                 if(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes != undefined) {
-                    self.fullListAttributes(self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes);
+                    self._fullListAttributes = self.metadataDocument.appOptions.gbiAttributeLists.fullListAttributes;
                 } else {
-                    self.fullListAttributes([]);
+                    self._fullListAttributes = [];
                 }
             } else {
-                self.popupAttributes([]);
-                self.shortListAttributes([]);
-                self.fullListAttributes([]);
+                self._popupAttributes = [];
+                self._shortListAttributes = [];
+                self._fullListAttributes = [];
             }
 
 
@@ -1889,7 +1910,8 @@ $.extend(gbi.Layers.Couch.prototype, {
      * @instance
      */
     refresh: function() {
-        this.setStyle(this.default_symbolizers);
+        this._setStyle(this.default_symbolizers);
+        this.olLayer.removeAllFeatures({'silent': true});
         this._loadMetaDocument();
         gbi.Layers.SaveableVector.prototype.refresh.apply(this)
     },
