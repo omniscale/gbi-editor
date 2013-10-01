@@ -186,6 +186,9 @@ gbi.Layers.WMTS = function(options) {
         style: 'default'
     };
     gbi.Layers.Layer.call(this, $.extend({}, defaults, options));
+    if(this.options.requestEncoding) {
+        delete this.options.getURL;
+    }
     this.olLayer = this.options.clone ? null : new OpenLayers.Layer.WMTS(this.options);
 };
 gbi.Layers.WMTS.prototype = new gbi.Layers.Layer();
