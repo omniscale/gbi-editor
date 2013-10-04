@@ -44,6 +44,15 @@ gbi.Layers.Layer.prototype = {
         this.olLayer.setVisibility(visibility);
     },
     /**
+     * Refresh content
+     *
+     * @memberof gbi.Layers.Layer
+     * @instance
+     */
+    refresh: function() {
+        this.olLayer.redraw();
+    },
+    /**
      * Destroys
      *
      * @memberof gbi.Layers.Layer
