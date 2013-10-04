@@ -1083,7 +1083,7 @@ $.extend(gbi.Layers.Vector.prototype, {
             });
     },
     /**
-     * Remve jsonSchema from layer
+     * Remove jsonSchema from layer
      *
      * @memberof gbi.Layers.Vector
      * @instance
