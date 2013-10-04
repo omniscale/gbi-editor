@@ -1093,6 +1093,15 @@ $.extend(gbi.Layers.Vector.prototype, {
         self.jsonSchema = false;
         self.options.jsonSchemaUrl = false;
         $(self).trigger('gbi.layer.vector.schemaRemoved');
+    },
+    /**
+     * Removes all feature of this layer
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
+    clear: function() {
+        this.olLayer.removeAllFeatures({'silent': true});
     }
 });
 
