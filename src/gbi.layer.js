@@ -22,6 +22,8 @@ gbi.Layers.Layer = function(options) {
     if(!this.options.title) {
         this.options.title = this.options.name;
     }
+    this.data = this.options.data || {};
+    delete this.options.data;
     this.isRaster = true;
     this.isBackground = this.options.background || false;
 };
