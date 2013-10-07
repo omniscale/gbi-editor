@@ -121,6 +121,69 @@ gbi.Layers.Layer.prototype = {
     }
 };
 
+gbi.Layers.Raster = function(options) {
+    var defaults = {};
+
+    gbi.Layers.Layer.call(this, $.extend({}, defaults, options));
+    this.cacheable = true;
+    this.seedingSource = false;
+    this.cacheURL = this.options.cacheURL;
+};
+gbi.Layers.Raster.prototype = new gbi.Layers.Layer();
+$.extend(gbi.Layers.Raster.prototype, {
+    CLASS_NAME: 'gbi.Layers.Raster',
+    visible: function(visibility) {
+        if(arguments.length == 0) {
+            return this.olLayer.getVisibility();
+        }
+        gbi.Layers.Layer.prototype.visible.call(this, visibility);
+        if(this.seedingSource) {
+            this.seedingSource.setVisibility(visibility);
+        }
+    },
+    isSeedable: function() {
+        return this.cacheURL != undefined;
+    },
+    enableSeeding: function() {
+        if(this.isSeedable()) {
+            var map = this.olLayer.map;
+            this.seedingSource = this.olLayer;
+            if(map) {
+                map.removeLayer(this.seedingSource);
+            }
+            var seedingOptions = $.extend({}, this.options, {sourceLayer: this.seedingSource});
+            this.olLayer = new OpenLayers.Layer.CouchDBTile(
+                this.options.name,
+                [this.cacheURL],
+                seedingOptions
+            );
+            // console.log(seedingOptions.isBaseLayer, this.olLayer.isBaseLayer)
+            // workaround, cause CouchDBTile isBaseLayer always true, but why?
+            this.olLayer.isBaseLayer = this.options.isBaseLayer;
+            this.olLayer.setVisibility(this.seedingSource.getVisibility());
+            if(map) {
+                map.addLayer(this.olLayer);
+            }
+            return true;
+        }
+        return false;
+    },
+    disableSeeding: function() {
+        if(this.seedingSource) {
+            var map = this.olLayer.map;
+            var visibility = this.olLayer.getVisibility();
+            if(map) {
+                map.removeLayer(this.olLayer);
+            }
+            this.olLayer = this.seedingSource;
+            this.olLayer.setVisibility(visibility);
+            this.seedingSource = false;
+            return true;
+        }
+        return false;
+    }
+});
+
 /**
  * Creates a OSM layer
  *
@@ -130,10 +193,10 @@ gbi.Layers.Layer.prototype = {
  * @param {String} options.name Name of the layer
  */
 gbi.Layers.OSM = function(options) {
-    gbi.Layers.Layer.call(this, options);
-    this.olLayer = new OpenLayers.Layer.OSM(this.options.name, undefined, this.options);
+    gbi.Layers.Raster.call(this, options);
+    this.olLayer = new OpenLayers.Layer.OSM('OSM', undefined, this.options);
 };
-gbi.Layers.OSM.prototype = new gbi.Layers.Layer();
+gbi.Layers.OSM.prototype = new gbi.Layers.Raster();
 $.extend(gbi.Layers.OSM.prototype, {
     CLASS_NAME: 'gbi.Layers.OSM'
 });
@@ -157,12 +220,12 @@ gbi.Layers.WMS = function(options) {
         ratio: 1,
         singleTile: true
     };
-    gbi.Layers.Layer.call(this, $.extend({}, defaults, options));
+    gbi.Layers.Raster.call(this, $.extend({}, defaults, options));
     var params = this.options.params
     delete this.options.params
     this.olLayer = new OpenLayers.Layer.WMS(this.options.name, this.options.url, params, this.options)
 };
-gbi.Layers.WMS.prototype = new gbi.Layers.Layer();
+gbi.Layers.WMS.prototype = new gbi.Layers.Raster();
 $.extend(gbi.Layers.WMS.prototype, {
     CLASS_NAME: 'gbi.Layers.WMS',
     /**
@@ -196,13 +259,13 @@ gbi.Layers.WMTS = function(options) {
         matrixSet: 'GoogleMapsCompatible',
         style: 'default'
     };
-    gbi.Layers.Layer.call(this, $.extend({}, defaults, options));
+    gbi.Layers.Raster.call(this, $.extend({}, defaults, options));
     if(this.options.requestEncoding) {
         delete this.options.getURL;
     }
     this.olLayer = this.options.clone ? null : new OpenLayers.Layer.WMTS(this.options);
 };
-gbi.Layers.WMTS.prototype = new gbi.Layers.Layer();
+gbi.Layers.WMTS.prototype = new gbi.Layers.Raster();
 $.extend(gbi.Layers.WMTS.prototype, {
     CLASS_NAME: 'gbi.Layers.WMTS',
     /**
