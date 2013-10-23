@@ -384,6 +384,7 @@ gbi.Layers.Vector = function(options) {
     this._shortListAttributes = [];
     this._fullListAttributes = [];
     this._popupAttributes = [];
+    this._storedFeatures = [];
 
     this.features = this.olLayer.features;
     if(!this.options.styleMap) {
@@ -418,6 +419,13 @@ gbi.Layers.Vector = function(options) {
             self.olLayer.map.addControl(self.hoverCtrl.olControl);
         });
     }
+
+    this.registerEvent('featureremoved', this, function(f) {
+        var feature = f.feature;
+        if(feature) {
+            self.removeStoredFeature(feature);
+        }
+    });
 }
 gbi.Layers.Vector.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Vector.prototype, {
@@ -1173,7 +1181,38 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      */
     clear: function() {
+        this.clearStoredFeatures();
         this.olLayer.removeAllFeatures({'silent': true});
+    },
+    storeFeatures: function(features) {
+        var self = this;
+        $.each(features, function(idx, feature) {
+            self.storeFeature(feature);
+        });
+    },
+    storeFeature: function(feature) {
+        if($.inArray(feature, this._storedFeatures) == -1) {
+            console.log(feature.layer)
+            this._storedFeatures.push(feature);
+        }
+    },
+    clearStoredFeatures: function() {
+        this._storedFeatures = [];
+    },
+    removeStoredFeature: function(feature) {
+        var idx = $.inArray(feature, this._storedFeatures);
+        if(idx != -1) {
+            this._storedFeatures.splice(idx, 1);
+        }
+    },
+    removeStoredFeatures: function(features) {
+        var self = this;
+        $.each(features, function(idx, feature) {
+            self.removeStoredFeature(feature);
+        });
+    },
+    storedFeatures: function() {
+        return this._storedFeatures;
     }
 });
 
