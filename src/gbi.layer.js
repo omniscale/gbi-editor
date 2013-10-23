@@ -998,17 +998,20 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     selectByPropertyValue: function(property, value) {
         var self = this;
+        var features = [];
         var selectCtrl = new OpenLayers.Control.SelectFeature();
         $.each(this.olLayer.features, function(idx, feature) {
             selectCtrl.unselect(feature);
             if((property in feature.attributes && feature.attributes[property] == value)) {
                 selectCtrl.select(feature);
+                features.push(feature);
             }
         });
         selectCtrl.destroy();
         if(this.popup) {
             this._removePopup(this.popup);
         }
+        return features;
     },
     /**
      * Zooms to data extend
