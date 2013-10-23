@@ -932,6 +932,15 @@ $.extend(gbi.Layers.Vector.prototype, {
             }
         }
     },
+    selectFeatures: function(features, unselect) {
+        var self = this;
+        if(unselect) {
+            self.unSelectAllFeatures();
+        }
+        $.each(features, function(idx, feature) {
+            self.selectFeature(feature);
+        });
+    },
     /**
      * Center map on given feature
      *
