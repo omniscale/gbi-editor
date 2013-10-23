@@ -164,6 +164,8 @@ $.extend(gbi.Layers.Raster.prototype, {
             if(map) {
                 map.addLayer(this.olLayer);
             }
+            //set cache layer index so it would be requested before source layer
+            map.setLayerIndex(this.olLayer, map.getLayerIndex(this.seedingSource))
             return true;
         }
         return false;
