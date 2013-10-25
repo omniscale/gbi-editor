@@ -128,6 +128,7 @@ gbi.Layers.Raster = function(options) {
     this.cacheable = true;
     this.seedingSource = false;
     this.cacheURL = this.options.cacheURL;
+    this.sourceURL = this.options.sourceURL;
 };
 gbi.Layers.Raster.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Raster.prototype, {
@@ -142,7 +143,7 @@ $.extend(gbi.Layers.Raster.prototype, {
         }
     },
     isSeedable: function() {
-        return this.cacheURL != undefined;
+        return this.cacheURL != undefined && this.sourceURL != undefined;
     },
     enableSeeding: function() {
         if(this.isSeedable()) {
@@ -154,6 +155,7 @@ $.extend(gbi.Layers.Raster.prototype, {
             if(map) {
                 map.removeLayer(this.seedingSource);
             }
+            this.seedingSource.url = this.sourceURL;
             var seedingOptions = $.extend({}, this.options, {sourceLayer: this.seedingSource});
             this.olLayer = new OpenLayers.Layer.CouchDBTile(
                 this.options.name,
@@ -176,11 +178,14 @@ $.extend(gbi.Layers.Raster.prototype, {
     disableSeeding: function() {
         if(this.seedingSource) {
             var map = this.olLayer.map;
+            var layerIdx = map.getLayerIndex(this.olLayer);
             var visibility = this.olLayer.getVisibility();
             if(map) {
                 map.removeLayer(this.olLayer);
             }
             this.olLayer = this.seedingSource;
+            this.olLayer.url = this.options.url;
+            map.setLayerIndex(this.olLayer, layerIdx);
             this.olLayer.setVisibility(visibility);
             this.seedingSource = false;
             return true;
