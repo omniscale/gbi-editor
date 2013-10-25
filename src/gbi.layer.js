@@ -148,7 +148,9 @@ $.extend(gbi.Layers.Raster.prototype, {
         if(this.isSeedable()) {
             var map = this.olLayer.map;
             var layerIdx = map.getLayerIndex(this.olLayer);
+            var layerVisibility = this.olLayer.getVisibility();
             this.seedingSource = this.olLayer;
+            this.seedingSource.setVisibility(false)
             if(map) {
                 map.removeLayer(this.seedingSource);
             }
@@ -161,7 +163,7 @@ $.extend(gbi.Layers.Raster.prototype, {
             // console.log(seedingOptions.isBaseLayer, this.olLayer.isBaseLayer)
             // workaround, cause CouchDBTile isBaseLayer always true, but why?
             this.olLayer.isBaseLayer = this.options.isBaseLayer;
-            this.olLayer.setVisibility(this.seedingSource.getVisibility());
+            this.olLayer.setVisibility(layerVisibility);
             if(map) {
                 map.addLayer(this.olLayer);
             }
