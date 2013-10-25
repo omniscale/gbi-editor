@@ -240,6 +240,14 @@ OpenLayers.CouchDBTile = OpenLayers.Class(OpenLayers.Tile.Image, {
         if (img.src != null) {
             if (this.imageReloadAttempts == 0 && typeof this.layer.sourceLayer != 'undefined') {
                 this.imageReloadAttempts += 1;
+
+                // if source is WMTS we must update matrix properties
+                // OpenLayers.Layer.WMTS does this by itself only if
+                // setMap or moveTo with zoomChanged property is called
+                if(typeof this.layer.sourceLayer.updateMatrixProperties !== "undefined") {
+                    this.layer.sourceLayer.updateMatrixProperties()
+                }
+
                 // try to load img from sourceLayer
                 var newImgSrc = this.layer.sourceLayer.getURL(this.bounds);
                 if (OpenLayers.ProxyHost) {
