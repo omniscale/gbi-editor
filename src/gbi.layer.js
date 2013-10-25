@@ -147,6 +147,7 @@ $.extend(gbi.Layers.Raster.prototype, {
     enableSeeding: function() {
         if(this.isSeedable()) {
             var map = this.olLayer.map;
+            var layerIdx = map.getLayerIndex(this.olLayer);
             this.seedingSource = this.olLayer;
             if(map) {
                 map.removeLayer(this.seedingSource);
@@ -164,8 +165,8 @@ $.extend(gbi.Layers.Raster.prototype, {
             if(map) {
                 map.addLayer(this.olLayer);
             }
-            //set cache layer index so it would be requested before source layer
-            map.setLayerIndex(this.olLayer, map.getLayerIndex(this.seedingSource))
+            //set cache layer index to stored index
+            map.setLayerIndex(this.olLayer, layerIdx)
             return true;
         }
         return false;
