@@ -930,7 +930,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     selectFeature: function(feature, unselect) {
         var self = this;
-        if($.inArray(feature, self.features) != -1) {
+        if($.inArray(feature, self.features) !== -1) {
             var selectCtrl = new OpenLayers.Control.SelectFeature();
             if(unselect) {
                 self.unSelectAllFeatures();
@@ -1211,20 +1211,28 @@ $.extend(gbi.Layers.Vector.prototype, {
         $.each(features, function(idx, feature) {
             self.storeFeature(feature);
         });
+        if(self._storedFeatures.length > 0) {
+            $(self).trigger('gbi.layer.vector.featuresStored');
+        }
     },
     storeFeature: function(feature) {
-        if($.inArray(feature, this._storedFeatures) == -1) {
-            console.log(feature.layer)
-            this._storedFeatures.push(feature);
+        var self = this;
+        if($.inArray(feature, self._storedFeatures) === -1) {
+            self._storedFeatures.push(feature);
+            $(self).trigger('gbi.layer.vector.featureStored');
         }
     },
     clearStoredFeatures: function() {
-        this._storedFeatures = [];
+        var self = this;
+        self._storedFeatures = [];
+        $(self).trigger('gbi.layer.vector.featureStoreCleared');
     },
     removeStoredFeature: function(feature) {
-        var idx = $.inArray(feature, this._storedFeatures);
+        var self = this
+        var idx = $.inArray(feature, self._storedFeatures);
         if(idx != -1) {
-            this._storedFeatures.splice(idx, 1);
+            self._storedFeatures.splice(idx, 1);
+            $(self).trigger('gbi.layer.vector.unstoredFeature');
         }
     },
     removeStoredFeatures: function(features) {
