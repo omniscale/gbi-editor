@@ -1212,27 +1212,27 @@ $.extend(gbi.Layers.Vector.prototype, {
             self.storeFeature(feature);
         });
         if(self._storedFeatures.length > 0) {
-            $(self).trigger('gbi.layer.vector.featuresStored');
+            $(self).trigger('gbi.layer.vector.featuresStored', self);
         }
     },
     storeFeature: function(feature) {
         var self = this;
         if($.inArray(feature, self._storedFeatures) === -1) {
             self._storedFeatures.push(feature);
-            $(self).trigger('gbi.layer.vector.featureStored');
+            $(self).trigger('gbi.layer.vector.featureStored', self);
         }
     },
     clearStoredFeatures: function() {
         var self = this;
         self._storedFeatures = [];
-        $(self).trigger('gbi.layer.vector.featureStoreCleared');
+        $(self).trigger('gbi.layer.vector.featureStoreCleared', self);
     },
     removeStoredFeature: function(feature) {
         var self = this
         var idx = $.inArray(feature, self._storedFeatures);
         if(idx != -1) {
             self._storedFeatures.splice(idx, 1);
-            $(self).trigger('gbi.layer.vector.unstoredFeature');
+            $(self).trigger('gbi.layer.vector.unstoredFeature', self);
         }
     },
     removeStoredFeatures: function(features) {
