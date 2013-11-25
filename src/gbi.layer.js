@@ -1679,7 +1679,7 @@ gbi.Layers.Couch = function(options) {
                                     for(var prop in doc.views) {\
                                         if(doc.views.hasOwnProperty(prop)){\
                                             returnBody = returnBody+\'<collection href="\'+prop+\'">\';\
-                                            returnBody = returnBody+"<atom:title>"+prop+"</atom:title></collection>";\
+                                            returnBody = returnBody+"<atom:title>' + self.options.title + '</atom:title></collection>";\
                                         }\
                                     }\
                                 }\
