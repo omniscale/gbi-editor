@@ -159,16 +159,19 @@ gbi.Controls.Draw = function(layer, options) {
     this.drawHandler;
     switch(this.options.drawType.toLowerCase()) {
         case gbi.Controls.Draw.TYPE_POINT:
+            this.drawType = gbi.Controls.Draw.TYPE_POINT;
             this.drawHandler = OpenLayers.Handler.Point;
             this.options.displayClass = "olControlDrawFeaturePoint";
             this.options.title = OpenLayers.i18n("Draw point");
             break;
         case gbi.Controls.Draw.TYPE_LINE:
+            this.drawType = gbi.Controls.Draw.TYPE_LINE;
             this.drawHandler = OpenLayers.Handler.Path;
             this.options.displayClass = "olControlDrawFeatureLine";
             this.options.title = OpenLayers.i18n("Draw line");
             break;
         case gbi.Controls.Draw.TYPE_RECT:
+            this.drawType = gbi.Controls.Draw.TYPE_RECT;
             this.drawHandler = OpenLayers.Handler.RegularPolygon;
             this.options.displayClass = "olControlDrawFeatureRect";
             this.options.title = OpenLayers.i18n("Draw rect");
@@ -179,6 +182,7 @@ gbi.Controls.Draw = function(layer, options) {
             break;
         case gbi.Controls.Draw.TYPE_POLYGON:
         default:
+            this.drawType = gbi.Controls.Draw.TYPE_POLYGON;
             this.drawHandler = OpenLayers.Handler.Polygon;
             break;
     };
