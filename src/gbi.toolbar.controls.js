@@ -264,6 +264,79 @@ $.extend(gbi.Controls.Draw.prototype, {
     },
 });
 
+gbi.Controls.MeasuredDraw = function(layer, options) {
+    gbi.Controls.Draw.call(this, layer, options);
+};
+gbi.Controls.MeasuredDraw.prototype = new gbi.Controls.Draw();
+
+$.extend(gbi.Controls.MeasuredDraw.prototype, {
+    CLASS_NAME: 'gbi.Controls.MeasuredDraw',
+    _createControl: function() {
+        var self = this;
+        olControl = gbi.Controls.Draw.prototype._createControl.call(this);
+        // Change/extend when support more than polygons
+        if(this.drawType == gbi.Controls.Draw.TYPE_POLYGON) {
+            this._measureControl = new OpenLayers.Control.Measure(OpenLayers.Handler.Polygon, {
+                persist: true,
+                immediate: true,
+                geodesic: true,
+                handlerOptions: {
+                    layerOptions: {
+                        styleMap: new OpenLayers.StyleMap({"default": new OpenLayers.Style({
+                            'strokeOpacity': 0,
+                            'fillOpacity': 0
+                        })})
+                    }
+                }
+            });
+            this._measureControl.handler.callbacks.done = function(geometry) {
+                // doubleclick won't finish drawing feature, so we must do it
+                self.olControl.handler.finishGeometry();
+            };
+            this._measureControl.events.on({
+                "measure": function(event) {
+                    self.options.measureCallback({
+                        type: gbi.Controls.Measure.TYPE_POLYGON,
+                        measure: event.measure.toFixed(3),
+                        units: event.units
+                    })
+                },
+                "measurepartial": function(event) {
+                    self.options.measureCallback({
+                        type: gbi.Controls.Measure.TYPE_POLYGON,
+                        measure: event.measure.toFixed(3),
+                        units: event.units
+                    })
+                }
+            });
+            if(this.layer) {
+                this._measureControl.setMap(this.layer.olLayer.map);
+            }
+            if(!this.dummyControl) {
+                this.registerEvent('activate', this, this._activateMeasurment);
+                this.registerEvent('deactivate', this, this._deactivateMeasurement);
+            }
+        }
+        return olControl;
+    },
+    replaceControl: function(layer) {
+        gbi.Controls.Draw.prototype.replaceControl.call(this, layer);
+        // Change/extend when support more than polygons
+        if(!this.dummyControl && this.drawType == gbi.Controls.Draw.TYPE_POLYGON) {
+            this.registerEvent('activate', this, this._activateMeasurment);
+            this.registerEvent('deactivate', this, this._deactivateMeasurement);
+        }
+    },
+    _activateMeasurment: function() {
+        var self = this;
+        self._measureControl.activate();
+    },
+    _deactivateMeasurement: function() {
+        var self = this;
+        this._measureControl.deactivate();
+    }
+});
+
 /**
  * Creates a edit control
  *
