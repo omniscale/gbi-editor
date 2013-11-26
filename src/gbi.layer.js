@@ -1708,16 +1708,16 @@ gbi.Layers.Couch = function(options) {
         $(this).on('gbi.layer.vector.featureAttributeChanged', function() {
             self.unsavedFeatureChanges = true;
         });
-        $(this).on('gbi.layer.vector.gbi.layer.vector.styleChanged', function() {
+        $(this).on('gbi.layer.vector.styleChanged', function() {
             self.unsavedMetaChanges = true;
         });
-        $(this).on('gbi.layer.vector.gbi.layer.vector.ruleChanged', function() {
+        $(this).on('gbi.layer.vector.ruleChanged', function() {
             self.unsavedMetaChanges = true;
         });
-        $(this).on('gbi.layer.vector.gbi.layer.vector.listAttributesChanged', function() {
+        $(this).on('gbi.layer.vector.listAttributesChanged', function() {
             self.unsavedMetaChanges = true;
         });
-        $(this).on('gbi.layer.vector.gbi.layer.vector.popupAttributesChanged', function() {
+        $(this).on('gbi.layer.vector.popupAttributesChanged', function() {
             self.unsavedMetaChanges = true;
         });
         $(this).on('gbi.layer.vector.schemaLoaded', function() {
