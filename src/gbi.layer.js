@@ -1243,6 +1243,9 @@ $.extend(gbi.Layers.Vector.prototype, {
     },
     storedFeatures: function() {
         return this._storedFeatures;
+    },
+    selectedFeatures: function() {
+        return this.olLayer.selectedFeatures;
     }
 });
 
