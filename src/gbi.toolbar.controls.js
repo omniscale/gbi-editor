@@ -31,6 +31,7 @@ gbi.Controls.ToolbarItem.prototype = {
             }
             this.dummyControl = false;
         } else {
+
             if(!this.dummyControl && this.olControl) {
                 this.olControl.destroy();
             }
@@ -264,13 +265,29 @@ $.extend(gbi.Controls.Draw.prototype, {
     },
 });
 
+/**
+ * Creates a draw and measure control
+ *
+ * @extends gbi.Controls.Draw
+ * @constructor
+ * @param {gbi.Layers.VectorLayer} layer
+ * @param [options] All gbi.Controls.Draw options are allowed.
+ * @param {Function} options.measureCallback Function receiving measure result object
+ */
 gbi.Controls.MeasuredDraw = function(layer, options) {
     gbi.Controls.Draw.call(this, layer, options);
 };
 gbi.Controls.MeasuredDraw.prototype = new gbi.Controls.Draw();
-
 $.extend(gbi.Controls.MeasuredDraw.prototype, {
     CLASS_NAME: 'gbi.Controls.MeasuredDraw',
+    /**
+     * Creates the OpenLayers.Control.DrawFeature control with OpenLayers.Control.Measure
+     *
+     * @memberof gbi.Controls.MeasuredDraw
+     * @instance
+     * @private
+     * @returns {OpenLayers.Control.DrawFeature} control
+     */
     _createControl: function() {
         var self = this;
         olControl = gbi.Controls.Draw.prototype._createControl.call(this);
@@ -319,6 +336,15 @@ $.extend(gbi.Controls.MeasuredDraw.prototype, {
         }
         return olControl;
     },
+    /**
+     * Reassign control.
+     * Overwrites gbi.Controls.ToolbarItem.replaceControl
+     *
+     * @memberof gbi.Controls.MeasuredDraw
+     * @instance
+     * @private
+     * @param {gbi.Layer} layer
+     */
     replaceControl: function(layer) {
         gbi.Controls.Draw.prototype.replaceControl.call(this, layer);
         // Change/extend when support more than polygons
@@ -327,10 +353,24 @@ $.extend(gbi.Controls.MeasuredDraw.prototype, {
             this.registerEvent('deactivate', this, this._deactivateMeasurement);
         }
     },
+    /**
+     * Callback for control activation
+     *
+     * @memberof gbi.Controls.MeasuredDraw
+     * @instance
+     * @private
+     */
     _activateMeasurment: function() {
         var self = this;
         self._measureControl.activate();
     },
+    /**
+     * Callback for control deactivation
+     *
+     * @memberof gbi.Controls.MeasuredDraw
+     * @instance
+     * @private
+     */
     _deactivateMeasurement: function() {
         var self = this;
         this._measureControl.deactivate();
