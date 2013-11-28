@@ -24,6 +24,7 @@ require("openlayers.extensions/split.js");
 require("openlayers.extensions/wfst_ordered.js");
 require("openlayers.extensions/copy.js")
 require("openlayers.extensions/string.format.js")
+require("openlayers.extensions/bootstrap_popup.js")
 require("gbi.editor.js");
 require("gbi.helper.js");
 require("gbi.layermanager.js");

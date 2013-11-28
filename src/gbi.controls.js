@@ -38,7 +38,6 @@ gbi.Controls.MousePosition = function(options) {
     if(options && options.element) {
         options.element = $('#' + options.element)[0];
     }
-
     this.olControl = new OpenLayers.Control.MousePosition(options);
 };
 gbi.Controls.MousePosition.prototype = {
@@ -55,3 +54,48 @@ gbi.Controls.MousePosition.prototype = {
         this.olControl.displayProjection = srs;
     }
 };
+
+gbi.Controls.ClickPopup = function(options) {
+    var self = this;
+    self.olMap = options.editor.map.olMap;
+    self.popupContent = options.popupContent;
+    self.popupSize = new OpenLayers.Size(options.width || 200, options.height || 200);
+    self.popup = false;
+    self.olControl = new OpenLayers.Control();
+    self.olControl.handler = new OpenLayers.Handler.Click(self.olControl, {
+        'click': function(e) {
+            self.handleClick(e);
+        }
+    }, {
+        'singe': true,
+        'stopSingle': true
+    });
+};
+gbi.Controls.ClickPopup.prototype = {
+    CLASS_NAME: 'gbi.Controls.ClickPopup',
+    handleClick: function(e) {
+        var self = this;
+        if(self.popup) {
+            self.olMap.removePopup(self.popup);
+            self.popup.destroy();
+            self.popup = false;
+        }
+        console.log(e.xy)
+        self.popup = new OpenLayers.Popup.BootstrapAlert('clickPopup',
+            self.olMap.getLonLatFromViewPortPx(e.xy),
+            self.popupSize,
+            self.popupContent,
+            false
+        );
+        self.olMap.addPopup(self.popup);
+    },
+    destroy: function() {
+        var self = this;
+        if(self.popup) {
+            self.olMap.removePopup(self.popup);
+            self.popup.destroy();
+            self.popup = false;
+        }
+        self.olControl.deactivate();
+    }
+}
