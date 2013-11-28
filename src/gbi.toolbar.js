@@ -281,5 +281,14 @@ gbi.Toolbar.prototype = {
         if(control) {
             this.olControl.defaultControl = control.olControl;
         }
+    },
+    activeControls: function() {
+        var activeControls = [];
+        $.each([].concat(this.singleLayerControls).concat(this.multiLayerControls), function(idx, control) {
+            if(control.active()) {
+                activeControls.push(control);
+            }
+        })
+        return activeControls;
     }
 };
