@@ -84,8 +84,7 @@ gbi.Controls.ClickPopup.prototype = {
         self.popup = new OpenLayers.Popup.BootstrapAlert('clickPopup',
             self.olMap.getLonLatFromViewPortPx(e.xy),
             self.popupSize,
-            self.popupContent,
-            false
+            self.popupContent
         );
         self.olMap.addPopup(self.popup);
     },
