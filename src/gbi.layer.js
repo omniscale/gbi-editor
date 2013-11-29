@@ -1163,7 +1163,9 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     validateFeatureAttributes: function(feature) {
         var self = this;
-        return Validator.validate(feature.attributes, self.jsonSchema).valid;
+        if($.inArray(feature, self.features) != -1) {
+            return Validator.validate(feature.attributes, self.jsonSchema).valid;
+        }
     },
     /**
      * Load jsonSchema from given url
