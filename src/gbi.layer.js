@@ -1895,6 +1895,9 @@ $.extend(gbi.Layers.Couch.prototype, {
             if(self.metadataDocument.appOptions.jsonSchema != undefined) {
                 self.options.jsonSchemaUrl = self.metadataDocument.appOptions.jsonSchema.url;
                 self.jsonSchema = self.metadataDocument.appOptions.jsonSchema.schema;
+            } else if(self.options.jsonSchemaUrl || self.jsonSchema) {
+                delete self.options.jsonSchema;
+                this.jsonSchema = false;
             }
         }
 
