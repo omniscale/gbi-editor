@@ -51,6 +51,7 @@ gbi.Layers.Layer.prototype = {
      */
     refresh: function() {
         this.olLayer.redraw();
+        $(this).trigger('gbi.layer.refreshed');
     },
     /**
      * Destroys
@@ -484,6 +485,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     refresh: function() {
         this.olLayer.refresh();
+        $(this).trigger('gbi.layer.refreshed');
     },
     /**
      * Apply style
