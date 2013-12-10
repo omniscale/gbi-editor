@@ -80,7 +80,6 @@ gbi.Controls.ClickPopup.prototype = {
             self.popup.destroy();
             self.popup = false;
         }
-        console.log(e.xy)
         self.popup = new OpenLayers.Popup.BootstrapAlert('clickPopup',
             self.olMap.getLonLatFromViewPortPx(e.xy),
             self.popupSize,
