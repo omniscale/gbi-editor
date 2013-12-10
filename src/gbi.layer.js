@@ -1180,6 +1180,10 @@ $.extend(gbi.Layers.Vector.prototype, {
         var self = this;
         $.getJSON(url)
             .done(function(response) {
+                if(response.error) {
+                    $(self).trigger('gbi.layer.vector.loadSchemaFail');
+                    return;
+                }
                 self.jsonSchema = response;
                 self.options.jsonSchemaUrl = url;
                 $(self).trigger('gbi.layer.vector.schemaLoaded', self.jsonSchema);
