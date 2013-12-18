@@ -194,7 +194,7 @@ gbi.Map.prototype = {
         var _map = $('#' + self.options.element);
         var browserHeight = $(window).height();
         var offsetTop = _map.prop('offsetTop');
-        _map.css('height', browserHeight - offsetTop);
+        _map.css('height', browserHeight - offsetTop - (self.options.autoResizeSpaceBelowMap || 0));
         if(self.olMap) {
             self.olMap.updateSize()
         }
