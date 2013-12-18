@@ -29,7 +29,8 @@ gbi.Map = function (editor, options) {
             new OpenLayers.Control.PanZoomBar({autoActivate: true})
         ],
         snapping: true,
-        imageBaseLayer: true
+        imageBaseLayer: true,
+        autoResize: false
     };
 
     var centerPosition = options.center;
@@ -73,6 +74,12 @@ gbi.Map = function (editor, options) {
         this.center(centerPosition);
     } else {
         this.zoomToMaxExtent();
+    }
+    if(this.options.autoResize) {
+        this.resizeMap();
+        $(window).resize(function() {
+            self.resizeMap();
+        });
     }
 };
 gbi.Map.prototype = {
@@ -181,5 +188,15 @@ gbi.Map.prototype = {
      */
     zoomToMaxExtent: function() {
         this.olMap.zoomToMaxExtent();
+    },
+    resizeMap: function() {
+        var self = this;
+        var _map = $('#' + self.options.element);
+        var browserHeight = $(window).height();
+        var offsetTop = _map.prop('offsetTop');
+        _map.css('height', browserHeight - offsetTop);
+        if(self.olMap) {
+            self.olMap.updateSize()
+        }
     }
 };
