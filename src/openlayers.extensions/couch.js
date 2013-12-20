@@ -327,7 +327,7 @@ OpenLayers.Layer.CouchDBTile = OpenLayers.Class(OpenLayers.Layer.XYZ, {
             this.sourceLayer = options.sourceLayer;
         }
         OpenLayers.Layer.XYZ.prototype.initialize.apply(this, [
-            name || this.name, url || this.url, {}, options
+            name || this.name, url || this.url, options || {}
         ]);
     },
     afterAdd: function() {
