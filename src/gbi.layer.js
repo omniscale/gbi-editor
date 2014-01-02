@@ -322,7 +322,7 @@ $.extend(gbi.Layers.SMS.prototype, {
 
         this.olLayer = layer;
         map.addLayer(this.olLayer);
-        this.olLayer.setLayerIndex(layerIdx);
+        map.setLayerIndex(this.olLayer, layerIdx);
         this.olLayer.setVisibility(visibility);
     }
 });
