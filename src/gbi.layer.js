@@ -126,73 +126,10 @@ gbi.Layers.Raster = function(options) {
     var defaults = {};
 
     gbi.Layers.Layer.call(this, $.extend({}, defaults, options));
-    this.cacheable = true;
-    this.seedingSource = false;
-    this.cacheURL = this.options.cacheURL;
-    this.sourceURL = this.options.sourceURL;
 };
 gbi.Layers.Raster.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Raster.prototype, {
-    CLASS_NAME: 'gbi.Layers.Raster',
-    visible: function(visibility) {
-        if(arguments.length == 0) {
-            return this.olLayer.getVisibility();
-        }
-        gbi.Layers.Layer.prototype.visible.call(this, visibility);
-        if(this.seedingSource) {
-            this.seedingSource.setVisibility(visibility);
-        }
-    },
-    isSeedable: function() {
-        return this.cacheURL != undefined && this.sourceURL != undefined;
-    },
-    enableSeeding: function() {
-        if(this.isSeedable()) {
-            var map = this.olLayer.map;
-            var layerIdx = map.getLayerIndex(this.olLayer);
-            var layerVisibility = this.olLayer.getVisibility();
-            this.seedingSource = this.olLayer;
-            this.seedingSource.setVisibility(false)
-            if(map) {
-                map.removeLayer(this.seedingSource);
-            }
-            this.seedingSource.url = this.sourceURL;
-            var seedingOptions = $.extend({}, this.options, {sourceLayer: this.seedingSource});
-            this.olLayer = new OpenLayers.Layer.CouchDBTile(
-                this.options.name,
-                [this.cacheURL],
-                seedingOptions
-            );
-            // console.log(seedingOptions.isBaseLayer, this.olLayer.isBaseLayer)
-            // workaround, cause CouchDBTile isBaseLayer always true, but why?
-            this.olLayer.isBaseLayer = this.options.isBaseLayer;
-            this.olLayer.setVisibility(layerVisibility);
-            if(map) {
-                map.addLayer(this.olLayer);
-            }
-            //set cache layer index to stored index
-            map.setLayerIndex(this.olLayer, layerIdx)
-            return true;
-        }
-        return false;
-    },
-    disableSeeding: function() {
-        if(this.seedingSource) {
-            var map = this.olLayer.map;
-            var layerIdx = map.getLayerIndex(this.olLayer);
-            var visibility = this.olLayer.getVisibility();
-            if(map) {
-                map.removeLayer(this.olLayer);
-            }
-            this.olLayer = this.seedingSource;
-            this.olLayer.url = this.options.url;
-            map.setLayerIndex(this.olLayer, layerIdx);
-            this.olLayer.setVisibility(visibility);
-            this.seedingSource = false;
-            return true;
-        }
-        return false;
-    }
+    CLASS_NAME: 'gbi.Layers.Raster'
 });
 
 /**
@@ -234,6 +171,7 @@ gbi.Layers.WMS = function(options) {
     gbi.Layers.Raster.call(this, $.extend({}, defaults, options));
     var params = this.options.params
     delete this.options.params
+
     this.olLayer = new OpenLayers.Layer.WMS(this.options.name, this.options.url, params, this.options)
 };
 gbi.Layers.WMS.prototype = new gbi.Layers.Raster();
@@ -312,6 +250,77 @@ $.extend(gbi.Layers.WMTS.prototype, {
     }
 });
 
+gbi.Layers.SMS = function(options) {
+    var defaults = {
+        'sourceType': 'wmts',
+        'sourceOptions': undefined
+    }
+    gbi.Layers.WMTS.call(this, $.extend({}, options));
+    this.cacheLayer = this.olLayer;
+
+    switch(this.options.sourceType) {
+        case 'wms':
+            this.sourceLayer = new OpenLayers.Layer.WMS(
+                this.options.sourceOptions.name,
+                this.options.sourceURL,
+                this.options.sourceOptions.params,
+                this.options.sourceOptions
+            );
+            break;
+        case 'wmts':
+        default:
+            this.sourceLayer = new OpenLayers.Layer.WMTS(this.options.sourceOptions)
+            break;
+    }
+    var cacheURL = this.options.url;
+    cacheURL = cacheURL.replace('{TileMatrix}', '${z}');
+    var cacheURL = cacheURL.replace('{TileCol}', '${x}');
+    var cacheURL = cacheURL.replace('{TileRow}', '${y}');
+    this.seedLayer = new OpenLayers.Layer.CouchDBTile(
+        this.options.name,
+        [cacheURL],
+        $.extend({}, this.options, {sourceLayer: this.sourceLayer});
+    );
+    this.seedLayer.isBaseLayer = this.options.isBaseLayer;
+}
+gbi.Layers.SMS.prototype = new gbi.Layers.WMTS();
+$.extend(gbi.Layers.SMS.prototype, {
+    CLASS_NAME: 'gbi.Layers.SMS',
+    visible: function(visibility) {
+        if(arguments.length == 0) {
+            return this.olLayer.getVisibility();
+        }
+        gbi.Layers.Layer.prototype.visible.call(this, visibility);
+        this.seedLayer.setVisibility(visibility);
+    },
+    enableSeeding: function() {
+        if(this.olLayer == this.cacheLayer) {
+            this._switchLayer(this.seedLayer);
+            return true;
+        }
+        return false;
+    },
+    disableSeeding: function() {
+        if(this.olLayer == this.seedLayer) {
+            this._switchLayer(this.cacheLayer);
+            return true
+        }
+        return false
+    },
+    _switchLayer: function(layer) {
+        var map = this.olLayer.map;
+        var layerIdx = map.getLayerIndex(this.olLayer);
+        var visibility = this.olLayer.getVisibility();
+
+        this.olLayer.setVisibility(false);
+        map.removeLayer(this.olLayer);
+
+        this.olLayer = layer;
+        map.addLayer(this.olLayer);
+        this.olLayer.setLayerIndex(layerIdx);
+        this.olLayer.setVisibility(visibility);
+    }
+});
 /**
  * Creates a vector layer
  *
