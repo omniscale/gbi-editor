@@ -279,12 +279,12 @@ gbi.Layers.SMS = function(options) {
     }
     var cacheURL = this.options.url;
     cacheURL = cacheURL.replace('{TileMatrix}', '${z}');
-    var cacheURL = cacheURL.replace('{TileCol}', '${x}');
-    var cacheURL = cacheURL.replace('{TileRow}', '${y}');
+    cacheURL = cacheURL.replace('{TileCol}', '${x}');
+    cacheURL = cacheURL.replace('{TileRow}', '${y}');
     this.seedLayer = new OpenLayers.Layer.CouchDBTile(
         this.options.name,
         [cacheURL],
-        $.extend({}, this.options, {sourceLayer: this.sourceLayer});
+        $.extend({}, this.options, {sourceLayer: this.sourceLayer})
     );
     this.seedLayer.isBaseLayer = this.options.isBaseLayer;
 }
