@@ -129,7 +129,10 @@ gbi.Layers.Raster = function(options) {
 };
 gbi.Layers.Raster.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Raster.prototype, {
-    CLASS_NAME: 'gbi.Layers.Raster'
+    CLASS_NAME: 'gbi.Layers.Raster',
+    isSeedable: function() {
+        return this instanceof gbi.Layers.SMS;
+    }
 });
 
 /**
