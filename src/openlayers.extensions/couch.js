@@ -346,5 +346,9 @@ OpenLayers.Layer.CouchDBTile = OpenLayers.Class(OpenLayers.Layer.XYZ, {
         }
         return url
     },
+    setVisibility: function(visibility) {
+        OpenLayers.Layer.XYZ.prototype.setVisibility.call(this, visibility);
+        this.sourceLayer.setVisibility(visibility);
+    },
     CLASS_NAME: "OpenLayers.Layer.CouchDBTile"
 });
