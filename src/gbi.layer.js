@@ -266,15 +266,15 @@ gbi.Layers.SMS = function(options) {
     switch(this.options.sourceType) {
         case 'wms':
             this.sourceLayer = new OpenLayers.Layer.WMS(
-                this.options.sourceOptions.name,
+                this.options.name,
                 this.options.sourceURL,
-                this.options.sourceOptions.params,
-                this.options.sourceOptions
+                this.options.params,
+                this.options
             );
             break;
         case 'wmts':
         default:
-            this.sourceLayer = new OpenLayers.Layer.WMTS(this.options.sourceOptions)
+            this.sourceLayer = new OpenLayers.Layer.WMTS($.extend({}, this.options, {'url': this.options.sourceURL}));
             break;
     }
     var cacheURL = this.options.url;
