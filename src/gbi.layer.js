@@ -314,11 +314,13 @@ $.extend(gbi.Layers.SMS.prototype, {
         var map = this.olLayer.map;
         var layerIdx = map.getLayerIndex(this.olLayer);
         var visibility = this.olLayer.getVisibility();
+        var gbiId = this.olLayer.gbiId;
 
         this.olLayer.setVisibility(false);
         map.removeLayer(this.olLayer);
 
         this.olLayer = layer;
+        this.olLayer.gbiId = gbiId;
         map.addLayer(this.olLayer);
         map.setLayerIndex(this.olLayer, layerIdx);
         this.olLayer.setVisibility(visibility);
