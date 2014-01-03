@@ -324,6 +324,9 @@ $.extend(gbi.Layers.SMS.prototype, {
         map.addLayer(this.olLayer);
         map.setLayerIndex(this.olLayer, layerIdx);
         this.olLayer.setVisibility(visibility);
+    },
+    isSeeding: function() {
+        return this.olLayer instanceof OpenLayers.Layer.CouchDBTile;
     }
 });
 /**
