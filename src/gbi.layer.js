@@ -274,7 +274,7 @@ gbi.Layers.SMS = function(options) {
             break;
         case 'wmts':
         default:
-            this.sourceLayer = new OpenLayers.Layer.WMTS($.extend({}, this.options, {'url': this.options.sourceURL}));
+            this.sourceLayer = new OpenLayers.Layer.WMTS($.extend({}, this.options, {'url': this.options.sourceURL, 'displayInLayerSwitcher': false, 'visibility': false}));
             break;
     }
     var cacheURL = this.options.url;
