@@ -265,11 +265,16 @@ gbi.Layers.SMS = function(options) {
 
     switch(this.options.sourceType) {
         case 'wms':
+            var sourceOptions = $.extend({}, this.options, {
+                'visibility': false,
+                'displayInLayerSwitcher': false,
+                'url': this.options.sourceURL
+            });
             this.sourceLayer = new OpenLayers.Layer.WMS(
-                this.options.name,
-                this.options.sourceURL,
-                this.options.params,
-                this.options
+                sourceOptions.name,
+                sourceOptions.url,
+                sourceOptions.params,
+                sourceOptions
             );
             break;
         case 'wmts':
