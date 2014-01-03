@@ -296,13 +296,6 @@ gbi.Layers.SMS = function(options) {
 gbi.Layers.SMS.prototype = new gbi.Layers.WMTS();
 $.extend(gbi.Layers.SMS.prototype, {
     CLASS_NAME: 'gbi.Layers.SMS',
-    visible: function(visibility) {
-        if(arguments.length == 0) {
-            return this.olLayer.getVisibility();
-        }
-        gbi.Layers.Layer.prototype.visible.call(this, visibility);
-        this.seedLayer.setVisibility(visibility);
-    },
     enableSeeding: function() {
         if(this.olLayer == this.cacheLayer) {
             this._switchLayer(this.seedLayer);
