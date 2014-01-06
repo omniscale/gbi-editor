@@ -122,6 +122,12 @@ gbi.Layers.Layer.prototype = {
     }
 };
 
+/**
+ * Baseclass for raster layer
+ *
+ * @class
+ * @abstract
+ */
 gbi.Layers.Raster = function(options) {
     var defaults = {};
 
@@ -130,6 +136,13 @@ gbi.Layers.Raster = function(options) {
 gbi.Layers.Raster.prototype = new gbi.Layers.Layer();
 $.extend(gbi.Layers.Raster.prototype, {
     CLASS_NAME: 'gbi.Layers.Raster',
+    /**
+     * Check if layer is seedable
+     *
+     * @memberof gbi.Layers.Raster
+     * @instance
+     * @returns {Boolean}
+     */
     isSeedable: function() {
         return this instanceof gbi.Layers.SMS;
     }
@@ -255,6 +268,18 @@ $.extend(gbi.Layers.WMTS.prototype, {
     }
 });
 
+/**
+ * Creates a SMS layer
+ *
+ * @constructor
+ * @extends gbi.Layers.WMTS
+ * @param [options] All OpenLayers.Layer.WMTS options are allowed. See {@link http://dev.openlayers.org/releases/OpenLayers-2.12/doc/apidocs/files/OpenLayers/Layer/WMTS-js.html|OpenLayers.Layer.WMTS}
+ * @param {String} options.name Name of the layer
+ * @param {String} options.url URL of couchDB cache
+ * @param {String} options.layer
+ * @param {String} options.sourceType='wmts'
+ * @param {String} options.sourceURL URL of seeding source
+ */
 gbi.Layers.SMS = function(options) {
     var defaults = {
         'sourceType': 'wmts',
@@ -266,6 +291,7 @@ gbi.Layers.SMS = function(options) {
     // Wait for fix in OpenLayers.Layer.CouchDBTile
     gbi.Layers.WMTS.call(this, $.extend({}, options, {maxExtent: null}));
     this.cacheLayer = this.olLayer;
+    // create source layer depending on sourceType
 
     switch(this.options.sourceType) {
         case 'wms':
@@ -286,6 +312,7 @@ gbi.Layers.SMS = function(options) {
             this.sourceLayer = new OpenLayers.Layer.WMTS($.extend({}, this.options, {'url': this.options.sourceURL, 'displayInLayerSwitcher': false, 'visibility': false}));
             break;
     }
+    // build cacheURL for seedLayer (mapproxy style)
     var cacheURL = this.options.url;
     cacheURL = cacheURL.replace('{TileMatrix}', '${z}');
     cacheURL = cacheURL.replace('{TileCol}', '${x}');
@@ -300,6 +327,13 @@ gbi.Layers.SMS = function(options) {
 gbi.Layers.SMS.prototype = new gbi.Layers.WMTS();
 $.extend(gbi.Layers.SMS.prototype, {
     CLASS_NAME: 'gbi.Layers.SMS',
+    /**
+     * Start dynamic seeding
+     *
+     * @memberof gbi.Layers.SMS
+     * @instance
+     * @returns {Boolean} True if seeding started
+     */
     enableSeeding: function() {
         if(this.olLayer == this.cacheLayer) {
             this._switchLayer(this.seedLayer);
@@ -307,6 +341,13 @@ $.extend(gbi.Layers.SMS.prototype, {
         }
         return false;
     },
+    /**
+     * Stop dynamic seeding
+     *
+     * @memberof gbi.Layers.SMS
+     * @instance
+     * @returns {Boolean} True if seeding stopped
+     */
     disableSeeding: function() {
         if(this.olLayer == this.seedLayer) {
             this._switchLayer(this.cacheLayer);
@@ -314,6 +355,14 @@ $.extend(gbi.Layers.SMS.prototype, {
         }
         return false
     },
+    /**
+     * Change used olLayer
+     *
+     * @memberof gbi.Layers.SMS
+     * @instance
+     * @private
+     * @param {OpenLayers.Layer} layer New olLayer
+     */
     _switchLayer: function(layer) {
         var map = this.olLayer.map;
         var layerIdx = map.getLayerIndex(this.olLayer);
@@ -329,6 +378,13 @@ $.extend(gbi.Layers.SMS.prototype, {
         map.setLayerIndex(this.olLayer, layerIdx);
         this.olLayer.setVisibility(visibility);
     },
+    /**
+     * Returns status of dynamic seeding
+     *
+     * @memberof gbi.Layers.SMS
+     * @instance
+     * @retuns {Boolean} Dynamic seeding status
+     */
     isSeeding: function() {
         return this.olLayer instanceof OpenLayers.Layer.CouchDBTile;
     }
