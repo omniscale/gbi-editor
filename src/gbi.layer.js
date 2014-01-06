@@ -260,7 +260,11 @@ gbi.Layers.SMS = function(options) {
         'sourceType': 'wmts',
         'sourceOptions': undefined
     }
-    gbi.Layers.WMTS.call(this, $.extend({}, options));
+    // explicit overwrite maxExtent cause OpenLayers.Layer.CouchDBTile
+    // adjust its grid on maxExtent. So tile coordinates are not
+    // compatible with sphericalMercator.
+    // Wait for fix in OpenLayers.Layer.CouchDBTile
+    gbi.Layers.WMTS.call(this, $.extend({}, options, {maxExtent: null}));
     this.cacheLayer = this.olLayer;
 
     switch(this.options.sourceType) {
