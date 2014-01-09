@@ -643,10 +643,9 @@ $.extend(gbi.Layers.Vector.prototype, {
     _applyFilterOptions: function() {
         var self = this;
         var rules = [];
-
-        for(var i = self.olLayer.styleMap.styles.default.rules.length - 1; i >= 0; i--) {
-            if(self.olLayer.styleMap.styles.default.rules[i].propertyFilter) {
-                self.olLayer.styleMap.styles.default.rules.splice(i, 1);
+        for(var i = self.olLayer.styleMap.styles['default'].rules.length - 1; i >= 0; i--) {
+            if(self.olLayer.styleMap.styles['default'].rules[i].propertyFilter) {
+                self.olLayer.styleMap.styles['default'].rules.splice(i, 1);
             }
         }
         if(self.featureStylingRule && self.featureStylingRuleActive) {
@@ -711,7 +710,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                     });
                     break;
             };
-            self.olLayer.styleMap.styles.default.rules = self.olLayer.styleMap.styles.default.rules.concat(rules);
+            self.olLayer.styleMap.styles['default'].rules = self.olLayer.styleMap.styles['default'].rules.concat(rules);
         }
     },
     /**
