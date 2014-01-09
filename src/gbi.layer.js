@@ -988,12 +988,8 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      */
     selectAllFeatures: function() {
-        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature();
-        for(var i in this.features) {
-            if($.inArray(this.features[i], this.olLayer.selectedFeatures) == -1) {
-                selectCtrl.select(this.features[i]);
-            }
-        }
+        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayer);
+        selectCtrl.selectFeatures(this.features);
         selectCtrl.destroy();
         if(this.popup) {
             this._removePopup(this.popup);
@@ -1010,9 +1006,9 @@ $.extend(gbi.Layers.Vector.prototype, {
     selectFeature: function(feature, unselect) {
         var self = this;
         if($.inArray(feature, self.features) !== -1) {
-            var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature();
+            var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayer);
             if(unselect) {
-                self.unSelectAllFeatures();
+                selectCtrl.unselectAll();
             }
             selectCtrl.select(feature);
             selectCtrl.destroy();
@@ -1023,12 +1019,14 @@ $.extend(gbi.Layers.Vector.prototype, {
     },
     selectFeatures: function(features, unselect) {
         var self = this;
+        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayer);
         if(unselect) {
-            self.unSelectAllFeatures();
+            selectCtrl.unselectAll();
         }
-        $.each(features, function(idx, feature) {
-            self.selectFeature(feature);
-        });
+        selectCtrl.selectFeatures(features);
+        if(self.popup) {
+            self._removePopup(self.popup);
+        }
     },
     /**
      * Center map on given feature
@@ -1097,14 +1095,14 @@ $.extend(gbi.Layers.Vector.prototype, {
     selectByPropertyValue: function(property, value) {
         var self = this;
         var features = [];
-        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature();
+        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayer);
+
         $.each(this.olLayer.features, function(idx, feature) {
-            selectCtrl.unselect(feature);
             if((property in feature.attributes && feature.attributes[property] == value)) {
-                selectCtrl.select(feature);
                 features.push(feature);
             }
         });
+        selectCtrl.selectFeatures(features);
         selectCtrl.destroy();
         if(this.popup) {
             this._removePopup(this.popup);

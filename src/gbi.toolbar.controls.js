@@ -851,6 +851,9 @@ $.extend(gbi.Controls.Select.prototype, {
     selectFeature: function(feature) {
         this.olControl.select(feature);
     },
+    selectFeatures: function(features) {
+        this.olControl.selectFeatures(features);
+    },
     /**
      * Unselect given feature
      *
