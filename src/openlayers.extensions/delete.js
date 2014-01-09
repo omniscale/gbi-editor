@@ -5,7 +5,7 @@
  * @extends OpenLayers.Control
  * @param {OpenLayers.Layer.Vector} layer
  * @param options
- * @param {OpenLayers.Control.SelectFeature} [options.selectControl]
+ * @param {OpenLayers.Control.ImprovedSelectFeature} [options.selectControl]
  * @param {OpenLayers.Control.ModifyFeature} [options.modifyControl]
  */
 OpenLayers.Control.DeleteFeature = OpenLayers.Class(OpenLayers.Control, {
@@ -125,7 +125,7 @@ OpenLayers.Control.DeleteFeature = OpenLayers.Class(OpenLayers.Control, {
      *
      * @memberof OpenLayers.Control.DeleteFeature
      * @instance
-     * @param {OpenLayers.Control.SelectFeature} selectControl
+     * @param {OpenLayers.Control.ImprovedSelectFeature} selectControl
      */
     setSelectControl: function(selectControl) {
         this.selectControl = selectControl;

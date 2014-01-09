@@ -5,7 +5,7 @@
  * @extends OpenLayers.Control
  * @param {OpenLayers.Layer.Vector} layer
  * @param options
- * @param {OpenLayers.Control.SelectFeature} [options.selectControl]
+ * @param {OpenLayers.Control.ImprovedSelectFeature} [options.selectControl]
   */
 OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
     /**
@@ -18,7 +18,7 @@ OpenLayers.Control.MergeFeatures = OpenLayers.Class(OpenLayers.Control, {
     initialize: function(layer, options) {
         OpenLayers.Control.prototype.initialize.apply(this, [options]);
         this.layer = layer;
-        this._olSelectControl = new OpenLayers.Control.SelectFeature();
+        this._olSelectControl = new OpenLayers.Control.ImprovedSelectFeature();
         this.layer.events.register('featureselected', this, this._toggleControlState);
         this.layer.events.register('featureunselected', this, this._toggleControlState);
         if (options.selectControl) {

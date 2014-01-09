@@ -5,7 +5,7 @@
  * @extends OpenLayers.Control
  * @param {OpenLayers.Layer.Vector} layer
  * @param options
- * @param {OpenLayers.Control.SelectFeature} [options.selectControl]
+ * @param {OpenLayers.Control.ImprovedSelectFeature} [options.selectControl]
   */
 OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
     /**

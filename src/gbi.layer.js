@@ -974,7 +974,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      */
     unSelectAllFeatures: function() {
-        var selectCtrl = new OpenLayers.Control.SelectFeature(this.olLayer);
+        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayer);
         selectCtrl.unselectAll();
         selectCtrl.destroy();
         if(this.popup) {
@@ -988,7 +988,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @instance
      */
     selectAllFeatures: function() {
-        var selectCtrl = new OpenLayers.Control.SelectFeature();
+        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature();
         for(var i in this.features) {
             if($.inArray(this.features[i], this.olLayer.selectedFeatures) == -1) {
                 selectCtrl.select(this.features[i]);
@@ -1010,7 +1010,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     selectFeature: function(feature, unselect) {
         var self = this;
         if($.inArray(feature, self.features) !== -1) {
-            var selectCtrl = new OpenLayers.Control.SelectFeature();
+            var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature();
             if(unselect) {
                 self.unSelectAllFeatures();
             }
@@ -1097,7 +1097,7 @@ $.extend(gbi.Layers.Vector.prototype, {
     selectByPropertyValue: function(property, value) {
         var self = this;
         var features = [];
-        var selectCtrl = new OpenLayers.Control.SelectFeature();
+        var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature();
         $.each(this.olLayer.features, function(idx, feature) {
             selectCtrl.unselect(feature);
             if((property in feature.attributes && feature.attributes[property] == value)) {

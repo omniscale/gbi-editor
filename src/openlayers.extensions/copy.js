@@ -6,7 +6,7 @@
  * @param {OpenLayers.Layer.Vector} layer Target layer
  * @param {OpenLayers.Layer.Vector[]} layers Source layers
  * @param options
- * @param {OpenLayers.Control.SelectFeature} [options.selectControl]
+ * @param {OpenLayers.Control.ImprovedSelectFeature} [options.selectControl]
  */
 OpenLayers.Control.CopyFeatures = OpenLayers.Class(OpenLayers.Control, {
     /**
@@ -24,7 +24,7 @@ OpenLayers.Control.CopyFeatures = OpenLayers.Class(OpenLayers.Control, {
             this._layers[i].events.register('featureunselected', this, this._toggleControlState);
         }
         this._targetLayer = layer;
-        this._olSelectControl = new OpenLayers.Control.SelectFeature();
+        this._olSelectControl = new OpenLayers.Control.ImprovedSelectFeature();
         if (options.selectControl) {
             this.selectControl = options.selectControl;
         }

@@ -245,7 +245,7 @@ $.extend(gbi.Controls.Draw.prototype, {
         var olControl = new OpenLayers.Control.DrawFeature(this.layer.olLayer, this.drawHandler, this.options)
 
         olControl.events.register('featureadded', this, this._featureAdded)
-        this._olSelectControl = new OpenLayers.Control.SelectFeature(this.layer.olLayer);
+        this._olSelectControl = new OpenLayers.Control.ImprovedSelectFeature(this.layer.olLayer);
         return olControl;
     },
     /**
@@ -480,7 +480,7 @@ $.extend(gbi.Controls.Edit.prototype, {
         }
         var selectedFeature = (this.layer.olLayer.selectedFeatures.length > 0) ? this.layer.olLayer.selectedFeatures[0] : null;
 
-        var selectControl = new OpenLayers.Control.SelectFeature(vectorLayers);
+        var selectControl = new OpenLayers.Control.ImprovedSelectFeature(vectorLayers);
         selectControl.unselectAll({except: selectedFeature});
         selectControl.destroy();
 
@@ -695,10 +695,10 @@ $.extend(gbi.Controls.Hover.prototype, {
      * @memberof gbi.Controls.Hover
      * @instance
      * @private
-     * @returns {OpenLayers.Control.SelectFeature} control
+     * @returns {OpenLayers.Control.ImprovedSelectFeature} control
      */
     _createControl: function() {
-        var olControl = new OpenLayers.Control.SelectFeature(this.layer.olLayer, this.options);
+        var olControl = new OpenLayers.Control.ImprovedSelectFeature(this.layer.olLayer, this.options);
         olControl.handlers.feature.stopDown = false;
         return olControl;
     },
@@ -862,14 +862,14 @@ $.extend(gbi.Controls.Select.prototype, {
         this.olControl.unselect(feature);
     },
     /**
-     * Creates the OpenLayers.Control.SelectFeature control
+     * Creates the OpenLayers.Control.ImprovedSelectFeature control
      *
      * @memberof gbi.Controls.Select
      * @instance
      * @private
      */
     _createControl: function() {
-        var olControl = new OpenLayers.Control.SelectFeature(this.olLayers(), this.options);
+        var olControl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayers(), this.options);
         // don't stop handlers chain on mouseDown over feature
         olControl.handlers.feature.stopDown = false;
         return olControl;

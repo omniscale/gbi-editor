@@ -17,6 +17,7 @@ function require(jspath) {
 }
 require("ecma.extensions.js");
 require("dateformat.js");
+require("openlayers.extensions/improved_select_feature.js");
 require("openlayers.extensions/couch.js");
 require("openlayers.extensions/delete.js");
 require("openlayers.extensions/merge.js");
