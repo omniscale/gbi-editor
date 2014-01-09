@@ -1109,6 +1109,7 @@ $.extend(gbi.Layers.Vector.prototype, {
                 features.push(feature);
             }
         });
+        selectCtrl.unselectAll();
         selectCtrl.selectFeatures(features);
         selectCtrl.destroy();
         if(this.popup) {
