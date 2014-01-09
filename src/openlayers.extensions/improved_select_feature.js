@@ -1,5 +1,5 @@
 /**
- * Extended SelectControl
+ * Improved SelectFeatures control
  *
  * @class
  * @extends OpenLayers.Control.SelectFeature
@@ -30,6 +30,16 @@ OpenLayers.Control.ImprovedSelectFeature = OpenLayers.Class(OpenLayers.Control.S
             layer.events.triggerEvent("end_bulk", layer);
         }
     },
+    /**
+     * Method: affectedLayers
+     * Determine all different layers of given features
+     *
+     * Parameters:
+     * features - {OpenLayers.Feature.Vector[]} Features
+     *
+     * Returns:
+     * {OpenLayers.Layer[]} Affected layers
+     */
     affectedLayers: function(features) {
         var layers = [];
         for(var i = 0; i < features.length; i++) {
@@ -46,6 +56,13 @@ OpenLayers.Control.ImprovedSelectFeature = OpenLayers.Class(OpenLayers.Control.S
         }
         return layers;
     },
+    /**
+     * Method: selectFeatures
+     * Select given features with this select control
+     *
+     * Parameters:
+     * features - {OpenLayers.Feature.Vector[]} Features
+     */
     selectFeatures: function(features) {
         var layers = this.affectedLayers(features);
         for(var i = 0; i < layers.length; i++) {

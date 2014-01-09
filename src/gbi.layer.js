@@ -1017,6 +1017,13 @@ $.extend(gbi.Layers.Vector.prototype, {
             }
         }
     },
+    /**
+     * Selects given features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector[]} features
+     */
     selectFeatures: function(features, unselect) {
         var self = this;
         var selectCtrl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayer);

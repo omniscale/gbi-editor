@@ -851,6 +851,13 @@ $.extend(gbi.Controls.Select.prototype, {
     selectFeature: function(feature) {
         this.olControl.select(feature);
     },
+    /**
+     * Select given features
+     *
+     * @memberof gbi.Controls.Select
+     * @instance
+     * @param {OpenLayers.Feature.Vector[]} features
+     */
     selectFeatures: function(features) {
         this.olControl.selectFeatures(features);
     },
