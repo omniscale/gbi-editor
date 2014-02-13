@@ -78,5 +78,63 @@ OpenLayers.Control.ImprovedSelectFeature = OpenLayers.Class(OpenLayers.Control.S
             layers[i].events.triggerEvent("end_bulk", layers[i]);
         }
     },
+    /**
+     * Method: overFeature
+     * Called on over a feature.
+     * Only responds if this.hover is true.
+     *
+     * Parameters:
+     * feature - {<OpenLayers.Feature.Vector>}
+     */
+    overFeature: function(feature) {
+        var layer = feature.layer;
+        if(this.hover) {
+            if(this.triggerHoverOnly) {
+                this.events.triggerEvent("featureover", {feature : feature});
+            } else if(this.highlightOnly) {
+                this.highlight(feature);
+            } else if(OpenLayers.Util.indexOf(
+                layer.selectedFeatures, feature) == -1) {
+                this.select(feature);
+            }
+        }
+    },
+    /**
+     * Method: outFeature
+     * Called on out of a selected feature.
+     * Only responds if this.hover is true.
+     *
+     * Parameters:
+     * feature - {<OpenLayers.Feature.Vector>}
+     */
+    outFeature: function(feature) {
+        if(this.hover) {
+            if(this.triggerHoverOnly) {
+                this.events.triggerEvent("featureout", {feature : feature});
+            } else if(this.highlightOnly) {
+                // we do nothing if we're not the last highlighter of the
+                // feature
+                if(feature._lastHighlighter == this.id) {
+                    // if another select control had highlighted the feature before
+                    // we did it ourself then we use that control to highlight the
+                    // feature as it was before we highlighted it, else we just
+                    // unhighlight it
+                    if(feature._prevHighlighter &&
+                       feature._prevHighlighter != this.id) {
+                        delete feature._lastHighlighter;
+                        var control = this.map.getControl(
+                            feature._prevHighlighter);
+                        if(control) {
+                            control.highlight(feature);
+                        }
+                    } else {
+                        this.unhighlight(feature);
+                    }
+                }
+            } else {
+                this.unselect(feature);
+            }
+        }
+    },
     CLASS_NAME: "OpenLayers.Control.ImprovedSelectFeature"
 });

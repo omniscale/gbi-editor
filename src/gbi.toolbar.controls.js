@@ -673,6 +673,12 @@ gbi.Controls.Hover = function(layer, options) {
             },
             featureunhighlighted: function(f) {
                 self.layer.triggerEvent('featureunhighlighted', {feature: f.feature})
+            },
+            featureover: function(f) {
+                self.layer.triggerEvent('featureover', {feature: f.feature})
+            },
+            featureout: function(f) {
+                self.layer.triggerEvent('featureout', {feature: f.feature})
             }
         }
     };
