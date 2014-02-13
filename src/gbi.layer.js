@@ -498,11 +498,12 @@ gbi.Layers.Vector = function(options) {
     //show popup when selectControl highlight a feature
     //selectControl must trigger events on layer
     if(this.options.hoverPopup) {
-        this.registerEvent('featurehighlighted', this, this._showPopup);
-        this.registerEvent('featureunhighlighted', this, this._removePopup);
+        this.registerEvent('featureover', this, this._showPopup);
+        this.registerEvent('featureout', this, this._removePopup);
         this.registerEvent('added', this, function() {
             self.hoverCtrl = new gbi.Controls.Hover(self, {
-                toolbar: false
+                toolbar: false,
+                triggerHoverOnly: true
             });
             self.olLayer.map.addControl(self.hoverCtrl.olControl);
         });
