@@ -1336,6 +1336,9 @@ $.extend(gbi.Layers.Vector.prototype, {
     },
     selectedFeatures: function() {
         return this.olLayer.selectedFeatures;
+    },
+    hasSelectedFeatures: function() {
+        return this.olLayer.selectedFeatures.length > 0;
     }
 });
 
