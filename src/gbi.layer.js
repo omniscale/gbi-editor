@@ -1297,6 +1297,13 @@ $.extend(gbi.Layers.Vector.prototype, {
         this.clearStoredFeatures();
         this.olLayer.removeAllFeatures({'silent': true});
     },
+    /**
+     * Stores list of features for later use
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector[]} features
+     */
     storeFeatures: function(features) {
         var self = this;
         $.each(features, function(idx, feature) {
@@ -1306,6 +1313,13 @@ $.extend(gbi.Layers.Vector.prototype, {
             $(self).trigger('gbi.layer.vector.featuresStored', self);
         }
     },
+    /**
+     * Stores feature for later use
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature
+     */
     storeFeature: function(feature) {
         var self = this;
         if($.inArray(feature, self._storedFeatures) === -1) {
@@ -1313,11 +1327,24 @@ $.extend(gbi.Layers.Vector.prototype, {
             $(self).trigger('gbi.layer.vector.featureStored', self);
         }
     },
+    /**
+     * Clear list of stored features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     clearStoredFeatures: function() {
         var self = this;
         self._storedFeatures = [];
         $(self).trigger('gbi.layer.vector.featureStoreCleared', self);
     },
+    /**
+     * Remove single feature from list of stored features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature
+     */
     removeStoredFeature: function(feature) {
         var self = this
         var idx = $.inArray(feature, self._storedFeatures);
@@ -1326,18 +1353,43 @@ $.extend(gbi.Layers.Vector.prototype, {
             $(self).trigger('gbi.layer.vector.unstoredFeature', self);
         }
     },
+    /**
+     * Remove list of features from list of stored features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector[]} features
+     */
     removeStoredFeatures: function(features) {
         var self = this;
         $.each(features, function(idx, feature) {
             self.removeStoredFeature(feature);
         });
     },
+    /**
+     * Get list of stored features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     storedFeatures: function() {
         return this._storedFeatures;
     },
+    /**
+     * Get all selected features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     selectedFeatures: function() {
         return this.olLayer.selectedFeatures;
     },
+    /**
+     * Check if layer have stored features
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     */
     hasSelectedFeatures: function() {
         return this.olLayer.selectedFeatures.length > 0;
     }
