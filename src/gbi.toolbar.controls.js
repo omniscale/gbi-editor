@@ -1127,7 +1127,7 @@ gbi.Controls.Measure = function(options, callback, symbolizers) {
             pointRadius: 4,
             graphicName: "square",
             fillColor: "white",
-            fillOpacity: 1,
+            fillOpacity: 0.25,
             strokeWidth: 1,
             strokeOpacity: 1,
             strokeColor: "#333333"
