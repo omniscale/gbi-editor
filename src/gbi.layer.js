@@ -573,8 +573,8 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
      * @param {Boolean} temporary Don't save the style if layer is saveable
      */
-    setStyle: function(symbolizers, temporary) {
-        this._setStyle(symbolizers, temporary);
+    setStyle: function(symbolizers, temporary, context) {
+        this._setStyle(symbolizers, temporary, context);
         if(!temporary) {
             this.customStyle = true;
             $(this).trigger('gbi.layer.vector.styleChanged');
@@ -589,7 +589,7 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @param {Object} symbolizers Object with styling informations. See {@link http://docs.openlayers.org/library/feature_styling.html|OpenLayers Styling}
      * @param {Boolean} temporary Don't save the style if layer is saveable
      */
-    _setStyle: function(symbolizers, temporary) {
+    _setStyle: function(symbolizers, temporary, context) {
         var applySymbolizers;
         if(temporary) {
             applySymbolizers = $.extend(true, {}, this.symbolizers, symbolizers)
@@ -608,6 +608,13 @@ $.extend(gbi.Layers.Vector.prototype, {
                 "default": style,
                 "select": this.selectStyle
             });
+        }
+        if(context !== undefined) {
+            if(this.olLayer.styleMap.styles['default'].context) {
+                $.extend(this.olLayer.styleMap.styles['default'].context, context)
+            } else {
+                this.olLayer.styleMap.styles['default'].context = context;
+            }
         }
         this._applyFilterOptions();
         this.olLayer.redraw();
