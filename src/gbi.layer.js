@@ -418,7 +418,7 @@ gbi.Layers.Vector = function(options) {
         strokeColor: "#ee9900"
       },
       "Line": {
-        strokeWidth: 1,
+        strokeWidth: 2,
         strokeOpacity: 1,
         strokeColor: "#ee9900"
        },
