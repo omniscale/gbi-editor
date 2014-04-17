@@ -156,7 +156,6 @@ OpenLayers.Control.SplitFeature = OpenLayers.Class(OpenLayers.Control, {
 
             var feature = new OpenLayers.Feature.Vector(this.olFromJsts.write(polygon), OpenLayers.Util.extend({}, polygonFeature.attributes));
             feature.state = OpenLayers.State.INSERT;
-            feature.attributes = polygonFeature.attributes;
             newFeatures.push(feature);
         }
         this._deleteFeature(polygonFeature);
