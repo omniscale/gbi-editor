@@ -705,7 +705,6 @@ $.extend(gbi.Controls.Hover.prototype, {
      */
     _createControl: function() {
         var olControl = new OpenLayers.Control.ImprovedSelectFeature(this.layer.olLayer, this.options);
-        olControl.handlers.feature.stopDown = false;
         return olControl;
     },
     /**
@@ -886,8 +885,6 @@ $.extend(gbi.Controls.Select.prototype, {
      */
     _createControl: function() {
         var olControl = new OpenLayers.Control.ImprovedSelectFeature(this.olLayers(), this.options);
-        // don't stop handlers chain on mouseDown over feature
-        olControl.handlers.feature.stopDown = false;
         return olControl;
     }
 });
