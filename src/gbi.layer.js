@@ -415,19 +415,21 @@ gbi.Layers.Vector = function(options) {
         fillOpacity: 0.4,
         strokeWidth: 1,
         strokeOpacity: 1,
-        strokeColor: "#ee9900"
+        strokeColor: "#ee9900",
+        cursor: "pointer",
       },
       "Line": {
         strokeWidth: 2,
         strokeOpacity: 1,
-        strokeColor: "#ee9900"
+        strokeColor: "#ee9900",
+        cursor: "pointer",
        },
        "Polygon": {
         strokeWidth: 1,
         strokeOpacity: 1,
         strokeColor: "#ee9900",
         fillColor: "#ee9900",
-        fillOpacity: 0.4
+        fillOpacity: 0.4,cursor: "pointer"
        }
     };
     this.selectStyle = new OpenLayers.Style();
