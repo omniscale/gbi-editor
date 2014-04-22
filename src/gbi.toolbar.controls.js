@@ -242,19 +242,19 @@ $.extend(gbi.Controls.Draw.prototype, {
      */
     _createControl: function() {
         var self = this;
-        var olControl = new OpenLayers.Control.DrawFeature(this.layer.olLayer, this.drawHandler, this.options)
+        var olControl = new OpenLayers.Control.DrawFeature(self.layer.olLayer, self.drawHandler, self.options)
 
-        olControl.events.register('featureadded', this, this._featureAdded)
-        if(this.toolbar) {
-            $.each(this.olToolbar.controls, function(idx, control) {
-                if(control instanceof OpenLayers.Control.ImprovedSelectFeature) {
-                    this._olSelectControl = control;
+        olControl.events.register('featureadded', self, self._featureAdded)
+        if(self.toolbar) {
+            $.each(self.olToolbar.controls, function(idx, control) {
+                if(control.CLASS_NAME == 'OpenLayers.Control.ImprovedSelectFeature') {
+                    self._olSelectControl = control;
                     return true
                 }
             })
         }
-        if(this._olSelectControl === undefined) {
-            this._olSelectControl = new OpenLayers.Control.ImprovedSelectFeature(this.layer.olLayer);
+        if(self._olSelectControl === undefined) {
+            self._olSelectControl = new OpenLayers.Control.ImprovedSelectFeature(self.layer.olLayer);
         }
         return olControl;
     },
