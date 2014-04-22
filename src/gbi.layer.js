@@ -467,6 +467,7 @@ gbi.Layers.Vector = function(options) {
     this.isActive = false;
     this.isEditable = this.options.editable;
     this.loaded = true;
+    this.loading = false;
     this.customStyle = false;
     this.default_symbolizers = default_symbolizers;
     this.jsonSchema = this.jsonSchema || this.options.jsonSchema || false;
@@ -1493,8 +1494,10 @@ gbi.Layers.SaveableVector = function(options) {
     this.olLayer.events.register('loadend', '', function(response) {
         self.unsavedFeatureChanges = false;
 
+
         if(response && response.object && response.object.features.length == 0) {
             self.loaded = true;
+            self.loading = false
         }
 
         self.olLayer.events.register('featureadded', self, self._trackStatus);
@@ -1504,6 +1507,10 @@ gbi.Layers.SaveableVector = function(options) {
         self.features = self.olLayer.features;
 
         $(self).trigger('gbi.layer.saveableVector.loadFeaturesEnd');
+    });
+
+    this.olLayer.events.register('loadstart', '', function() {
+        self.loading = true;
     });
 
     $(this).on('gbi.layer.vector.featureAttributeChanged', function(event, feature) {
@@ -1862,6 +1869,7 @@ gbi.Layers.Couch = function(options) {
 
     this.registerEvent('featuresadded', this, function() {
         self.loaded = true;
+        self.loading = false;
         self.features = self.olLayer.features;
         $(this).on('gbi.layer.vector.featureAttributeChanged', function() {
             self.unsavedFeatureChanges = true;
@@ -2516,6 +2524,7 @@ gbi.Layers.WFS = function(options) {
     this.olLayer.events.register('loadend', '', function(response) {
         if(response && response.object && response.object.features.length == 0) {
             self.loaded = true;
+            self.loading = false;
         }
 
         self.features = self.olLayer.features;
