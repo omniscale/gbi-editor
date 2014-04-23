@@ -1305,7 +1305,9 @@ $.extend(gbi.Layers.Vector.prototype, {
      */
     clear: function(silent) {
         this.clearStoredFeatures();
+        this.features = [];
         this.olLayer.removeAllFeatures({'silent': silent !== false});
+        this.features = this.olLayer.features;
     },
     /**
      * Stores list of features for later use
