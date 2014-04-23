@@ -245,7 +245,7 @@ $.extend(gbi.Controls.Draw.prototype, {
         var olControl = new OpenLayers.Control.DrawFeature(self.layer.olLayer, self.drawHandler, self.options)
 
         olControl.events.register('featureadded', self, self._featureAdded)
-        if(self.toolbar) {
+        if(self.toolbar && self.olToolbar) {
             $.each(self.olToolbar.controls, function(idx, control) {
                 if(control.CLASS_NAME == 'OpenLayers.Control.ImprovedSelectFeature') {
                     self._olSelectControl = control;
