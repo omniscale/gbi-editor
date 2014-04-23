@@ -1303,9 +1303,9 @@ $.extend(gbi.Layers.Vector.prototype, {
      * @memberof gbi.Layers.Vector
      * @instance
      */
-    clear: function() {
+    clear: function(silent) {
         this.clearStoredFeatures();
-        this.olLayer.removeAllFeatures({'silent': true});
+        this.olLayer.removeAllFeatures({'silent': silent !== false});
     },
     /**
      * Stores list of features for later use
