@@ -229,7 +229,11 @@ $.extend(gbi.Controls.Draw.prototype, {
             this.replaceControl(layer);
         } else {
             this.olControl.layer = layer.olLayer;
-            this._olSelectControl.setLayer(layer.olLayer);
+            if($.inArray(layer.olLayer, this._olSelectControl.layers) == -1) {
+                var selectControlLayers = this._olSelectControl.layers || [];
+                this._olSelectControl.setLayer(selectControlLayers.concat([layer.olLayer]));
+            }
+
         }
     },
     /**
