@@ -1731,6 +1731,8 @@ gbi.Layers.Couch = function(options) {
 
     gbi.Layers.SaveableVector.call(this, $.extend(true, {}, defaults, options, couchExtension));
 
+    this.undeletable = self.options.undeletable || false;
+
     this.metadataDocument = {
         name: couch_name,
         title: self.options.title,
