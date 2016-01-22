@@ -102,7 +102,13 @@ gbi.LayerManager.prototype = {
         delete this._layers[id];
         $(gbi).trigger('gbi.layermanager.layer.remove');
         if(layer.isVector) {
-            delete this.vectorLayers[id];
+            if(this.vectorLayers[id] !== undefined) {
+                delete this.vectorLayers[id];
+            }
+            if(this.unshownLayers[id] !== undefined) {
+                delete this.unshownLayers[id];
+            }
+
             if(layer.isActive) {
                 this._activeLayer = false;
                 $(gbi).trigger('gbi.layermanager.layer.active', false);
