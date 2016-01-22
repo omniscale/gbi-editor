@@ -1028,6 +1028,21 @@ $.extend(gbi.Layers.Vector.prototype, {
         }
     },
     /**
+     * Unselects given feature
+     *
+     * @memberof gbi.Layers.Vector
+     * @instance
+     * @param {OpenLayers.Feature.Vector} feature
+     */
+    unSelectFeature: function(feature) {
+        var self = this;
+        if($.inArray(feature, self.features) != -1) {
+            var selectCtrl = new OpenLayers.Control.SelectFeature();
+            selectCtrl.unselect(feature);
+            selectCtrl.destroy();
+        }
+    },
+    /**
      * Selects given features
      *
      * @memberof gbi.Layers.Vector
